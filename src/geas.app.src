@@ -1,0 +1,12 @@
+{application, geas,
+ [
+  {description, "Guess Erlang Application Scattering"},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []},
+  {modules, []}
+ ]}.
