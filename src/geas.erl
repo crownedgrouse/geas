@@ -120,7 +120,8 @@ info(Dir) when is_list(Dir) ->
             AppType   = get_app_type(AppFile, EbinDir),
             Driver    = is_using_driver(CsrcDir),
             Native    = is_native(EbinDir),
-            Arch      = get_arch(),
+            Arch      = get_arch(Native, EbinDir),
+            Word      = get_word(),
             AppBeam   = filename:join(EbinDir, atom_to_list(AppName)++".beam"),
             Date      = get_date(AppBeam),
             Author    = get_author(AppBeam),
@@ -145,6 +146,7 @@ info(Dir) when is_list(Dir) ->
              {native, Native},
              {arch, Arch},
              {os, Os},
+             {word, Word},
              {author, Author},             
              {vcs, {VCS, VcsVsn, VcsUrl}},
              {maintainer, Maint},
@@ -439,15 +441,73 @@ is_using_driver(Dir) -> case filelib:is_dir(Dir) of
 %% dpkg-architecture -L
 %% @end
 %%-------------------------------------------------------------------------
--spec get_arch() -> integer().
+-spec get_word() -> integer().
 
-get_arch() -> N = erlang:system_info({wordsize, internal}) + 
+get_word() -> N = erlang:system_info({wordsize, internal}) + 
                   erlang:system_info({wordsize, external}),
               case N of
                    8 -> 32 ;
                   16 -> 64 ;
                   12 -> 64 
               end.
+
+%%-------------------------------------------------------------------------
+%% @doc Get arch of native compiled module, or local architecture otherwise
+%% @end
+%%-------------------------------------------------------------------------
+-spec get_arch(boolean(), term()) -> atom().
+
+get_arch(false, _) -> map_arch(erlang:system_info(hipe_architecture));
+
+get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
+                            [C] = lists:flatmap(fun(F) -> [get_arch_from_file(filename:join(EbinDir, F))] end, Beams),
+                            C.
+
+
+%%-------------------------------------------------------------------------
+%% @doc 
+%% @end
+%%-------------------------------------------------------------------------
+-spec get_arch_from_file(list()) -> atom().
+
+get_arch_from_file(File) -> Bn = filename:rootname(File, ".beam"),
+                            [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
+                            Fun = fun({X, _, _}) -> case X of
+                                                "Atom" -> true ;
+                                                "Code" -> true ;
+                                                "StrT" -> true ;
+                                                "ImpT" -> true ;
+                                                "ExpT" -> true ;
+                                                "FunT" -> true ;
+                                                "LitT" -> true ;
+                                                "LocT" -> true ;
+                                                "Attr" -> true ;
+                                                "CInf" -> true ;
+                                                "Abst" -> true ;
+                                                "Line" -> true ;
+                                                _      -> false 
+                                            end end,
+                            [{H, _, _}] = lists:dropwhile(Fun, C),
+                            case H of
+                                "HS8P" -> ultrasparc ;
+                                "HPPC" -> powerpc ;
+                                "HP64" -> ppc64 ;
+                                "HARM" -> arm ;
+                                "HX86" -> x86 ;
+                                "HA64" -> x86_64 ;
+                                "HSV9" -> ultrasparc ;
+                                "HW32" -> x86
+                            end.
+
+
+%%-------------------------------------------------------------------------
+%% @doc Map internal architecture atom to something else if needed
+%% @end
+%%-------------------------------------------------------------------------
+-spec map_arch(atom()) -> atom().
+
+map_arch(X) -> X.
+
 
 %%-------------------------------------------------------------------------
 %% @doc Check if something is compiled native
