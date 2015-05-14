@@ -126,6 +126,8 @@ info(Dir) when is_list(Dir) ->
             Date      = get_date(AppBeam),
             Author    = get_author(AppBeam),
             Os        = get_os(),
+            Erts      = get_erts_version(AppBeam),
+            Erlang    = get_erlang_version(Erts),
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
 
@@ -147,6 +149,8 @@ info(Dir) when is_list(Dir) ->
              {arch, Arch},
              {os, Os},
              {word, Word},
+             {erts, Erts},
+             {erlang, Erlang},
              {author, Author},             
              {vcs, {VCS, VcsVsn, VcsUrl}},
              {maintainer, Maint},
@@ -532,6 +536,17 @@ is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
                                lists:member(native, O).
 
 %%-------------------------------------------------------------------------
+%% @doc Get erts version
+%% @end
+%%-------------------------------------------------------------------------
+-spec get_erts_version(list()) -> list().
+
+get_erts_version(File) ->      Bn = filename:rootname(File, ".beam"),
+                               {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                               {version, E} = lists:keyfind(version, 1, L),
+                               E.
+
+%%-------------------------------------------------------------------------
 %% @doc Get application name, version, desc from .app file in ebin/ directory
 %% @end
 %%-------------------------------------------------------------------------
@@ -577,4 +592,30 @@ get_author(File) -> Bn = filename:rootname(File, ".beam"),
                         end,
                     A.
 
+%%-------------------------------------------------------------------------
+%% @doc Get {min, recommanded, max} Erlang version from erts version
+%%-------------------------------------------------------------------------
+get_erlang_version("6.0")       -> {"18.0-rc2", "18.0-rc2", "18.0-rc2"};
+get_erlang_version("5.0.4")     -> {"17.5", "17.5.3", "17.5.3"};
+get_erlang_version("5.0.3")     -> {"17.4", "17.4.1", "18.0-rc1"};
+get_erlang_version("5.0.2")     -> {"17.3", "17.3.4", "17.3.4"};
+get_erlang_version("5.0.1")     -> {"17.1", "17.2.2", "17.2.2"};
+get_erlang_version("5.0")       -> {"17.0", "17.0.2", "17.0.2"};
+get_erlang_version("4.9.4")     -> {"R16B03", "R16B03-1", "17.0-rc2"};
+get_erlang_version("4.9.3")     -> {"R16B02", "R16B02", "R16B02"};
+get_erlang_version("4.9.2")     -> {"R16B01", "R16B01", "R16B01"};
+get_erlang_version("4.9.1")     -> {"R16B", "R16B", "R16B"};
+get_erlang_version("4.8.2")     -> {"R15B02", "R15B03-1", "R15B03-1"};
+get_erlang_version("4.8.1")     -> {"R15B01", "R15B01", "R15B01"};
+get_erlang_version("4.8")       -> {"R15B", "R15B", "R15B"};
+get_erlang_version("4.7.5.pre") -> {"R15A", "R15A", "R15A"};
+get_erlang_version("4.7.5")     -> {"R14B04", "R14B04", "R14B04"};
+get_erlang_version("4.7.4")     -> {"R14B03", "R14B03", "R14B03"};
+get_erlang_version("4.7.3")     -> {"R14B02", "R14B02", "R14B02"};
+get_erlang_version("4.7.2")     -> {"R14B01", "R14B01", "R14B01"};
+get_erlang_version("4.7.1")     -> {"R14B", "R14B", "R14B"};
+get_erlang_version("4.7")       -> {"R14B", "R14B", "R14B"};
+get_erlang_version("4.6.5")     -> {"R13B04", "R13B04", "R13B04"};
+get_erlang_version("4.6.4")     -> {"R13B03", "R13B03", "R13B03"};
+get_erlang_version(_Erts)       -> undefined.
 

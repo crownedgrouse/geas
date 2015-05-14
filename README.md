@@ -28,23 +28,26 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
 
 ## Example ##
 ```
-> geas:info("."). 
+1> geas:info(".").
 {ok,[{name,geas},
      {version,"1.0.0"},
      {description,"Guess Erlang Application Scattering"},
      {type,lib},
-     {datetime,{2015,4,18,21,39,9}},
+     {datetime,{2015,5,14,10,56,42}},
      {native,true},
      {arch,x86},
      {os,{unix,linux,"3.13.0"}},
      {word,32},
+     {erts,"5.0.3"},
+     {erlang,{"17.4","17.4.1","18.0-rc1"}},
      {author,"Eric Pailleau <geas@crownedgrouse.com>"},
-     {vcs,{git,"e76c03310b5cc9f87aa8126baae41f9c9ff57e06",
+     {vcs,{git,"52f7ea4b3c29aa16e337cfd632f786a39d7ecada",
                "https://github.com/crownedgrouse/geas.git"}},
-     {maintainer,"crownedgrouse  <geas@crownedgrouse.com>"},
+     {maintainer,"crownedgrouse  <eric.pailleau@wanadoo.fr>"},
      {changelog,undefined},
      {releasenotes,undefined},
      {driver,false}]}
+
 ```
 
 
