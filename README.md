@@ -51,5 +51,16 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
      {driver,false}]}
 
 ```
+## Quick Start ##
 
+```
+git clone git://github.com/crownedgrouse/geas.git
+cd geas
+make
+erl -pa `pwd`/ebin
+```
+
+## Contributing ##
+
+Contributions are welcome. Please use pull-requests.
 
