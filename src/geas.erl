@@ -128,7 +128,7 @@ info(Dir) when is_list(Dir) ->
             Os        = get_os(),
             %Erts      = get_erts_version(AppBeam),
             Comp      = get_compile_version(AppBeam),
-            Erlang    = get_erlang_version(Erts),
+            Erlang    = get_erlang_version(Comp),
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
 
@@ -540,7 +540,7 @@ is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
 %% @doc Get compile module version
 %% @end
 %%-------------------------------------------------------------------------
--spec get_erts_version(list()) -> list().
+-spec get_compile_version(list()) -> list().
 
 get_compile_version(File) ->   Bn = filename:rootname(File, ".beam"),
                                {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
