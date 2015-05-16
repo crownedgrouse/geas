@@ -19,6 +19,8 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - arch [x86 | x86_64 | arm | powerpc | ppc64 | ultrasparc ] Architecture of native beam, otherwise local architecture.
    - os  Local OS
    - word [32 | 64] OS' Word length
+   - erts version string
+   - erlang {Min, Recommanded, Max} Erlang version string (Recommanded version is the highest non candidate version)
    - author (from beam content)
    - vcs  
    - maintainer (from vcs infos)
