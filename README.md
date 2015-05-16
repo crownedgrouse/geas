@@ -32,9 +32,12 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
 
 Only one function is exported : ``geas:info/1`` .
 
-Argument is expected to be a root project directory, and geas will look into ``ebin/`` and use vcs information if available.
-``geas`` will work on a simple directory containing ``.beam`` files, but some of the informations may be ``undefined`` in such case.
+Argument is expected to be a root project directory, and geas will look into ``ebin/`` and use vcs informations if available.
+
+``geas`` won't work on a simple directory containing ``.beam`` files. 
 ``geas`` won't work by passing a path to a ``.beam`` file.
+
+Informations may be set to ``undefined`` atom, in some cases, for example if no vcs infos are found.
 
 ## Example ##
 ```
