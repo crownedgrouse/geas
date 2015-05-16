@@ -19,7 +19,7 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - arch ``[x86 | x86_64 | arm | powerpc | ppc64 | ultrasparc ]`` Architecture of native beam, otherwise local architecture.
    - os  Local OS
    - word ``[32 | 64]`` OS' Word length
-   - erts version string
+   - compile module version string
    - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from erts version
    - author (from beam content)
    - vcs information tuple 
@@ -51,7 +51,7 @@ Informations may be set to ``undefined`` atom, in some cases, for example if no 
      {arch,x86},
      {os,{unix,linux,"3.13.0"}},
      {word,32},
-     {erts,"5.0.3"},
+     {compile,"5.0.3"},
      {erlang,{"17.4","17.4.1","18.0-rc1"}},
      {author,"Eric Pailleau <geas@crownedgrouse.com>"},
      {vcs,{git,"52f7ea4b3c29aa16e337cfd632f786a39d7ecada",
