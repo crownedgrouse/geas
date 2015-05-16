@@ -28,6 +28,14 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - releasenotes Releasenotes filename if any found
    - driver  (boolean) Project need to compile C code for a driver or a port    
 
+## API ##
+
+Only one function is exported : ``geas:info/1`` .
+
+Argument is expected to be a root project directory, and geas will look into ``ebin/`` and use vcs information if available.
+``geas`` will work on a simple directory containing ``.beam`` files, but some of the informations may be ``undefined`` in such case.
+``geas`` won't work by passing a path to a ``.beam`` file.
+
 ## Example ##
 ```
 1> geas:info(".").
