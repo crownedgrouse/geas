@@ -13,20 +13,20 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - name
    - version
    - description
-   - type [lib | otp | app | esc] for respectively application library, plain OTP application, non OTP application, escript.
+   - type ``[lib | otp | app | esc]`` for respectively application library, plain OTP application, non OTP application, escript.
    - datetime
-   - native [true | false] true if at least one module compiled native.
-   - arch [x86 | x86_64 | arm | powerpc | ppc64 | ultrasparc ] Architecture of native beam, otherwise local architecture.
+   - native ``[true | false]`` true if at least one module compiled native.
+   - arch ``[x86 | x86_64 | arm | powerpc | ppc64 | ultrasparc ]`` Architecture of native beam, otherwise local architecture.
    - os  Local OS
-   - word [32 | 64] OS' Word length
+   - word ``[32 | 64]`` OS' Word length
    - erts version string
-   - erlang {Min, Recommanded, Max} Erlang version string (Recommanded version is the highest non candidate version), guessed from erts version
+   - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from erts version
    - author (from beam content)
    - vcs information tuple 
    - maintainer (from vcs infos)
    - changelog  Changelog filename if any found
    - releasenotes Releasenotes filename if any found
-   - driver  Project need to compile C code for a driver or a port    
+   - driver  (boolean) Project need to compile C code for a driver or a port    
 
 ## Example ##
 ```
