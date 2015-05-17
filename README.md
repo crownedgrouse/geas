@@ -76,7 +76,7 @@ The purpose of this function is mainly to be used on ``.beam`` files in producti
 
 2> geas:what("ebin").
 {ok,[{name,geas},
-     {version,"1.0.0"},
+     {version,"1.1.0"},
      {description,"Guess Erlang Application Scattering"},
      {type,lib},
      {datetime,{2015,5,17,20,43,8}},
