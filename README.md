@@ -20,7 +20,7 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - os  Local OS
    - word ``[32 | 64]`` OS' Word length
    - compile module version string
-   - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from erts version
+   - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from compiler version
    - author (from beam content)
    - vcs information tuple 
    - maintainer (from vcs infos)
