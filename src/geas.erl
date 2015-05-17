@@ -25,79 +25,24 @@
 -module(geas).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([info/1]).
+-export([info/1, what/1]).
 
-% beam_lib:version(Beam) ->
-%           {ok, {module(), [Version :: term()]}} |
-%           {error, beam_lib, chnk_rsn()}
-
-% build_type
-% c_compiler_used
-% driver_version
-% machine
-% otp_release
-% smp_support
-% erlang:system_info(system_architecture).
-%  "i686-pc-linux-gnu"
-% threads
-% version
-% 
-
-%    Solaris 8, 9
-%        Sparc32
-%        Sparc64
-%    Solaris 10
-%        Sparc32
-%        Sparc64
-%        x86
-%    SuSE Linux/GNU 9.4, 10.1
-%        x86 
-%    SuSE Linux/GNU 10.0, 10.1, 11.0
-%        x86
-%        x86_64
-%    openSuSE 11.4 (Celadon)
-%        x86_64 (valgrind) 
-%    Fedora 7
-%        PowerPC 
-%    Fedora 16
-%        x86_64 
-%    Gentoo Linux/GNU 1.12.11.1
-%        x86 
-%    Ubuntu Linux/GNU 7.04, 10.04, 10.10, 11.04, 12.04
-%        x86_64 
-%    MontaVista Linux/GNU 4.0.1
-%        PowerPC 
-%    FreeBSD 10.0
-%        x86 
-%    OpenBSD 5.4
-%        x86_64 
-%    OS X 10.5.8 (Leopard), 10.7.5 (Lion), 10.9.1 (Mavericks)
-%        x86 
-%    Windows XP SP3, 2003, Vista, 7
-%        x86 
-%    Windows 7
-%        x86_64 
-
-% Daily Cross Builds:
-%    SuSE Linux/GNU 10.1 x86 -> SuSE Linux/GNU 10.1 x86_64
-%    SuSE Linux/GNU 10.1 x86_64 -> Linux/GNU TILEPro64
-
-% Daily Cross Build Tests:
-%    SuSE Linux/GNU 10.1 x86_64 
-
-
-
-% beam_lib:chunks("/home/eric/git/swab/ebin/swab", [compile_info]). 
-%{ok,{swab,[{compile_info,[{options,[{outdir,"/home/eric/git/swab/ebin"},
-%                                    {i,"/home/eric/git/swab/include"},
-%                                    warn_obsolete_guard,warn_shadow_vars,warn_export_vars,
-%                                    warn_export_all,debug_info]},
-%                          {version,"5.0"},
-%                          {time,{2014,9,7,20,49,46}},
-%                          {source,"/home/eric/git/swab/src/swab.erl"}]}]}}
-
-% erlang modules {attributes,[{app_vsn,"snmp-4.25.1"}
-% erlang modules {ok, C, _}= erl_scan:string(binary_to_list(B)).
+-define(COMMON_DIR(Dir),
+            AppFile   = get_app_file(Dir),
+            % Informations inventory
+            {AppName, Version , Desc}  = get_app_infos(AppFile),
+            AppType   = get_app_type(AppFile, Dir),
+            Native    = is_native(Dir),
+            Arch      = get_arch(Native, Dir),
+            Word      = get_word(),
+            AppBeam   = filename:join(Dir, atom_to_list(AppName)++".beam"),
+            Date      = get_date(AppBeam),
+            Author    = get_author(AppBeam),
+            Os        = get_os(),
+            %Erts      = get_erts_version(AppBeam),
+            Comp      = get_compile_version(AppBeam),
+            Erlang    = get_erlang_version(Comp)
+).
 
 %%-------------------------------------------------------------------------
 %% @doc Return infos after application directory analysis
@@ -114,21 +59,8 @@ info(Dir) when is_list(Dir) ->
             % Variables
             EbinDir   = filename:join(Dir, "ebin"),
             CsrcDir   = filename:join(Dir, "c_src"),
-            AppFile   = get_app_file(EbinDir),
-            % Informations inventory
-            {AppName, Version , Desc}  = get_app_infos(AppFile),
-            AppType   = get_app_type(AppFile, EbinDir),
             Driver    = is_using_driver(CsrcDir),
-            Native    = is_native(EbinDir),
-            Arch      = get_arch(Native, EbinDir),
-            Word      = get_word(),
-            AppBeam   = filename:join(EbinDir, atom_to_list(AppName)++".beam"),
-            Date      = get_date(AppBeam),
-            Author    = get_author(AppBeam),
-            Os        = get_os(),
-            %Erts      = get_erts_version(AppBeam),
-            Comp      = get_compile_version(AppBeam),
-            Erlang    = get_erlang_version(Comp),
+            ?COMMON_DIR(EbinDir) ,
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
 
@@ -163,6 +95,80 @@ info(Dir) when is_list(Dir) ->
        after
            ok = file:set_cwd(CurPwd)
        end.
+
+%%-------------------------------------------------------------------------
+%% @doc Return infos on .beam file(s) only
+%% @end
+%%-------------------------------------------------------------------------
+-spec what(list()) -> tuple().
+
+what(Dir) when is_list(Dir) -> 
+        {ok, CurPwd} = file:get_cwd(),
+        try
+            Output = case filelib:is_regular(Dir) of  
+                        true  -> what_beam(Dir);
+                        false -> what_dir(Dir)
+                     end,
+            Output
+        catch
+           throw:Reason -> {error, Reason}
+        after
+           ok = file:set_cwd(CurPwd)
+        end.
+
+%%-------------------------------------------------------------------------
+%% @doc Return infos on .beam file(s) only
+%% @end
+%%-------------------------------------------------------------------------
+-spec what_dir(list()) -> tuple().
+
+what_dir(Dir) ->           
+            ?COMMON_DIR(Dir) ,
+            {ok,
+                [{name, AppName},
+                 {version, Version}, 
+                 {description, Desc},
+                 {type, AppType},
+                 {datetime, Date},
+                 {native, Native},
+                 {arch, Arch},
+                 {os, Os},
+                 {word, Word},
+                 {compile, Comp},
+                 {erlang, Erlang},
+                 {author, Author}]}.
+
+%%-------------------------------------------------------------------------
+%% @doc what/1 on a single beam file
+%% @end
+%%-------------------------------------------------------------------------
+-spec what_beam(list()) -> tuple().
+
+what_beam(File) ->         
+            {ok,{Name,[Version]}} = beam_lib:version(File),   
+            AppType   = get_app_type_beam(File),
+            Native    = is_native_from_file(File),
+            Arch      = get_arch_from_file(File),
+            Word      = get_word(),
+            Date      = get_date(File),
+            Author    = get_author(File),
+            Os        = get_os(),
+            %Erts      = get_erts_version(AppBeam),
+            Comp      = get_compile_version(File),
+            Erlang    = get_erlang_version(Comp),
+
+            {ok,
+                [{name, Name},
+                 {version, Version}, 
+                 {type, AppType},
+                 {datetime, Date},
+                 {native, Native},
+                 {arch, Arch},
+                 {os, Os},
+                 {word, Word},
+                 {compile, Comp},
+                 {erlang, Erlang},
+                 {author, Author}]}.
 
 %%-------------------------------------------------------------------------
 %% @doc Is the directory existing and readable ?
@@ -235,6 +241,29 @@ get_app_type(AppFile, Ebindir) ->
                                            end  
                       end
         end.
+
+%%-------------------------------------------------------------------------
+%% @doc  get type from file
+%% @end
+%%-------------------------------------------------------------------------
+-spec get_app_type_beam(list()) -> atom().
+
+get_app_type_beam(File) ->
+                 % start/2 and stop/1 ?
+                     {ok,{_,[{exports, L}]}} = beam_lib:chunks(File, [exports]),
+                     case (lists:member({start, 2}, L) and 
+                           lists:member( {stop, 1}, L)) of
+                            true  -> otp ;
+                            false -> case ((lists:member({start, 0}, L) or lists:member({start, 1}, L)) and
+                                           (lists:member( {stop, 0}, L) or lists:member( {stop, 1}, L))) of
+                                            true  -> app ;
+                                            false -> % 'escript' ?
+                                                     case lists:member({main, 1}, L) of
+                                                        true  -> esc ;
+                                                        false -> lib 
+                                                    end  
+                                    end
+                     end .
 
 %%-------------------------------------------------------------------------
 %% @doc Find .app filename in ebin 
@@ -457,7 +486,7 @@ get_word() -> N = erlang:system_info({wordsize, internal}) +
               end.
 
 %%-------------------------------------------------------------------------
-%% @doc Get arch of native compiled module, or local architecture otherwise
+%% @doc Get arch of native compiled modules, or local architecture otherwise
 %% @end
 %%-------------------------------------------------------------------------
 -spec get_arch(boolean(), term()) -> atom().
@@ -468,9 +497,8 @@ get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
                             [C] = lists:flatmap(fun(F) -> [get_arch_from_file(filename:join(EbinDir, F))] end, Beams),
                             C.
 
-
 %%-------------------------------------------------------------------------
-%% @doc 
+%% @doc Get arch of a native compiled module
 %% @end
 %%-------------------------------------------------------------------------
 -spec get_arch_from_file(list()) -> atom().
@@ -492,18 +520,19 @@ get_arch_from_file(File) -> Bn = filename:rootname(File, ".beam"),
                                                 "Line" -> true ;
                                                 _      -> false 
                                             end end,
-                            [{H, _, _}] = lists:dropwhile(Fun, C),
-                            case H of
-                                "HS8P" -> ultrasparc ;
-                                "HPPC" -> powerpc ;
-                                "HP64" -> ppc64 ;
-                                "HARM" -> arm ;
-                                "HX86" -> x86 ;
-                                "HA64" -> x86_64 ;
-                                "HSV9" -> ultrasparc ;
-                                "HW32" -> x86
+                            case lists:dropwhile(Fun, C) of
+                                 [] ->  get_arch(false, File) ;
+                                 [{H, _, _}] -> case H of
+                                                    "HS8P" -> ultrasparc ;
+                                                    "HPPC" -> powerpc ;
+                                                    "HP64" -> ppc64 ;
+                                                    "HARM" -> arm ;
+                                                    "HX86" -> x86 ;
+                                                    "HA64" -> x86_64 ;
+                                                    "HSV9" -> ultrasparc ;
+                                                    "HW32" -> x86
+                                                end
                             end.
-
 
 %%-------------------------------------------------------------------------
 %% @doc Map internal architecture atom to something else if needed
