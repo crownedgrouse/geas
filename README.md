@@ -8,7 +8,7 @@ Guess Erlang Application Scattering
 
 By extension, obligation or prohibition imposed by an Erlang application or module, which may modify its scattering.
 
-``geas`` give below informations on an Erlang repository content, even without source code :
+``geas`` give below informations on an Erlang repository content, even without source code, or from .beam files :
 
    - name
    - version
