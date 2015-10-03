@@ -624,7 +624,9 @@ get_author(File) -> Bn = filename:rootname(File, ".beam"),
 
 %%-------------------------------------------------------------------------
 %% @doc Get {min, recommanded, max} Erlang version from erts version
+%% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
 %%-------------------------------------------------------------------------
+get_erlang_version("6.0.1")     -> {"18.1", "18.1", "18.1"};
 get_erlang_version("6.0")       -> {"18.0-rc2", "18.0-rc2", "18.0-rc2"};
 get_erlang_version("5.0.4")     -> {"17.5", "17.5.3", "17.5.3"};
 get_erlang_version("5.0.3")     -> {"17.4", "17.4.1", "18.0-rc1"};
