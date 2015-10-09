@@ -26,6 +26,7 @@
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
 -export([info/1, what/1]).
+-export([release_infos/0, release_infos/1]).
 
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
@@ -649,5 +650,60 @@ get_erlang_version("4.7.1")     -> {"R14B", "R14B", "R14B"};
 get_erlang_version("4.7")       -> {"R14B", "R14B", "R14B"};
 get_erlang_version("4.6.5")     -> {"R13B04", "R13B04", "R13B04"};
 get_erlang_version("4.6.4")     -> {"R13B03", "R13B03", "R13B03"};
-get_erlang_version(_Erts)       -> undefined.
+get_erlang_version(_)           -> undefined.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Guessing the minimal Erlang release usable with a .beam
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%-------------------------------------------------------------------------
+%% @doc Return Erlang Release info
+%%-------------------------------------------------------------------------
+release_infos() -> R = [{otp_release, list_to_atom(erlang:system_info(otp_release))}, 
+                        {version, list_to_atom(erlang:system_info(version))}],
+                   MF = release_fa(),
+                   [R, MF] .
+
+release_infos(yaml) -> yamlize(release_infos()).
+
+release_fa() ->    M = lists:sort(erlang:loaded()),
+                   % For each module get the functions and arity
+                   MF = lists:map(fun(X) ->  {X, lists:map(fun({F, A}) -> 
+                                                            list_to_atom(atom_to_list(F)++"/"++integer_to_list(A)) 
+                                                           end, lists:sort(X:module_info(exports)))} 
+                                  end, M),
+                   {mfa, MF}.
+
+release_diff(R1, R2) -> ok.
+
+
+release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
+
+%%-------------------------------------------------------------------------
+%% @doc YAMLize an Erlang Term
+%%-------------------------------------------------------------------------
+yamlize(X) -> yamlize(X, standard_io ).
+
+yamlize(X, Io) -> io:format(Io, "%YAML 1.2~n---~n", []),
+                  yamlize(X, 0, Io),
+                  io:format(Io, "...~n", []) .
+
+yamlize(A, D, Io) when is_atom(A) 
+                  -> io:format(Io,"~s- ~s~n",[string:copies(" ", (D * 3)), A]);
+
+yamlize({A, B}, D, Io) when is_list(B) 
+                       -> io:format(Io,"~s- ~s:~n",[string:copies(" ", (D * 3)), A]),
+                          yamlize(B, (D + 1), Io);
+
+yamlize({A, B}, D, Io) -> io:format(Io,"~s- ~s: ~s~n",[string:copies(" ", (D * 3)), A, B]);
+
+yamlize([H | T], D, Io) when is_atom(H) 
+                        -> yamlize(H, D, Io),
+                           yamlize(T, D, Io);
+
+yamlize([H | T], D, Io) -> yamlize(H, D + 1, Io),
+                           lists:map(fun(B) -> yamlize(B, D + 1, Io) end, T);
+
+yamlize([], D, Io) -> ok.
+
 
