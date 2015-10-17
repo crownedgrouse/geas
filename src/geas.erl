@@ -26,7 +26,7 @@
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
 -export([info/1, what/1]).
--export([release_infos/0, release_infos/1]).
+-export([release_infos/0, release_infos/1, release_infos/2]).
 
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
@@ -662,9 +662,13 @@ get_erlang_version(_)           -> undefined.
 release_infos() -> R = [{otp_release, list_to_atom(erlang:system_info(otp_release))}, 
                         {version, list_to_atom(erlang:system_info(version))}],
                    MF = release_fa(),
-                   [R, MF] .
+                   lists:flatten([R, MF]) .
 
 release_infos(yaml) -> yamlize(release_infos()).
+
+release_infos(yaml, File) ->  {ok, Io} = file:open(File, [write]),
+                              yamlize(release_infos(), Io),
+                              file:close(Io).
 
 release_fa() ->    M = lists:sort(erlang:loaded()),
                    % For each module get the functions and arity
@@ -689,13 +693,13 @@ yamlize(X, Io) -> io:format(Io, "%YAML 1.2~n---~n", []),
                   io:format(Io, "...~n", []) .
 
 yamlize(A, D, Io) when is_atom(A) 
-                  -> io:format(Io,"~s- ~s~n",[string:copies(" ", (D * 3)), A]);
+                  -> io:format(Io,"~s- ~s~n",[string:copies("   ", D), A]);
 
 yamlize({A, B}, D, Io) when is_list(B) 
-                       -> io:format(Io,"~s- ~s:~n",[string:copies(" ", (D * 3)), A]),
-                          yamlize(B, (D + 1), Io);
+                       -> io:format(Io,"~s~s:~n",[string:copies("   ", D), A]),
+                          yamlize(B, D, Io);
 
-yamlize({A, B}, D, Io) -> io:format(Io,"~s- ~s: ~s~n",[string:copies(" ", (D * 3)), A, B]);
+yamlize({A, B}, D, Io) -> io:format(Io,"~s~s: ~s~n",[string:copies("   ", D ) , A, B]);
 
 yamlize([H | T], D, Io) when is_atom(H) 
                         -> yamlize(H, D, Io),
