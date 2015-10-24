@@ -27,7 +27,7 @@
 
 -export([info/1, what/1]).
 -export([release_infos/0, release_infos/1, release_infos/2]).
--export([release_diff/2, release_diff_yaml/2]).
+-export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
@@ -669,7 +669,15 @@ release_infos(yaml) -> yamlize(release_infos()).
 
 release_infos(yaml, File) ->  {ok, Io} = file:open(File, [write]),
                               yamlize(release_infos(), Io),
+                              file:close(Io);
+
+release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
+                              io:format(Io,"~p.~n",[release_infos()]),
                               file:close(Io).
+
+%%-------------------------------------------------------------------------
+%% @doc 
+%%-------------------------------------------------------------------------
 
 release_fa() ->    M = lists:sort(erlang:loaded()),
                    % For each module get the functions and arity
@@ -679,14 +687,25 @@ release_fa() ->    M = lists:sort(erlang:loaded()),
                                   end, M),
                    {mfa, MF}.
 
-release_diff(R1, R2) -> % List new modules
-                        NM = new_modules(R1, R2),
-                        % List removed modules
-                        RM = del_modules(R1, R2),
-                        % List new functions in common modules
-                        NFCM = new_funcs(R1, R2),
-                        % List removed functions in common modules
-                        RFCM = del_funcs(R1, R2),
+%%-------------------------------------------------------------------------
+%% @doc 
+%%-------------------------------------------------------------------------
+
+release_diff_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
+                                {ok, [BT]} = file:consult(F2),
+                                release_diff(AT, BT).
+
+release_diff_yaml_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
+                                     {ok, [BT]} = file:consult(F2),
+                                     release_diff_yaml(AT, BT).
+%%-------------------------------------------------------------------------
+%% @doc 
+%%-------------------------------------------------------------------------
+
+release_diff(R1, R2) -> % List new/deleted modules
+                        {NM, RM} = diff_modules(R1, R2),
+                        % List new/deleted functions in common modules
+                        {NFCM, RFCM } = diff_funcs(R1, R2),
                         [{modules, [{new, NM}, {del, RM}]}
                         ,{functions, [{new, NFCM}, {del, RFCM}]}
                         ].
@@ -694,13 +713,15 @@ release_diff(R1, R2) -> % List new modules
 
 release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
 
-new_modules(R1, R2) -> [].
+diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
+                         {mfa, M2} = lists:keyfind(mfa, 1, R2),
+                         LM1 = lists:flatmap(fun({X, _}) -> [X] end, M1),
+                         LM2 = lists:flatmap(fun({X, _}) -> [X] end, M2),
+                         {LM2 -- LM1, LM1 -- LM2}.
 
-del_modules(R1, R2) -> [].
 
-new_funcs(R1, R2) -> [].
+diff_funcs(R1, R2) -> [].
 
-del_funcs(R1, R2) -> [].
 
 %%-------------------------------------------------------------------------
 %% @doc YAMLize an Erlang Term
