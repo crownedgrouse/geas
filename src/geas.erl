@@ -27,6 +27,7 @@
 
 -export([info/1, what/1]).
 -export([release_infos/0, release_infos/1, release_infos/2]).
+-export([release_diff/2, release_diff_yaml/2]).
 
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
@@ -678,10 +679,28 @@ release_fa() ->    M = lists:sort(erlang:loaded()),
                                   end, M),
                    {mfa, MF}.
 
-release_diff(R1, R2) -> ok.
+release_diff(R1, R2) -> % List new modules
+                        NM = new_modules(R1, R2),
+                        % List removed modules
+                        RM = del_modules(R1, R2),
+                        % List new functions in common modules
+                        NFCM = new_funcs(R1, R2),
+                        % List removed functions in common modules
+                        RFCM = del_funcs(R1, R2),
+                        [{modules, [{new, NM}, {del, RM}]}
+                        ,{functions, [{new, NFCM}, {del, RFCM}]}
+                        ].
 
 
 release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
+
+new_modules(R1, R2) -> [].
+
+del_modules(R1, R2) -> [].
+
+new_funcs(R1, R2) -> [].
+
+del_funcs(R1, R2) -> [].
 
 %%-------------------------------------------------------------------------
 %% @doc YAMLize an Erlang Term
