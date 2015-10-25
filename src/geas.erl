@@ -26,7 +26,7 @@
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
 -export([info/1, what/1]).
--export([release_infos/0, release_infos/1, release_infos/2]).
+-export([release_infos/1, release_infos/2]).
 -export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
 -define(COMMON_DIR(Dir),
@@ -660,19 +660,22 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release info
 %%-------------------------------------------------------------------------
-release_infos() -> R = [{otp_release, list_to_atom(erlang:system_info(otp_release))}, 
-                        {version, list_to_atom(erlang:system_info(version))}],
-                   MF = release_fa(),
-                   lists:flatten([R, MF]) .
+release_infos(Rel) -> R = [{release, Rel},
+                           {otp_release, list_to_atom(erlang:system_info(otp_release))}, 
+                           {version, list_to_atom(erlang:system_info(version))},
+                           {driver_version, list_to_atom(erlang:system_info(driver_version))},
+                           {nif_version, list_to_atom(erlang:system_info(nif_version))}],
+                      MF = release_fa(),
+                      lists:flatten([R, MF]) .
 
-release_infos(yaml) -> yamlize(release_infos()).
+release_infos(Rel, yaml) -> yamlize(release_infos(Rel));
 
 release_infos(yaml, File) ->  {ok, Io} = file:open(File, [write]),
-                              yamlize(release_infos(), Io),
+                              yamlize(release_infos(filename:basename(File)), Io),
                               file:close(Io);
 
 release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
-                              io:format(Io,"~p.~n",[release_infos()]),
+                              io:format(Io,"~p.~n",[release_infos(filename:basename(File))]),
                               file:close(Io).
 
 %%-------------------------------------------------------------------------
@@ -706,8 +709,9 @@ release_diff(R1, R2) -> % List new/deleted modules
                         {NM, RM} = diff_modules(R1, R2),
                         % List new/deleted functions in common modules
                         {NFCM, RFCM } = diff_funcs(R1, R2),
-                        [{modules, [{new, NM}, {del, RM}]}
-                        ,{functions, [{new, NFCM}, {del, RFCM}]}
+                        [{from, ""}, {to, ""}
+                        ,{modules, [{new, NM}, {removed, RM}]}
+                        ,{functions, [{new, NFCM}, {removed, RFCM}]}
                         ].
 
 
@@ -720,7 +724,29 @@ diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
                          {LM2 -- LM1, LM1 -- LM2}.
 
 
-diff_funcs(R1, R2) -> [].
+diff_funcs(R1, R2) -> 
+                        {mfa, M1} = lists:keyfind(mfa, 1, R1),
+                        {mfa, M2} = lists:keyfind(mfa, 1, R2),
+
+                        NF = lists:flatmap(fun({X, L1}) -> case lists:keyfind(X, 1 , M2) of
+                                                            false   -> [] ;
+                                                            {_, L2} -> D = L2 -- L1,
+                                                                       case D of
+                                                                            [] -> [];
+                                                                            _  -> [{X, D}]
+                                                                       end
+                                                           end
+                                           end, M1),
+                        RF = lists:flatmap(fun({X, L2}) -> case lists:keyfind(X, 1 , M1) of
+                                                            false   -> [] ;
+                                                            {_, L1} -> D = L1 -- L2,
+                                                                       case D of
+                                                                            [] -> [];
+                                                                            _  -> [{X, D}]
+                                                                       end
+                                                           end
+                                           end, M2),
+                        {NF, RF}.
 
 
 %%-------------------------------------------------------------------------
