@@ -660,11 +660,14 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release info
 %%-------------------------------------------------------------------------
-release_infos(Rel) -> R = [{release, Rel},
+release_infos(Rel) -> R = [{release, list_to_atom(Rel)},
                            {otp_release, list_to_atom(erlang:system_info(otp_release))}, 
                            {version, list_to_atom(erlang:system_info(version))},
                            {driver_version, list_to_atom(erlang:system_info(driver_version))},
-                           {nif_version, list_to_atom(erlang:system_info(nif_version))}],
+                           {nif_version, list_to_atom(case catch erlang:system_info(nif_version) of
+                                                           {'EXIT', _} -> "undefined";
+                                                           V           -> V
+                                                      end)}],
                       MF = release_fa(),
                       lists:flatten([R, MF]) .
 
