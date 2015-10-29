@@ -29,6 +29,8 @@
 -export([release_infos/1, release_infos/2]).
 -export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
+-export([relinfo/1, relinfo/2]).
+
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
             % Informations inventory
@@ -660,6 +662,7 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release info
 %%-------------------------------------------------------------------------
+
 release_infos(Rel) -> R = [{release, list_to_atom(Rel)},
                            {otp_release, list_to_atom(erlang:system_info(otp_release))}, 
                            {version, list_to_atom(erlang:system_info(version))},
@@ -682,7 +685,7 @@ release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
                               file:close(Io).
 
 %%-------------------------------------------------------------------------
-%% @doc 
+%% @doc List module:function/arity of Erlang Release
 %%-------------------------------------------------------------------------
 
 release_fa() ->    M = lists:sort(erlang:loaded()),
@@ -694,31 +697,46 @@ release_fa() ->    M = lists:sort(erlang:loaded()),
                    {mfa, MF}.
 
 %%-------------------------------------------------------------------------
-%% @doc 
+%% @doc Release difference from two Release infos files
 %%-------------------------------------------------------------------------
 
 release_diff_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
                                 {ok, [BT]} = file:consult(F2),
                                 release_diff(AT, BT).
 
+%%-------------------------------------------------------------------------
+%% @doc Release difference from two files returned as YAML
+%%-------------------------------------------------------------------------
+
 release_diff_yaml_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
                                      {ok, [BT]} = file:consult(F2),
                                      release_diff_yaml(AT, BT).
+
 %%-------------------------------------------------------------------------
-%% @doc 
+%% @doc Release difference from two Release informations
+%% TODO Insert From and To Release name
 %%-------------------------------------------------------------------------
 
 release_diff(R1, R2) -> % List new/deleted modules
                         {NM, RM} = diff_modules(R1, R2),
                         % List new/deleted functions in common modules
+                        {_, From} = lists:keyfind(release, 1 , R1),
+                        {_, To} = lists:keyfind(release, 1 , R2),
                         {NFCM, RFCM } = diff_funcs(R1, R2),
-                        [{from, ""}, {to, ""}
+                        [{from, From}, {to, To}
                         ,{modules, [{new, NM}, {removed, RM}]}
                         ,{functions, [{new, NFCM}, {removed, RFCM}]}
                         ].
 
+%%-------------------------------------------------------------------------
+%% @doc Release difference from two Release informations in YAML
+%%-------------------------------------------------------------------------
 
 release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
+
+%%-------------------------------------------------------------------------
+%% @doc List modules difference between two releases infos
+%%-------------------------------------------------------------------------
 
 diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
                          {mfa, M2} = lists:keyfind(mfa, 1, R2),
@@ -726,6 +744,9 @@ diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
                          LM2 = lists:flatmap(fun({X, _}) -> [X] end, M2),
                          {LM2 -- LM1, LM1 -- LM2}.
 
+%%-------------------------------------------------------------------------
+%% @doc List functions difference between two releases infos
+%%-------------------------------------------------------------------------
 
 diff_funcs(R1, R2) -> 
                         {mfa, M1} = lists:keyfind(mfa, 1, R1),
@@ -755,6 +776,7 @@ diff_funcs(R1, R2) ->
 %%-------------------------------------------------------------------------
 %% @doc YAMLize an Erlang Term
 %%-------------------------------------------------------------------------
+
 yamlize(X) -> yamlize(X, standard_io ).
 
 yamlize(X, Io) -> io:format(Io, "%YAML 1.2~n---~n", []),
@@ -778,5 +800,27 @@ yamlize([H | T], D, Io) -> yamlize(H, D + 1, Io),
                            lists:map(fun(B) -> yamlize(B, D + 1, Io) end, T);
 
 yamlize([], D, Io) -> ok.
+
+%%-------------------------------------------------------------------------
+%% @doc Create relinfo files in priv directory
+%%-------------------------------------------------------------------------
+
+relinfo([Rel, Dir]) -> relinfo(Rel, Dir).
+
+relinfo(Rel, Dir) -> relinfo_term(Rel, Dir),
+                     relinfo_yaml(Rel, Dir).
+
+relinfo_term(Rel, Dir) -> DirTerm = filename:join(Dir,"term"),
+                          filelib:ensure_dir(filename:join(DirTerm,"fakedir")),
+                          Target = filename:join(DirTerm, Rel),
+                          release_infos(term, Target).
+
+relinfo_yaml(Rel, Dir) -> DirYaml = filename:join(Dir,"yaml"),
+                          filelib:ensure_dir(filename:join(DirYaml,"fakedir")),
+                          Target = filename:join(DirYaml, Rel),
+                          release_infos(yaml, Target).
+
+
+
 
 
