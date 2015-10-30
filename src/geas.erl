@@ -780,7 +780,7 @@ diff_funcs(R1, R2) ->
 yamlize(X) -> yamlize(X, standard_io ).
 
 yamlize(X, Io) -> io:format(Io, "%YAML 1.2~n---~n", []),
-                  yamlize(X, 0, Io),
+                  yamlize(X, -1, Io),
                   io:format(Io, "...~n", []) .
 
 yamlize(A, D, Io) when is_atom(A) 
