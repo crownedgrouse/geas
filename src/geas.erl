@@ -29,7 +29,7 @@
 -export([release_infos/1, release_infos/2]).
 -export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
--export([relinfo/1, relinfo/2]).
+-export([relinfo/1, relinfo/2, reldiff/4]).
 
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
@@ -714,7 +714,6 @@ release_diff_yaml_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations
-%% TODO Insert From and To Release name
 %%-------------------------------------------------------------------------
 
 release_diff(R1, R2) -> % List new/deleted modules
@@ -734,6 +733,18 @@ release_diff(R1, R2) -> % List new/deleted modules
 
 release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
 
+%%-------------------------------------------------------------------------
+%% @doc Release difference from two Release informations in YAML file
+%%-------------------------------------------------------------------------
+release_diffs(yaml, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
+                                          yamlize(release_diff(Rel1, Rel2), Io),
+                                          file:close(Io);
+%%-------------------------------------------------------------------------
+%% @doc Release difference from two Release informations in term file
+%%-------------------------------------------------------------------------
+release_diffs(term, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
+                                          io:format(Io,"~p~n",[release_diff(Rel1, Rel2)]),
+                                          file:close(Io).
 %%-------------------------------------------------------------------------
 %% @doc List modules difference between two releases infos
 %%-------------------------------------------------------------------------
@@ -820,7 +831,32 @@ relinfo_yaml(Rel, Dir) -> DirYaml = filename:join(Dir,"yaml"),
                           Target = filename:join(DirYaml, Rel),
                           release_infos(yaml, Target).
 
+%%-------------------------------------------------------------------------
+%% @doc Create relinfo files in priv directory
+%%-------------------------------------------------------------------------
 
+reldiff([{Rel1, Rel2}, DirSource, Dir]) -> reldiff(content(filename:join(DirSource, Rel1)), content(filename:join(DirSource, Rel2)), Dir).
+
+reldiff(Rel1, Rel2, DirSource, Dir) -> reldiff([{Rel1, Rel2}, DirSource, Dir]).
+
+reldiff(Rel1, Rel2, Dir) -> reldiff_term(Rel1, Rel2, Dir),
+                            reldiff_yaml(Rel1, Rel2, Dir).
+
+reldiff_term(Rel1, Rel2, Dir) -> DirTerm = filename:join(Dir,"term"),
+                                 filelib:ensure_dir(filename:join(DirTerm,"fakedir")),
+                                 {_, From} = lists:keyfind(release, 1 , Rel1),
+                                 {_, To} = lists:keyfind(release, 1 , Rel2),
+                                 Target = filename:join(DirTerm, atom_to_list(From) ++ "~" ++ atom_to_list(To)),
+                                 release_diffs(term, Rel1, Rel2, Target).
+
+reldiff_yaml(Rel1, Rel2, Dir) -> DirYaml = filename:join(Dir,"yaml"),
+                                 filelib:ensure_dir(filename:join(DirYaml,"fakedir")),
+                                 {_, From} = lists:keyfind(release, 1 , Rel1),
+                                 {_, To} = lists:keyfind(release, 1 , Rel2),
+                                 Target = filename:join(DirYaml, atom_to_list(From) ++ "~" ++ atom_to_list(To)),
+                                 release_diffs(yaml, Rel1, Rel2, Target).
+
+content(X) ->  {ok, [Res]} = file:consult(X), Res.
 
 
 

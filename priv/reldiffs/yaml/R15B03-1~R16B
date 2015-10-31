@@ -1,0 +1,63 @@
+%YAML 1.2
+---
+from: R15B03-1
+to: R16B
+modules:
+   new:
+   - erts_internal
+   removed:
+   - packages
+functions:
+   new:
+      application:
+      - get_env/3
+      code:
+      - get_mode/0
+      erlang:
+      - binary_to_float/1
+      - binary_to_integer/1
+      - binary_to_integer/2
+      - bitsize/1
+      - bitstr_to_list/1
+      - delete_element/2
+      - finish_loading/1
+      - float_to_binary/1
+      - float_to_binary/2
+      - float_to_list/2
+      - garbage_collect_message_area/0
+      - insert_element/3
+      - integer_to_binary/1
+      - integer_to_binary/2
+      - list_to_bitstr/1
+      - prepare_loading/2
+      error_handler:
+      - raise_undef_exception/3
+      file:
+      - allocate/3
+      - file_info/1
+      - list_dir_all/1
+      - read_link_all/1
+      inet:
+      - parse_address/1
+      - parse_ipv4_address/1
+      - parse_ipv4strict_address/1
+      - parse_ipv6_address/1
+      - parse_ipv6strict_address/1
+      - parse_strict_address/1
+      inet_parse:
+      - strict_address/1
+      prim_file:
+      - allocate/3
+      - is_translatable/1
+      - list_dir_all/1
+      - list_dir_all/2
+      - read_link_all/1
+      - read_link_all/2
+      proc_lib:
+      - format/2
+      ram_file:
+      - allocate/3
+   removed:
+      inet_parse:
+      - hosts_vxworks/1
+...

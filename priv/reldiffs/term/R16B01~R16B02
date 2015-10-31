@@ -1,0 +1,8 @@
+[{from,'R16B01'},
+ {to,'R16B02'},
+ {modules,[{new,[]},{removed,[]}]},
+ {functions,[{new,[{application,['ensure_all_started/1',
+                                 'ensure_all_started/2']},
+                   {inet,['ntoa/1']},
+                   {prim_inet,['open/4']}]},
+             {removed,[]}]}]

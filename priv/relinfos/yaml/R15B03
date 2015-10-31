@@ -248,44 +248,6 @@ mfa:
    - system_code_change/4
    - system_continue/3
    - system_terminate/4
-   dict:
-   - append/3
-   - append_list/3
-   - erase/2
-   - fetch/2
-   - fetch_keys/1
-   - filter/2
-   - find/2
-   - fold/3
-   - from_list/1
-   - is_key/2
-   - map/2
-   - merge/3
-   - module_info/0
-   - module_info/1
-   - new/0
-   - size/1
-   - store/3
-   - to_list/1
-   - update/3
-   - update/4
-   - update_counter/3
-   edlin:
-   - current_line/1
-   - edit_line/2
-   - edit_line1/2
-   - erase_inp/1
-   - erase_line/1
-   - init/0
-   - length_after/1
-   - length_before/1
-   - module_info/0
-   - module_info/1
-   - over_word/3
-   - prefix_arg/1
-   - prompt/1
-   - redraw_line/1
-   - start/1
    erl_distribution:
    - init/1
    - module_info/0
@@ -317,24 +279,6 @@ mfa:
    - module_info/1
    - new_bindings/0
    - partial_eval/1
-   erl_lint:
-   - bool_option/4
-   - exprs/2
-   - exprs_opt/3
-   - format_error/1
-   - is_guard_expr/1
-   - is_guard_test/1
-   - is_guard_test/2
-   - is_pattern_expr/1
-   - modify_line/2
-   - module/1
-   - module/2
-   - module/3
-   - module_info/0
-   - module_info/1
-   - used_vars/2
-   - value_option/3
-   - value_option/7
    erl_prim_loader:
    - get_cwd/0
    - get_cwd/1
@@ -970,6 +914,7 @@ mfa:
    - info/1
    - module_info/0
    - module_info/1
+   - reldiff/4
    - release_diff/2
    - release_diff_files/2
    - release_diff_yaml/2
@@ -1117,13 +1062,6 @@ mfa:
    - whereis_name/1
    - whereis_name/2
    - whereis_name_test/1
-   group:
-   - interfaces/1
-   - module_info/0
-   - module_info/1
-   - server/3
-   - start/2
-   - start/3
    heart:
    - clear_cmd/0
    - cycle/0
@@ -1644,26 +1582,6 @@ mfa:
    - update/3
    - update/4
    - update_counter/3
-   ordsets:
-   - add_element/2
-   - del_element/2
-   - filter/2
-   - fold/3
-   - from_list/1
-   - intersection/1
-   - intersection/2
-   - is_disjoint/2
-   - is_element/2
-   - is_set/1
-   - is_subset/2
-   - module_info/0
-   - module_info/1
-   - new/0
-   - size/1
-   - subtract/2
-   - to_list/1
-   - union/1
-   - union/2
    os:
    - cmd/1
    - find_executable/1
@@ -1851,28 +1769,39 @@ mfa:
    - start_link/5
    - translate_initial_call/1
    - wake_up/3
-   proplists:
-   - append_values/2
-   - compact/1
-   - delete/2
-   - expand/2
-   - get_all_values/2
-   - get_bool/2
-   - get_keys/1
-   - get_value/2
-   - get_value/3
-   - is_defined/2
-   - lookup/2
-   - lookup_all/2
+   queue:
+   - cons/2
+   - daeh/1
+   - drop/1
+   - drop_r/1
+   - filter/2
+   - from_list/1
+   - get/1
+   - get_r/1
+   - head/1
+   - in/2
+   - in_r/2
+   - init/1
+   - is_empty/1
+   - is_queue/1
+   - join/2
+   - lait/1
+   - last/1
+   - len/1
+   - liat/1
+   - member/2
    - module_info/0
    - module_info/1
-   - normalize/2
-   - property/1
-   - property/2
+   - new/0
+   - out/1
+   - out_r/1
+   - peek/1
+   - peek_r/1
+   - reverse/1
+   - snoc/2
    - split/2
-   - substitute_aliases/2
-   - substitute_negations/2
-   - unfold/1
+   - tail/1
+   - to_list/1
    ram_file:
    - advise/4
    - close/1
@@ -1940,43 +1869,6 @@ mfa:
    - stop/0
    - terminate/2
    - yield/1
-   sets:
-   - add_element/2
-   - del_element/2
-   - filter/2
-   - fold/3
-   - from_list/1
-   - intersection/1
-   - intersection/2
-   - is_disjoint/2
-   - is_element/2
-   - is_set/1
-   - is_subset/2
-   - module_info/0
-   - module_info/1
-   - new/0
-   - size/1
-   - subtract/2
-   - to_list/1
-   - union/1
-   - union/2
-   shell:
-   - history/1
-   - local_allowed/3
-   - module_info/0
-   - module_info/1
-   - non_local_allowed/3
-   - prompt_func/1
-   - results/1
-   - server/1
-   - server/2
-   - start/0
-   - start/1
-   - start/2
-   - start_restricted/1
-   - stop_restricted/0
-   - whereis_evaluator/0
-   - whereis_evaluator/1
    standard_error:
    - init/1
    - module_info/0
@@ -2060,16 +1952,13 @@ mfa:
    - encoding_to_bom/1
    - module_info/0
    - module_info/1
-   user_drv:
+   user:
    - interfaces/1
    - module_info/0
    - module_info/1
-   - server/2
-   - server/3
    - start/0
    - start/1
-   - start/2
-   - start/3
+   - start_out/0
    user_sup:
    - init/1
    - module_info/0

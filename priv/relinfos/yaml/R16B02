@@ -1,13 +1,15 @@
 %YAML 1.2
 ---
-release: R16B01
-otp_release: R16B01
-version: 5.10.2
-driver_version: 2.1
+release: R16B02
+otp_release: R16B02
+version: 5.10.3
+driver_version: 2.2
 nif_version: undefined
 mfa:
    application:
    - behaviour_info/1
+   - ensure_all_started/1
+   - ensure_all_started/2
    - ensure_started/1
    - ensure_started/2
    - get_all_env/0
@@ -1188,6 +1190,7 @@ mfa:
    - lock_socket/2
    - module_info/0
    - module_info/1
+   - ntoa/1
    - open/8
    - options/0
    - parse_address/1
@@ -1792,6 +1795,7 @@ mfa:
    - module_info/0
    - module_info/1
    - open/3
+   - open/4
    - peeloff/2
    - peername/1
    - recv/2

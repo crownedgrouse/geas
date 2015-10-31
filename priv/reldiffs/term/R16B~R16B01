@@ -1,0 +1,10 @@
+[{from,'R16B'},
+ {to,'R16B01'},
+ {modules,[{new,[prim_eval]},{removed,[]}]},
+ {functions,[{new,[{application,['ensure_started/1','ensure_started/2']},
+                   {erlang,['gather_gc_info_result/1']},
+                   {lists,['filtermap/2']},
+                   {sys,['get_state/1','get_state/2','replace_state/2',
+                         'replace_state/3']}]},
+             {removed,[{erts_internal,['port_get_data/1',
+                                       'port_set_data/2']}]}]}]

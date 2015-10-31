@@ -1,15 +1,13 @@
 %YAML 1.2
 ---
-release: R16B01
-otp_release: R16B01
-version: 5.10.2
+release: R16B
+otp_release: R16B
+version: 5.10.1
 driver_version: 2.1
 nif_version: undefined
 mfa:
    application:
    - behaviour_info/1
-   - ensure_started/1
-   - ensure_started/2
    - get_all_env/0
    - get_all_env/1
    - get_all_key/0
@@ -458,7 +456,6 @@ mfa:
    - garbage_collect/0
    - garbage_collect/1
    - garbage_collect_message_area/0
-   - gather_gc_info_result/1
    - gather_sched_wall_time_result/1
    - get/0
    - get/1
@@ -707,8 +704,10 @@ mfa:
    - port_command/3
    - port_connect/2
    - port_control/3
+   - port_get_data/1
    - port_info/1
    - port_info/2
+   - port_set_data/2
    ets:
    - all/0
    - delete/1
@@ -1526,7 +1525,6 @@ mfa:
    - dropwhile/2
    - duplicate/2
    - filter/2
-   - filtermap/2
    - flatlength/1
    - flatmap/2
    - flatten/1
@@ -1681,10 +1679,6 @@ mfa:
    - module_info/0
    - module_info/1
    - start/2
-   prim_eval:
-   - module_info/0
-   - module_info/1
-   - receive/2
    prim_file:
    - advise/4
    - allocate/3
@@ -2014,8 +2008,6 @@ mfa:
    - change_code/5
    - debug_options/1
    - get_debug/3
-   - get_state/1
-   - get_state/2
    - get_status/1
    - get_status/2
    - handle_debug/4
@@ -2034,8 +2026,6 @@ mfa:
    - print_log/1
    - remove/2
    - remove/3
-   - replace_state/2
-   - replace_state/3
    - resume/1
    - resume/2
    - statistics/2
