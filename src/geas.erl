@@ -688,9 +688,14 @@ release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
 %% @doc List module:function/arity of Erlang Release
 %%-------------------------------------------------------------------------
 
-release_fa() ->    application:load(stdlib),
-                   {ok, List} = application:get_key(stdlib,modules),
-                   lists:foreach(fun(X) -> X:module_info() end, List) ,
+release_fa() ->    {ok, AppsVsn} = file:list_dir(code:lib_dir()),
+                   Apps = lists:map(fun(A) -> [H | _] = string:tokens(A,[$-]), list_to_atom(H) end, AppsVsn),
+                   lists:foreach(fun(A) -> application:load(A),
+                                           case application:get_key(A,modules) of
+                                                {ok, List} -> lists:foreach(fun(X) -> catch X:module_info() end, List) ;
+                                                undefined  -> ok
+                                           end
+                                 end, Apps),
                    M = lists:sort(lists:delete(?MODULE,erlang:loaded())),
                    % For each module get the functions and arity
                    MF = lists:map(fun(X) ->  {X, lists:map(fun({F, A}) -> 
