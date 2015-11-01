@@ -688,7 +688,7 @@ release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
 %% @doc List module:function/arity of Erlang Release
 %%-------------------------------------------------------------------------
 
-release_fa() ->    M = lists:sort(erlang:loaded()),
+release_fa() ->    M = lists:sort(lists:delete(?MODULE,erlang:loaded())),
                    % For each module get the functions and arity
                    MF = lists:map(fun(X) ->  {X, lists:map(fun({F, A}) -> 
                                                             list_to_atom(atom_to_list(F)++"/"++integer_to_list(A)) 

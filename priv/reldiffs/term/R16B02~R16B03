@@ -1,0 +1,9 @@
+[{from,'R16B02'},
+ {to,'R16B03'},
+ {modules,[{new,[]},{removed,[]}]},
+ {functions,[{new,[{inet,['peernames/1','peernames/2','socknames/1',
+                          'socknames/2']},
+                   {os,['unsetenv/1']},
+                   {prim_inet,['peernames/1','peernames/2','socknames/1',
+                               'socknames/2']}]},
+             {removed,[]}]}]

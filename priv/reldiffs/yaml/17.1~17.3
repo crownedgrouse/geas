@@ -1,0 +1,20 @@
+%YAML 1.2
+---
+from: 17.1
+to: 17.3
+modules:
+   new:
+   removed:
+functions:
+   new:
+      erl_prim_loader:
+      - prim_read_file_info/3
+      - read_link_info/1
+      erlang:
+      - fun_info_mfa/1
+      prim_inet:
+      - fdopen/5
+   removed:
+      erl_prim_loader:
+      - prim_read_file_info/2
+...
