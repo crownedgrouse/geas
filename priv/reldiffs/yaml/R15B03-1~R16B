@@ -13,6 +13,19 @@ functions:
       - get_env/3
       code:
       - get_mode/0
+      edlin:
+      - current_chars/1
+      - start/2
+      epp:
+      - default_encoding/0
+      - encoding_to_string/1
+      - read_encoding/1
+      - read_encoding/2
+      - read_encoding_from_binary/1
+      - read_encoding_from_binary/2
+      - set_encoding/1
+      erl_scan:
+      - continuation_location/1
       erlang:
       - binary_to_float/1
       - binary_to_integer/1
@@ -46,6 +59,28 @@ functions:
       - parse_strict_address/1
       inet_parse:
       - strict_address/1
+      io:
+      - parse_erl_exprs/4
+      - parse_erl_form/4
+      - printable_range/0
+      - read/4
+      - scan_erl_exprs/4
+      - scan_erl_form/4
+      io_lib:
+      - deep_latin1_char_list/1
+      - format_prompt/2
+      - latin1_char_list/1
+      - printable_latin1_list/1
+      - write_char_as_latin1/1
+      - write_latin1_char/1
+      - write_latin1_string/1
+      - write_latin1_string/2
+      - write_string_as_latin1/1
+      - write_string_as_latin1/2
+      lib:
+      - format_call/5
+      - format_exception/7
+      - format_stacktrace/5
       prim_file:
       - allocate/3
       - is_translatable/1
@@ -57,7 +92,14 @@ functions:
       - format/2
       ram_file:
       - allocate/3
+      shell:
+      - strings/1
    removed:
+      erl_parse:
+      - package_segments/1
       inet_parse:
       - hosts_vxworks/1
+      io_lib:
+      - unicode_char_list/1
+      - write_unicode_string/2
 ...

@@ -11,6 +11,8 @@ functions:
       - set_primary_archive/4
       erl_prim_loader:
       - set_primary_archive/4
+      escript:
+      - parse_file/1
    removed:
       code:
       - set_primary_archive/3

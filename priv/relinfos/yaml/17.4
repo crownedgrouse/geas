@@ -96,6 +96,47 @@ mfa:
    - start_link/2
    - start_type/0
    - stop/1
+   array:
+   - default/1
+   - fix/1
+   - foldl/3
+   - foldr/3
+   - from_list/1
+   - from_list/2
+   - from_orddict/1
+   - from_orddict/2
+   - get/2
+   - is_array/1
+   - is_fix/1
+   - map/2
+   - module_info/0
+   - module_info/1
+   - new/0
+   - new/1
+   - new/2
+   - relax/1
+   - reset/2
+   - resize/1
+   - resize/2
+   - set/3
+   - size/1
+   - sparse_foldl/3
+   - sparse_foldr/3
+   - sparse_map/2
+   - sparse_size/1
+   - sparse_to_list/1
+   - sparse_to_orddict/1
+   - to_list/1
+   - to_orddict/1
+   base64:
+   - decode/1
+   - decode_to_string/1
+   - encode/1
+   - encode_to_string/1
+   - mime_decode/1
+   - mime_decode_to_string/1
+   - module_info/0
+   - module_info/1
    beam_lib:
    - all_chunks/1
    - build_module/1
@@ -192,6 +233,35 @@ mfa:
    - xm/1
    - y/1
    - y/2
+   calendar:
+   - date_to_gregorian_days/1
+   - date_to_gregorian_days/3
+   - datetime_to_gregorian_seconds/1
+   - day_of_the_week/1
+   - day_of_the_week/3
+   - gregorian_days_to_date/1
+   - gregorian_seconds_to_datetime/1
+   - is_leap_year/1
+   - iso_week_number/0
+   - iso_week_number/1
+   - last_day_of_the_month/2
+   - local_time/0
+   - local_time_to_universal_time/1
+   - local_time_to_universal_time/2
+   - local_time_to_universal_time_dst/1
+   - module_info/0
+   - module_info/1
+   - now_to_datetime/1
+   - now_to_local_time/1
+   - now_to_universal_time/1
+   - seconds_to_daystime/1
+   - seconds_to_time/1
+   - time_difference/2
+   - time_to_seconds/1
+   - universal_time/0
+   - universal_time_to_local_time/1
+   - valid_date/1
+   - valid_date/3
    code:
    - add_path/1
    - add_patha/1
@@ -254,6 +324,318 @@ mfa:
    - system_code_change/4
    - system_continue/3
    - system_terminate/4
+   dets:
+   - add_user/3
+   - all/0
+   - bchunk/2
+   - close/1
+   - delete/2
+   - delete_all_objects/1
+   - delete_object/2
+   - file_info/1
+   - first/1
+   - foldl/3
+   - foldr/3
+   - from_ets/2
+   - fsck/1
+   - fsck/2
+   - get_head_field/2
+   - info/1
+   - info/2
+   - init/2
+   - init_table/2
+   - init_table/3
+   - insert/2
+   - insert_new/2
+   - internal_close/1
+   - internal_open/3
+   - is_compatible_bchunk_format/2
+   - is_dets_file/1
+   - istart_link/1
+   - lookup/2
+   - lookup_keys/2
+   - match/1
+   - match/2
+   - match/3
+   - match_delete/2
+   - match_object/1
+   - match_object/2
+   - match_object/3
+   - member/2
+   - module_info/0
+   - module_info/1
+   - next/2
+   - open_file/1
+   - open_file/2
+   - pid2name/1
+   - remove_user/2
+   - repair_continuation/2
+   - safe_fixtable/2
+   - select/1
+   - select/2
+   - select/3
+   - select_delete/2
+   - slot/2
+   - start/0
+   - stop/0
+   - sync/1
+   - system_code_change/4
+   - system_continue/3
+   - system_terminate/4
+   - table/1
+   - table/2
+   - to_ets/2
+   - traverse/2
+   - update_counter/3
+   - verbose/0
+   - verbose/1
+   - view/1
+   - where/2
+   dets_server:
+   - all/0
+   - close/1
+   - code_change/3
+   - get_pid/1
+   - handle_call/3
+   - handle_cast/2
+   - handle_info/2
+   - init/1
+   - module_info/0
+   - module_info/1
+   - open_file/1
+   - open_file/2
+   - pid2name/1
+   - start/0
+   - start_link/0
+   - stop/0
+   - terminate/2
+   - users/1
+   - verbose/1
+   dets_sup:
+   - init/1
+   - module_info/0
+   - module_info/1
+   - start_link/0
+   dets_utils:
+   - all_allocated/1
+   - all_allocated_as_list/1
+   - all_free/1
+   - alloc/2
+   - alloc_many/4
+   - bad_object/2
+   - cache_lookup/4
+   - cache_size/1
+   - cmp/2
+   - code_to_type/1
+   - corrupt/2
+   - corrupt_file/2
+   - corrupt_reason/2
+   - debug_mode/0
+   - disk_map_segment/2
+   - disk_map_segment_p/2
+   - empty_free_lists/0
+   - family/1
+   - file_error/2
+   - find_allocated/4
+   - find_next_allocated/3
+   - free/3
+   - fwrite/3
+   - get_freelists/1
+   - init_alloc/1
+   - init_disk_map/1
+   - init_slots_from_old_file/2
+   - ipread/3
+   - is_empty_cache/1
+   - list_to_tree/1
+   - log2/1
+   - make_zeros/1
+   - mkeysearch/3
+   - mkeysort/2
+   - module_info/0
+   - module_info/1
+   - msort/1
+   - new_cache/1
+   - open/2
+   - position/2
+   - position/3
+   - position_close/3
+   - pread/2
+   - pread/4
+   - pread_close/4
+   - pread_n/3
+   - pwrite/2
+   - pwrite/3
+   - pwrite/4
+   - read_4/2
+   - read_n/2
+   - rename/2
+   - reset_cache/1
+   - stop_disk_map/0
+   - sync/1
+   - tree_to_bin/5
+   - truncate/2
+   - truncate/3
+   - type_to_code/1
+   - vformat/2
+   - write/2
+   - write_file/2
+   dets_v8:
+   - bulk_input/3
+   - cache_segps/3
+   - check_file_header/2
+   - db_hash/2
+   - do_perform_save/1
+   - file_info/1
+   - find_object/2
+   - fsck_input/4
+   - init_freelist/2
+   - initiate_file/11
+   - mark_dirty/1
+   - may_grow/3
+   - module_info/0
+   - module_info/1
+   - no_slots/1
+   - output_objs/4
+   - re_hash/2
+   - read_file_header/2
+   - scan_objs/8
+   - slot_objs/2
+   - sz2pos/1
+   - table_parameters/1
+   - v_segments/1
+   - write_cache/1
+   dets_v9:
+   - bchunk_init/2
+   - bulk_input/3
+   - cache_segps/3
+   - check_file_header/2
+   - compact_init/3
+   - db_hash/2
+   - do_perform_save/1
+   - file_info/1
+   - find_object/2
+   - fsck_input/4
+   - init_freelist/2
+   - initiate_file/11
+   - mark_dirty/1
+   - may_grow/3
+   - module_info/0
+   - module_info/1
+   - no_slots/1
+   - output_objs/4
+   - prep_table_copy/9
+   - read_bchunks/2
+   - read_file_header/2
+   - scan_objs/8
+   - slot_objs/2
+   - table_parameters/1
+   - try_bchunk_header/2
+   - v_segments/1
+   - write_cache/1
+   dict:
+   - append/3
+   - append_list/3
+   - erase/2
+   - fetch/2
+   - fetch_keys/1
+   - filter/2
+   - find/2
+   - fold/3
+   - from_list/1
+   - is_empty/1
+   - is_key/2
+   - map/2
+   - merge/3
+   - module_info/0
+   - module_info/1
+   - new/0
+   - size/1
+   - store/3
+   - to_list/1
+   - update/3
+   - update/4
+   - update_counter/3
+   digraph:
+   - add_edge/3
+   - add_edge/4
+   - add_edge/5
+   - add_vertex/1
+   - add_vertex/2
+   - add_vertex/3
+   - del_edge/2
+   - del_edges/2
+   - del_path/3
+   - del_vertex/2
+   - del_vertices/2
+   - delete/1
+   - edge/2
+   - edges/1
+   - edges/2
+   - get_cycle/2
+   - get_path/3
+   - get_short_cycle/2
+   - get_short_path/3
+   - in_degree/2
+   - in_edges/2
+   - in_neighbours/2
+   - info/1
+   - module_info/0
+   - module_info/1
+   - new/0
+   - new/1
+   - no_edges/1
+   - no_vertices/1
+   - out_degree/2
+   - out_edges/2
+   - out_neighbours/2
+   - sink_vertices/1
+   - source_vertices/1
+   - vertex/2
+   - vertices/1
+   digraph_utils:
+   - arborescence_root/1
+   - components/1
+   - condensation/1
+   - cyclic_strong_components/1
+   - is_acyclic/1
+   - is_arborescence/1
+   - is_tree/1
+   - loop_vertices/1
+   - module_info/0
+   - module_info/1
+   - postorder/1
+   - preorder/1
+   - reachable/2
+   - reachable_neighbours/2
+   - reaching/2
+   - reaching_neighbours/2
+   - strong_components/1
+   - subgraph/2
+   - subgraph/3
+   - topsort/1
+   edlin:
+   - current_chars/1
+   - current_line/1
+   - edit_line/2
+   - edit_line1/2
+   - erase_inp/1
+   - erase_line/1
+   - init/0
+   - length_after/1
+   - length_before/1
+   - module_info/0
+   - module_info/1
+   - over_word/3
+   - prefix_arg/1
+   - prompt/1
+   - redraw_line/1
+   - start/1
+   - start/2
+   edlin_expand:
+   - expand/1
+   - format_matches/1
+   - module_info/0
+   - module_info/1
    epp:
    - close/1
    - default_encoding/0
@@ -280,6 +662,17 @@ mfa:
    - scan_erl_form/1
    - set_encoding/1
    - set_encoding/2
+   erl_bits:
+   - as_list/1
+   - module_info/0
+   - module_info/1
+   - set_bit_type/2
+   - system_bitdefault/0
+   - system_bittypes/0
+   erl_compile:
+   - compile_cmdline/0
+   - module_info/0
+   - module_info/1
    erl_distribution:
    - init/1
    - module_info/0
@@ -311,6 +704,89 @@ mfa:
    - module_info/1
    - new_bindings/0
    - partial_eval/1
+   erl_expand_records:
+   - module/2
+   - module_info/0
+   - module_info/1
+   erl_internal:
+   - arith_op/2
+   - bif/2
+   - bif/3
+   - bool_op/2
+   - comp_op/2
+   - guard_bif/2
+   - list_op/2
+   - module_info/0
+   - module_info/1
+   - new_type_test/2
+   - old_bif/2
+   - old_type_test/2
+   - op_type/2
+   - send_op/2
+   - type_test/2
+   erl_lint:
+   - bool_option/4
+   - exprs/2
+   - exprs_opt/3
+   - format_error/1
+   - is_guard_expr/1
+   - is_guard_test/1
+   - is_guard_test/2
+   - is_pattern_expr/1
+   - modify_line/2
+   - module/1
+   - module/2
+   - module/3
+   - module_info/0
+   - module_info/1
+   - used_vars/2
+   - value_option/3
+   - value_option/7
+   erl_parse:
+   - abstract/1
+   - abstract/2
+   - format_error/1
+   - func_prec/0
+   - get_attribute/2
+   - get_attributes/1
+   - inop_prec/1
+   - max_prec/0
+   - module_info/0
+   - module_info/1
+   - normalise/1
+   - parse/1
+   - parse_and_scan/1
+   - parse_exprs/1
+   - parse_form/1
+   - parse_term/1
+   - preop_prec/1
+   - set_line/2
+   - tokens/1
+   - tokens/2
+   erl_posix_msg:
+   - message/1
+   - module_info/0
+   - module_info/1
+   erl_pp:
+   - attribute/1
+   - attribute/2
+   - expr/1
+   - expr/2
+   - expr/3
+   - expr/4
+   - exprs/1
+   - exprs/2
+   - exprs/3
+   - form/1
+   - form/2
+   - function/1
+   - function/2
+   - guard/1
+   - guard/2
+   - module_info/0
+   - module_info/1
+   - rule/1
+   - rule/2
    erl_prim_loader:
    - get_cwd/0
    - get_cwd/1
@@ -347,6 +823,23 @@ mfa:
    - token_info/2
    - tokens/3
    - tokens/4
+   erl_tar:
+   - add/3
+   - add/4
+   - close/1
+   - create/2
+   - create/3
+   - extract/1
+   - extract/2
+   - format_error/1
+   - init/3
+   - module_info/0
+   - module_info/1
+   - open/2
+   - t/1
+   - table/1
+   - table/2
+   - tt/1
    erlang:
    - !/2
    - */2
@@ -697,6 +1190,15 @@ mfa:
    - warning_msg/2
    - warning_report/1
    - warning_report/2
+   error_logger_file_h:
+   - code_change/3
+   - handle_call/2
+   - handle_event/2
+   - handle_info/2
+   - init/1
+   - module_info/0
+   - module_info/1
+   - terminate/2
    error_logger_tty_h:
    - code_change/3
    - handle_call/2
@@ -722,6 +1224,15 @@ mfa:
    - port_info/1
    - port_info/2
    - request_system_task/3
+   escript:
+   - create/2
+   - extract/2
+   - module_info/0
+   - module_info/1
+   - parse_file/1
+   - script_name/0
+   - start/0
+   - start/1
    ets:
    - all/0
    - delete/1
@@ -789,6 +1300,14 @@ mfa:
    - to_dets/2
    - update_counter/3
    - update_element/3
+   eval_bits:
+   - bin_gen/6
+   - expr_grp/3
+   - expr_grp/5
+   - match_bits/6
+   - match_bits/7
+   - module_info/0
+   - module_info/1
    file:
    - advise/4
    - allocate/3
@@ -879,6 +1398,23 @@ mfa:
    - start_link/0
    - stop/0
    - terminate/2
+   file_sorter:
+   - check/1
+   - check/2
+   - keycheck/2
+   - keycheck/3
+   - keymerge/3
+   - keymerge/4
+   - keysort/2
+   - keysort/3
+   - keysort/4
+   - merge/2
+   - merge/3
+   - module_info/0
+   - module_info/1
+   - sort/1
+   - sort/2
+   - sort/3
    filelib:
    - compile_wildcard/1
    - ensure_dir/1
@@ -1022,6 +1558,35 @@ mfa:
    - system_terminate/4
    - wake_hib/4
    - which_handlers/1
+   gen_fsm:
+   - behaviour_info/1
+   - cancel_timer/1
+   - enter_loop/4
+   - enter_loop/5
+   - enter_loop/6
+   - format_status/2
+   - init_it/6
+   - module_info/0
+   - module_info/1
+   - reply/2
+   - send_all_state_event/2
+   - send_event/2
+   - send_event_after/2
+   - start/3
+   - start/4
+   - start_link/3
+   - start_link/4
+   - start_timer/2
+   - sync_send_all_state_event/2
+   - sync_send_all_state_event/3
+   - sync_send_event/2
+   - sync_send_event/3
+   - system_code_change/4
+   - system_continue/3
+   - system_get_state/1
+   - system_replace_state/2
+   - system_terminate/4
+   - wake_hib/6
    gen_server:
    - abcast/2
    - abcast/3
@@ -1125,6 +1690,13 @@ mfa:
    - whereis_name/1
    - whereis_name/2
    - whereis_name_test/1
+   group:
+   - interfaces/1
+   - module_info/0
+   - module_info/1
+   - server/3
+   - start/2
+   - start/3
    heart:
    - clear_cmd/0
    - cycle/0
@@ -1496,6 +2068,11 @@ mfa:
    - indentation/2
    - module_info/0
    - module_info/1
+   io_lib_fread:
+   - fread/2
+   - fread/3
+   - module_info/0
+   - module_info/1
    io_lib_pretty:
    - module_info/0
    - module_info/1
@@ -1523,6 +2100,23 @@ mfa:
    - send_timeout/2
    - start_link/0
    - terminate/2
+   lib:
+   - error_message/2
+   - eval_str/1
+   - flush_receive/0
+   - format_call/4
+   - format_call/5
+   - format_exception/6
+   - format_exception/7
+   - format_fun/1
+   - format_stacktrace/4
+   - format_stacktrace/5
+   - module_info/0
+   - module_info/1
+   - nonl/1
+   - progname/0
+   - send/2
+   - sendw/2
    lists:
    - all/2
    - any/2
@@ -1606,6 +2200,68 @@ mfa:
    - zip3/3
    - zipwith/3
    - zipwith3/4
+   log_mf_h:
+   - code_change/3
+   - handle_call/2
+   - handle_event/2
+   - handle_info/2
+   - init/1
+   - init/3
+   - init/4
+   - module_info/0
+   - module_info/1
+   - terminate/2
+   maps:
+   - find/2
+   - fold/3
+   - from_list/1
+   - get/2
+   - get/3
+   - is_key/2
+   - keys/1
+   - map/2
+   - merge/2
+   - module_info/0
+   - module_info/1
+   - new/0
+   - put/3
+   - remove/2
+   - size/1
+   - to_list/1
+   - update/3
+   - values/1
+   - with/2
+   - without/2
+   math:
+   - acos/1
+   - acosh/1
+   - asin/1
+   - asinh/1
+   - atan/1
+   - atan2/2
+   - atanh/1
+   - cos/1
+   - cosh/1
+   - erf/1
+   - erfc/1
+   - exp/1
+   - log/1
+   - log10/1
+   - module_info/0
+   - module_info/1
+   - pi/0
+   - pow/2
+   - sin/1
+   - sinh/1
+   - sqrt/1
+   - tan/1
+   - tanh/1
+   ms_transform:
+   - format_error/1
+   - module_info/0
+   - module_info/1
+   - parse_transform/2
+   - transform_from_shell/3
    net_kernel:
    - allow/1
    - aux_ticker/4
@@ -1673,6 +2329,26 @@ mfa:
    - update/3
    - update/4
    - update_counter/3
+   ordsets:
+   - add_element/2
+   - del_element/2
+   - filter/2
+   - fold/3
+   - from_list/1
+   - intersection/1
+   - intersection/2
+   - is_disjoint/2
+   - is_element/2
+   - is_set/1
+   - is_subset/2
+   - module_info/0
+   - module_info/1
+   - new/0
+   - size/1
+   - subtract/2
+   - to_list/1
+   - union/1
+   - union/2
    os:
    - cmd/1
    - find_executable/1
@@ -1687,10 +2363,45 @@ mfa:
    - type/0
    - unsetenv/1
    - version/0
+   otp_internal:
+   - module_info/0
+   - module_info/1
+   - obsolete/3
    otp_ring0:
    - module_info/0
    - module_info/1
    - start/2
+   pg:
+   - create/1
+   - create/2
+   - esend/2
+   - join/2
+   - master/1
+   - members/1
+   - module_info/0
+   - module_info/1
+   - name_to_pid/1
+   - send/2
+   - standby/2
+   pool:
+   - attach/1
+   - do_spawn/4
+   - get_node/0
+   - get_nodes/0
+   - get_nodes_and_load/0
+   - handle_call/3
+   - handle_cast/2
+   - handle_info/2
+   - init/1
+   - module_info/0
+   - module_info/1
+   - pspawn/3
+   - pspawn_link/3
+   - start/1
+   - start/2
+   - statistic_collector/0
+   - stop/0
+   - terminate/2
    prim_eval:
    - module_info/0
    - module_info/1
@@ -1864,6 +2575,72 @@ mfa:
    - start_link/5
    - translate_initial_call/1
    - wake_up/3
+   proplists:
+   - append_values/2
+   - compact/1
+   - delete/2
+   - expand/2
+   - get_all_values/2
+   - get_bool/2
+   - get_keys/1
+   - get_value/2
+   - get_value/3
+   - is_defined/2
+   - lookup/2
+   - lookup_all/2
+   - module_info/0
+   - module_info/1
+   - normalize/2
+   - property/1
+   - property/2
+   - split/2
+   - substitute_aliases/2
+   - substitute_negations/2
+   - unfold/1
+   qlc:
+   - all_selections/1
+   - append/1
+   - append/2
+   - aux_name/3
+   - cursor/1
+   - cursor/2
+   - delete_cursor/1
+   - e/1
+   - e/2
+   - eval/1
+   - eval/2
+   - fold/3
+   - fold/4
+   - format_error/1
+   - info/1
+   - info/2
+   - keysort/2
+   - keysort/3
+   - module_info/0
+   - module_info/1
+   - name_suffix/2
+   - next_answers/1
+   - next_answers/2
+   - parse_transform/2
+   - q/1
+   - q/2
+   - sort/1
+   - sort/2
+   - string_to_handle/1
+   - string_to_handle/2
+   - string_to_handle/3
+   - table/2
+   - template_state/0
+   - transform_from_evaluator/2
+   - var_fold/3
+   - var_ufold/2
+   - vars/1
+   qlc_pt:
+   - module_info/0
+   - module_info/1
+   - parse_transform/2
+   - transform_expression/2
+   - transform_from_evaluator/2
    queue:
    - cons/2
    - daeh/1
@@ -1925,6 +2702,32 @@ mfa:
    - uudecode/1
    - uuencode/1
    - write/2
+   random:
+   - module_info/0
+   - module_info/1
+   - seed/0
+   - seed/1
+   - seed/3
+   - seed0/0
+   - uniform/0
+   - uniform/1
+   - uniform_s/1
+   - uniform_s/2
+   re:
+   - compile/1
+   - compile/2
+   - grun/3
+   - inspect/2
+   - module_info/0
+   - module_info/1
+   - replace/3
+   - replace/4
+   - run/2
+   - run/3
+   - split/2
+   - split/3
+   - ucompile/2
+   - urun/3
    rpc:
    - abcast/2
    - abcast/3
@@ -1965,12 +2768,254 @@ mfa:
    - stop/0
    - terminate/2
    - yield/1
+   sets:
+   - add_element/2
+   - del_element/2
+   - filter/2
+   - fold/3
+   - from_list/1
+   - intersection/1
+   - intersection/2
+   - is_disjoint/2
+   - is_element/2
+   - is_set/1
+   - is_subset/2
+   - module_info/0
+   - module_info/1
+   - new/0
+   - size/1
+   - subtract/2
+   - to_list/1
+   - union/1
+   - union/2
+   shell:
+   - history/1
+   - local_allowed/3
+   - module_info/0
+   - module_info/1
+   - non_local_allowed/3
+   - prompt_func/1
+   - results/1
+   - server/1
+   - server/2
+   - start/0
+   - start/1
+   - start/2
+   - start_restricted/1
+   - stop_restricted/0
+   - strings/1
+   - whereis_evaluator/0
+   - whereis_evaluator/1
+   shell_default:
+   - bi/1
+   - bt/1
+   - c/1
+   - c/2
+   - cd/1
+   - erlangrc/1
+   - flush/0
+   - help/0
+   - i/0
+   - i/3
+   - ia/1
+   - ia/2
+   - ia/3
+   - ia/4
+   - iaa/1
+   - iaa/2
+   - ib/2
+   - ib/3
+   - iba/3
+   - ibc/3
+   - ibd/2
+   - ibe/2
+   - ic/0
+   - ih/0
+   - ii/1
+   - ii/2
+   - il/0
+   - im/0
+   - ini/1
+   - ini/2
+   - inq/1
+   - ip/0
+   - ipb/0
+   - ipb/1
+   - iq/1
+   - ir/0
+   - ir/1
+   - ir/2
+   - ir/3
+   - ist/1
+   - iv/0
+   - l/1
+   - lc/1
+   - ls/0
+   - ls/1
+   - m/0
+   - m/1
+   - memory/0
+   - memory/1
+   - module_info/0
+   - module_info/1
+   - nc/1
+   - ni/0
+   - nl/1
+   - nregs/0
+   - pid/3
+   - pwd/0
+   - q/0
+   - regs/0
+   - xm/1
+   - y/1
+   - y/2
+   slave:
+   - module_info/0
+   - module_info/1
+   - pseudo/1
+   - pseudo/2
+   - relay/1
+   - slave_start/1
+   - start/1
+   - start/2
+   - start/3
+   - start/5
+   - start_link/1
+   - start_link/2
+   - start_link/3
+   - stop/1
+   - wait_for_master_to_die/2
+   - wait_for_slave/7
+   sofs:
+   - a_function/1
+   - a_function/2
+   - canonical_relation/1
+   - composite/2
+   - constant_function/2
+   - converse/1
+   - difference/2
+   - digraph_to_family/1
+   - digraph_to_family/2
+   - domain/1
+   - drestriction/2
+   - drestriction/3
+   - empty_set/0
+   - extension/3
+   - fam2rel/1
+   - family/1
+   - family/2
+   - family_difference/2
+   - family_domain/1
+   - family_field/1
+   - family_intersection/1
+   - family_intersection/2
+   - family_projection/2
+   - family_range/1
+   - family_specification/2
+   - family_to_digraph/1
+   - family_to_digraph/2
+   - family_to_relation/1
+   - family_union/1
+   - family_union/2
+   - field/1
+   - from_external/2
+   - from_sets/1
+   - from_term/1
+   - from_term/2
+   - image/2
+   - intersection/1
+   - intersection/2
+   - intersection_of_family/1
+   - inverse/1
+   - inverse_image/2
+   - is_a_function/1
+   - is_disjoint/2
+   - is_empty_set/1
+   - is_equal/2
+   - is_set/1
+   - is_sofs_set/1
+   - is_subset/2
+   - is_type/1
+   - join/4
+   - module_info/0
+   - module_info/1
+   - multiple_relative_product/2
+   - no_elements/1
+   - partition/1
+   - partition/2
+   - partition/3
+   - partition_family/2
+   - product/1
+   - product/2
+   - projection/2
+   - range/1
+   - rel2fam/1
+   - relation/1
+   - relation/2
+   - relation_to_family/1
+   - relative_product/1
+   - relative_product/2
+   - relative_product1/2
+   - restriction/2
+   - restriction/3
+   - set/1
+   - set/2
+   - specification/2
+   - strict_relation/1
+   - substitution/2
+   - symdiff/2
+   - symmetric_partition/2
+   - to_external/1
+   - to_sets/1
+   - type/1
+   - union/1
+   - union/2
+   - union_of_family/1
+   - weak_relation/1
    standard_error:
    - init/1
    - module_info/0
    - module_info/1
    - start_link/0
    - terminate/2
+   string:
+   - centre/2
+   - centre/3
+   - chars/2
+   - chars/3
+   - chr/2
+   - concat/2
+   - copies/2
+   - cspan/2
+   - equal/2
+   - join/2
+   - left/2
+   - left/3
+   - len/1
+   - module_info/0
+   - module_info/1
+   - rchr/2
+   - right/2
+   - right/3
+   - rstr/2
+   - span/2
+   - str/2
+   - strip/1
+   - strip/2
+   - strip/3
+   - sub_string/2
+   - sub_string/3
+   - sub_word/2
+   - sub_word/3
+   - substr/2
+   - substr/3
+   - to_float/1
+   - to_integer/1
+   - to_lower/1
+   - to_upper/1
+   - tokens/2
+   - words/1
+   - words/2
    supervisor:
    - behaviour_info/1
    - check_childspecs/1
@@ -2039,6 +3084,38 @@ mfa:
    - suspend_loop_hib/6
    - trace/2
    - trace/3
+   timer:
+   - apply_after/4
+   - apply_interval/4
+   - cancel/1
+   - code_change/3
+   - exit_after/2
+   - exit_after/3
+   - get_status/0
+   - handle_call/3
+   - handle_cast/2
+   - handle_info/2
+   - hms/3
+   - hours/1
+   - init/1
+   - kill_after/1
+   - kill_after/2
+   - minutes/1
+   - module_info/0
+   - module_info/1
+   - now_diff/2
+   - seconds/1
+   - send_after/2
+   - send_after/3
+   - send_interval/2
+   - send_interval/3
+   - sleep/1
+   - start/0
+   - start_link/0
+   - tc/1
+   - tc/2
+   - tc/3
+   - terminate/2
    unicode:
    - bin_is_7bit/1
    - bom_to_encoding/1
@@ -2052,13 +3129,16 @@ mfa:
    - encoding_to_bom/1
    - module_info/0
    - module_info/1
-   user:
+   user_drv:
    - interfaces/1
    - module_info/0
    - module_info/1
+   - server/2
+   - server/3
    - start/0
    - start/1
-   - start_out/0
+   - start/2
+   - start/3
    user_sup:
    - init/1
    - module_info/0
@@ -2066,6 +3146,59 @@ mfa:
    - relay/1
    - start/0
    - terminate/2
+   win32reg:
+   - change_key/2
+   - change_key_create/2
+   - close/1
+   - current_key/1
+   - delete_key/1
+   - delete_value/2
+   - expand/1
+   - format_error/1
+   - module_info/0
+   - module_info/1
+   - open/1
+   - set_value/3
+   - sub_keys/1
+   - value/2
+   - values/1
+   zip:
+   - create/2
+   - create/3
+   - extract/1
+   - extract/2
+   - foldl/3
+   - list_dir/1
+   - list_dir/2
+   - module_info/0
+   - module_info/1
+   - openzip_close/1
+   - openzip_get/1
+   - openzip_get/2
+   - openzip_list_dir/1
+   - openzip_list_dir/2
+   - openzip_open/1
+   - openzip_open/2
+   - openzip_t/1
+   - openzip_tt/1
+   - t/1
+   - table/1
+   - table/2
+   - tt/1
+   - unzip/1
+   - unzip/2
+   - zip/2
+   - zip/3
+   - zip_close/1
+   - zip_get/1
+   - zip_get/2
+   - zip_get_state/1
+   - zip_list_dir/1
+   - zip_list_dir/2
+   - zip_open/1
+   - zip_open/2
+   - zip_t/1
+   - zip_tt/1
    zlib:
    - adler32/2
    - adler32/3

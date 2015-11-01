@@ -1,13 +1,17 @@
 %YAML 1.2
 ---
-release: R15B01
-otp_release: R15B01
-version: 5.9.1
-driver_version: 2.0
-nif_version: undefined
+release: 18.1
+otp_release: 18
+version: 7.1
+driver_version: 3.2
+nif_version: 2.8
 mfa:
    application:
    - behaviour_info/1
+   - ensure_all_started/1
+   - ensure_all_started/2
+   - ensure_started/1
+   - ensure_started/2
    - get_all_env/0
    - get_all_env/1
    - get_all_key/0
@@ -16,6 +20,7 @@ mfa:
    - get_application/1
    - get_env/1
    - get_env/2
+   - get_env/3
    - get_key/1
    - get_key/2
    - info/0
@@ -225,6 +230,7 @@ mfa:
    - pwd/0
    - q/0
    - regs/0
+   - uptime/0
    - xm/1
    - y/1
    - y/2
@@ -271,6 +277,7 @@ mfa:
    - delete/1
    - ensure_loaded/1
    - get_chunk/2
+   - get_mode/0
    - get_object_code/1
    - get_path/0
    - is_loaded/1
@@ -296,7 +303,7 @@ mfa:
    - replace_path/2
    - root_dir/0
    - set_path/1
-   - set_primary_archive/3
+   - set_primary_archive/4
    - soft_purge/1
    - start_link/0
    - start_link/1
@@ -536,6 +543,7 @@ mfa:
    - find/2
    - fold/3
    - from_list/1
+   - is_empty/1
    - is_key/2
    - map/2
    - merge/3
@@ -607,12 +615,14 @@ mfa:
    - subgraph/3
    - topsort/1
    edlin:
+   - current_chars/1
    - current_line/1
    - edit_line/2
    - edit_line1/2
    - erase_inp/1
    - erase_line/1
    - init/0
+   - init/1
    - length_after/1
    - length_before/1
    - module_info/0
@@ -622,6 +632,7 @@ mfa:
    - prompt/1
    - redraw_line/1
    - start/1
+   - start/2
    edlin_expand:
    - expand/1
    - format_matches/1
@@ -629,20 +640,51 @@ mfa:
    - module_info/1
    epp:
    - close/1
+   - default_encoding/0
+   - encoding_to_string/1
    - format_error/1
    - interpret_file_attribute/1
    - macro_defs/1
    - module_info/0
    - module_info/1
    - normalize_typed_record_fields/1
+   - open/1
    - open/2
    - open/3
    - open/5
    - parse_erl_form/1
    - parse_file/1
+   - parse_file/2
    - parse_file/3
+   - read_encoding/1
+   - read_encoding/2
+   - read_encoding_from_binary/1
+   - read_encoding_from_binary/2
    - restore_typed_record_fields/1
    - scan_erl_form/1
+   - set_encoding/1
+   - set_encoding/2
+   erl_anno:
+   - column/1
+   - end_location/1
+   - file/1
+   - from_term/1
+   - generated/1
+   - is_anno/1
+   - line/1
+   - location/1
+   - module_info/0
+   - module_info/1
+   - new/1
+   - record/1
+   - set_file/2
+   - set_generated/2
+   - set_line/2
+   - set_location/2
+   - set_record/2
+   - set_text/2
+   - text/1
+   - to_term/1
    erl_bits:
    - as_list/1
    - module_info/0
@@ -651,7 +693,7 @@ mfa:
    - system_bitdefault/0
    - system_bittypes/0
    erl_compile:
-   - compile_cmdline/1
+   - compile_cmdline/0
    - module_info/0
    - module_info/1
    erl_distribution:
@@ -696,6 +738,7 @@ mfa:
    - bool_op/2
    - comp_op/2
    - guard_bif/2
+   - is_type/2
    - list_op/2
    - module_info/0
    - module_info/1
@@ -726,16 +769,21 @@ mfa:
    erl_parse:
    - abstract/1
    - abstract/2
+   - anno_from_term/1
+   - anno_to_term/1
+   - fold_anno/3
    - format_error/1
    - func_prec/0
    - get_attribute/2
    - get_attributes/1
    - inop_prec/1
+   - map_anno/2
+   - mapfold_anno/3
    - max_prec/0
    - module_info/0
    - module_info/1
+   - new_anno/1
    - normalise/1
-   - package_segments/1
    - parse/1
    - parse_and_scan/1
    - parse_exprs/1
@@ -745,6 +793,8 @@ mfa:
    - set_line/2
    - tokens/1
    - tokens/2
+   - type_inop_prec/1
+   - type_preop_prec/1
    erl_posix_msg:
    - message/1
    - module_info/0
@@ -767,8 +817,6 @@ mfa:
    - guard/2
    - module_info/0
    - module_info/1
-   - rule/1
-   - rule/2
    erl_prim_loader:
    - get_cwd/0
    - get_cwd/1
@@ -782,16 +830,23 @@ mfa:
    - prim_get_file/2
    - prim_init/0
    - prim_list_dir/2
-   - prim_read_file_info/2
+   - prim_read_file_info/3
    - read_file_info/1
+   - read_link_info/1
    - release_archives/0
    - set_path/1
-   - set_primary_archive/3
+   - set_primary_archive/4
    - start/3
    erl_scan:
    - attributes_info/1
    - attributes_info/2
+   - category/1
+   - column/1
+   - continuation_location/1
+   - end_location/1
    - format_error/1
+   - line/1
+   - location/1
    - module_info/0
    - module_info/1
    - reserved_word/1
@@ -799,6 +854,8 @@ mfa:
    - string/1
    - string/2
    - string/3
+   - symbol/1
+   - text/1
    - token_info/1
    - token_info/2
    - tokens/3
@@ -812,6 +869,7 @@ mfa:
    - extract/1
    - extract/2
    - format_error/1
+   - init/3
    - module_info/0
    - module_info/1
    - open/2
@@ -857,11 +915,15 @@ mfa:
    - binary_part/3
    - binary_to_atom/2
    - binary_to_existing_atom/2
+   - binary_to_float/1
+   - binary_to_integer/1
+   - binary_to_integer/2
    - binary_to_list/1
    - binary_to_list/3
    - binary_to_term/1
    - binary_to_term/2
    - bit_size/1
+   - bitsize/1
    - bitstring_to_list/1
    - bnot/1
    - bor/2
@@ -872,8 +934,11 @@ mfa:
    - byte_size/1
    - call_on_load_function/1
    - cancel_timer/1
+   - cancel_timer/2
    - check_old_code/1
    - check_process_code/2
+   - check_process_code/3
+   - convert_time_unit/3
    - crasher/6
    - crc32/1
    - crc32/2
@@ -881,6 +946,7 @@ mfa:
    - date/0
    - decode_packet/3
    - delay_trap/2
+   - delete_element/2
    - delete_module/1
    - demonitor/1
    - demonitor/2
@@ -915,21 +981,28 @@ mfa:
    - external_size/1
    - external_size/2
    - finish_after_on_load/2
+   - finish_loading/1
    - float/1
+   - float_to_binary/1
+   - float_to_binary/2
    - float_to_list/1
-   - flush_monitor_message/2
+   - float_to_list/2
    - format_cpu_topology/1
    - fun_info/1
    - fun_info/2
+   - fun_info_mfa/1
    - fun_to_list/1
    - function_exported/3
    - garbage_collect/0
    - garbage_collect/1
+   - garbage_collect/2
    - garbage_collect_message_area/0
+   - gather_gc_info_result/1
    - gather_sched_wall_time_result/1
    - get/0
    - get/1
    - get_cookie/0
+   - get_keys/0
    - get_keys/1
    - get_module_info/1
    - get_module_info/2
@@ -942,6 +1015,9 @@ mfa:
    - hash/2
    - hd/1
    - hibernate/3
+   - insert_element/3
+   - integer_to_binary/1
+   - integer_to_binary/2
    - integer_to_list/1
    - integer_to_list/2
    - iolist_size/1
@@ -957,6 +1033,7 @@ mfa:
    - is_function/2
    - is_integer/1
    - is_list/1
+   - is_map/1
    - is_number/1
    - is_pid/1
    - is_port/1
@@ -986,6 +1063,7 @@ mfa:
    - make_ref/0
    - make_tuple/2
    - make_tuple/3
+   - map_size/1
    - match_spec_test/3
    - max/2
    - md5/1
@@ -1001,6 +1079,8 @@ mfa:
    - monitor/2
    - monitor_node/2
    - monitor_node/3
+   - monotonic_time/0
+   - monotonic_time/1
    - nif_error/1
    - nif_error/2
    - node/0
@@ -1030,6 +1110,7 @@ mfa:
    - ports/0
    - posixtime_to_universaltime/1
    - pre_loaded/0
+   - prepare_loading/2
    - process_display/2
    - process_flag/2
    - process_flag/3
@@ -1040,6 +1121,7 @@ mfa:
    - put/2
    - raise/3
    - read_timer/1
+   - read_timer/2
    - ref_to_list/1
    - register/2
    - registered/0
@@ -1050,6 +1132,7 @@ mfa:
    - send/2
    - send/3
    - send_after/3
+   - send_after/4
    - send_nosuspend/2
    - send_nosuspend/3
    - seq_trace/2
@@ -1079,6 +1162,7 @@ mfa:
    - spawn_opt/5
    - split_binary/2
    - start_timer/3
+   - start_timer/4
    - statistics/1
    - subtract/2
    - suspend_process/1
@@ -1090,10 +1174,15 @@ mfa:
    - system_monitor/2
    - system_profile/0
    - system_profile/2
+   - system_time/0
+   - system_time/1
    - term_to_binary/1
    - term_to_binary/2
    - throw/1
    - time/0
+   - time_offset/0
+   - time_offset/1
+   - timestamp/0
    - tl/1
    - trace/3
    - trace_delivered/1
@@ -1103,6 +1192,8 @@ mfa:
    - trunc/1
    - tuple_size/1
    - tuple_to_list/1
+   - unique_integer/0
+   - unique_integer/1
    - universaltime/0
    - universaltime_to_localtime/1
    - universaltime_to_posixtime/1
@@ -1115,6 +1206,7 @@ mfa:
    - breakpoint/3
    - module_info/0
    - module_info/1
+   - raise_undef_exception/3
    - stub_function/3
    - undefined_function/3
    - undefined_lambda/3
@@ -1168,11 +1260,35 @@ mfa:
    - module_info/1
    - terminate/2
    - write_event/2
+   - write_event/3
+   erts_internal:
+   - await_port_send_result/3
+   - await_result/1
+   - check_process_code/2
+   - cmp_term/2
+   - flush_monitor_messages/3
+   - gather_io_bytes/2
+   - is_system_process/1
+   - map_hashmap_children/1
+   - map_to_tuple_keys/1
+   - map_type/1
+   - module_info/0
+   - module_info/1
+   - port_call/3
+   - port_close/1
+   - port_command/3
+   - port_connect/2
+   - port_control/3
+   - port_info/1
+   - port_info/2
+   - request_system_task/3
+   - time_unit/0
    escript:
    - create/2
    - extract/2
    - module_info/0
    - module_info/1
+   - parse_file/1
    - script_name/0
    - start/0
    - start/1
@@ -1239,9 +1355,11 @@ mfa:
    - tabfile_info/1
    - table/1
    - table/2
+   - take/2
    - test_ms/2
    - to_dets/2
    - update_counter/3
+   - update_counter/4
    - update_element/3
    eval_bits:
    - bin_gen/6
@@ -1253,6 +1371,7 @@ mfa:
    - module_info/1
    file:
    - advise/4
+   - allocate/3
    - altname/1
    - change_group/2
    - change_mode/2
@@ -1276,6 +1395,7 @@ mfa:
    - ipread_s32bu_p32bu/3
    - ipread_s32bu_p32bu_int/3
    - list_dir/1
+   - list_dir_all/1
    - make_dir/1
    - make_link/2
    - make_symlink/2
@@ -1303,6 +1423,7 @@ mfa:
    - read_file_info/2
    - read_line/1
    - read_link/1
+   - read_link_all/1
    - read_link_info/1
    - read_link_info/2
    - rename/2
@@ -1419,6 +1540,7 @@ mfa:
    - is_set/1
    - is_subset/2
    - iterator/1
+   - iterator_from/2
    - largest/1
    - module_info/0
    - module_info/1
@@ -1445,6 +1567,7 @@ mfa:
    - is_defined/2
    - is_empty/1
    - iterator/1
+   - iterator_from/2
    - keys/1
    - largest/1
    - lookup/2
@@ -1471,6 +1594,8 @@ mfa:
    - reply/2
    - start/5
    - start/6
+   - stop/1
+   - stop/3
    gen_event:
    - add_handler/3
    - add_sup_handler/3
@@ -1488,11 +1613,14 @@ mfa:
    - start_link/0
    - start_link/1
    - stop/1
+   - stop/3
    - swap_handler/3
    - swap_sup_handler/3
    - sync_notify/2
    - system_code_change/4
    - system_continue/3
+   - system_get_state/1
+   - system_replace_state/2
    - system_terminate/4
    - wake_hib/4
    - which_handlers/1
@@ -1515,12 +1643,16 @@ mfa:
    - start_link/3
    - start_link/4
    - start_timer/2
+   - stop/1
+   - stop/3
    - sync_send_all_state_event/2
    - sync_send_all_state_event/3
    - sync_send_event/2
    - sync_send_event/3
    - system_code_change/4
    - system_continue/3
+   - system_get_state/1
+   - system_replace_state/2
    - system_terminate/4
    - wake_hib/6
    gen_server:
@@ -1545,8 +1677,12 @@ mfa:
    - start/4
    - start_link/3
    - start_link/4
+   - stop/1
+   - stop/3
    - system_code_change/4
    - system_continue/3
+   - system_get_state/1
+   - system_replace_state/2
    - system_terminate/4
    - wake_hib/5
    global:
@@ -1642,12 +1778,12 @@ mfa:
    - start/0
    hipe_unified_loader:
    - chunk_name/1
-   - load/2
-   - load_module/3
-   - load_native_code/2
+   - load/3
+   - load_module/4
+   - load_native_code/3
    - module_info/0
    - module_info/1
-   - post_beam_load/1
+   - post_beam_load/2
    inet:
    - close/1
    - connect_options/2
@@ -1696,9 +1832,18 @@ mfa:
    - lock_socket/2
    - module_info/0
    - module_info/1
+   - ntoa/1
    - open/8
    - options/0
+   - parse_address/1
+   - parse_ipv4_address/1
+   - parse_ipv4strict_address/1
+   - parse_ipv6_address/1
+   - parse_ipv6strict_address/1
+   - parse_strict_address/1
    - peername/1
+   - peernames/1
+   - peernames/2
    - popf/1
    - port/1
    - pushf/3
@@ -1708,6 +1853,8 @@ mfa:
    - setpeername/2
    - setsockname/2
    - sockname/1
+   - socknames/1
+   - socknames/2
    - start_timer/1
    - stats/0
    - stop_timer/1
@@ -1823,7 +1970,6 @@ mfa:
    - host_conf_linux/2
    - hosts/1
    - hosts/2
-   - hosts_vxworks/1
    - ipv4_address/1
    - ipv4strict_address/1
    - ipv6_address/1
@@ -1846,6 +1992,7 @@ mfa:
    - services/1
    - services/2
    - split_line/1
+   - strict_address/1
    - visible_string/1
    inet_udp:
    - close/1
@@ -1911,14 +2058,18 @@ mfa:
    - parse_erl_exprs/1
    - parse_erl_exprs/2
    - parse_erl_exprs/3
+   - parse_erl_exprs/4
    - parse_erl_form/1
    - parse_erl_form/2
    - parse_erl_form/3
+   - parse_erl_form/4
+   - printable_range/0
    - put_chars/1
    - put_chars/2
    - read/1
    - read/2
    - read/3
+   - read/4
    - request/1
    - request/2
    - requests/1
@@ -1928,14 +2079,17 @@ mfa:
    - scan_erl_exprs/1
    - scan_erl_exprs/2
    - scan_erl_exprs/3
+   - scan_erl_exprs/4
    - scan_erl_form/1
    - scan_erl_form/2
    - scan_erl_form/3
+   - scan_erl_form/4
    - setopts/1
    - setopts/2
    - write/1
    - write/2
    io_lib:
+   - build_text/1
    - char_list/1
    - collect_chars/3
    - collect_chars/4
@@ -1943,40 +2097,53 @@ mfa:
    - collect_line/3
    - collect_line/4
    - deep_char_list/1
+   - deep_latin1_char_list/1
    - deep_unicode_char_list/1
    - format/2
    - format_prompt/1
+   - format_prompt/2
    - fread/2
    - fread/3
    - fwrite/2
    - get_until/3
    - get_until/4
    - indentation/2
+   - latin1_char_list/1
    - module_info/0
    - module_info/1
    - nl/0
    - print/1
    - print/4
+   - printable_latin1_list/1
    - printable_list/1
    - printable_unicode_list/1
    - quote_atom/2
-   - unicode_char_list/1
+   - scan_format/2
+   - unscan_format/1
    - write/1
    - write/2
    - write/3
    - write_atom/1
    - write_char/1
+   - write_char_as_latin1/1
+   - write_latin1_char/1
+   - write_latin1_string/1
+   - write_latin1_string/2
    - write_string/1
    - write_string/2
+   - write_string_as_latin1/1
+   - write_string_as_latin1/2
    - write_unicode_char/1
    - write_unicode_string/1
-   - write_unicode_string/2
    io_lib_format:
+   - build/1
    - fwrite/2
    - fwrite_g/1
    - indentation/2
    - module_info/0
    - module_info/1
+   - scan/2
+   - unscan/1
    io_lib_fread:
    - fread/2
    - fread/3
@@ -2014,9 +2181,12 @@ mfa:
    - eval_str/1
    - flush_receive/0
    - format_call/4
+   - format_call/5
    - format_exception/6
+   - format_exception/7
    - format_fun/1
    - format_stacktrace/4
+   - format_stacktrace/5
    - module_info/0
    - module_info/1
    - nonl/1
@@ -2030,9 +2200,11 @@ mfa:
    - append/2
    - concat/1
    - delete/2
+   - droplast/1
    - dropwhile/2
    - duplicate/2
    - filter/2
+   - filtermap/2
    - flatlength/1
    - flatmap/2
    - flatten/1
@@ -2115,6 +2287,28 @@ mfa:
    - module_info/0
    - module_info/1
    - terminate/2
+   maps:
+   - filter/2
+   - find/2
+   - fold/3
+   - from_list/1
+   - get/2
+   - get/3
+   - is_key/2
+   - keys/1
+   - map/2
+   - merge/2
+   - module_info/0
+   - module_info/1
+   - new/0
+   - put/3
+   - remove/2
+   - size/1
+   - to_list/1
+   - update/3
+   - values/1
+   - with/2
+   - without/2
    math:
    - acos/1
    - acosh/1
@@ -2130,6 +2324,7 @@ mfa:
    - exp/1
    - log/1
    - log10/1
+   - log2/1
    - module_info/0
    - module_info/1
    - pi/0
@@ -2199,6 +2394,7 @@ mfa:
    - find/2
    - fold/3
    - from_list/1
+   - is_empty/1
    - is_key/2
    - map/2
    - merge/3
@@ -2237,47 +2433,26 @@ mfa:
    - find_executable/2
    - getenv/0
    - getenv/1
+   - getenv/2
    - getpid/0
    - module_info/0
    - module_info/1
    - putenv/2
+   - system_time/0
+   - system_time/1
    - timestamp/0
    - type/0
+   - unsetenv/1
    - version/0
    otp_internal:
    - module_info/0
    - module_info/1
    - obsolete/3
+   - obsolete_type/3
    otp_ring0:
    - module_info/0
    - module_info/1
    - start/2
-   packages:
-   - concat/1
-   - concat/2
-   - find_modules/1
-   - find_modules/2
-   - first/1
-   - is_segmented/1
-   - is_valid/1
-   - last/1
-   - module_info/0
-   - module_info/1
-   - split/1
-   - strip_last/1
-   - to_string/1
-   pg:
-   - create/1
-   - create/2
-   - esend/2
-   - join/2
-   - master/1
-   - members/1
-   - module_info/0
-   - module_info/1
-   - name_to_pid/1
-   - send/2
-   - standby/2
    pool:
    - attach/1
    - do_spawn/4
@@ -2297,8 +2472,13 @@ mfa:
    - statistic_collector/0
    - stop/0
    - terminate/2
+   prim_eval:
+   - module_info/0
+   - module_info/1
+   - receive/2
    prim_file:
    - advise/4
+   - allocate/3
    - altname/1
    - altname/2
    - close/1
@@ -2315,8 +2495,11 @@ mfa:
    - internal_native2name/1
    - internal_normalize_utf8/1
    - ipread_s32bu_p32bu/3
+   - is_translatable/1
    - list_dir/1
    - list_dir/2
+   - list_dir_all/1
+   - list_dir_all/2
    - make_dir/1
    - make_dir/2
    - make_link/2
@@ -2345,12 +2528,14 @@ mfa:
    - read_line/1
    - read_link/1
    - read_link/2
+   - read_link_all/1
+   - read_link_all/2
    - read_link_info/1
    - read_link_info/2
    - read_link_info/3
    - rename/2
    - rename/3
-   - sendfile/10
+   - sendfile/8
    - set_cwd/1
    - set_cwd/2
    - start/0
@@ -2377,6 +2562,7 @@ mfa:
    - connect/4
    - detach/1
    - fdopen/4
+   - fdopen/5
    - getfd/1
    - gethostname/1
    - getifaddrs/1
@@ -2398,8 +2584,11 @@ mfa:
    - module_info/0
    - module_info/1
    - open/3
+   - open/4
    - peeloff/2
    - peername/1
+   - peernames/1
+   - peernames/2
    - recv/2
    - recv/3
    - recvfrom/2
@@ -2414,6 +2603,8 @@ mfa:
    - setsockname/2
    - shutdown/2
    - sockname/1
+   - socknames/1
+   - socknames/2
    - unrecv/2
    prim_zip:
    - close/1
@@ -2425,6 +2616,8 @@ mfa:
    - splitter/3
    proc_lib:
    - format/1
+   - format/2
+   - format/3
    - hibernate/3
    - init_ack/1
    - init_ack/2
@@ -2451,6 +2644,8 @@ mfa:
    - start_link/3
    - start_link/4
    - start_link/5
+   - stop/1
+   - stop/3
    - translate_initial_call/1
    - wake_up/3
    proplists:
@@ -2554,6 +2749,7 @@ mfa:
    - to_list/1
    ram_file:
    - advise/4
+   - allocate/3
    - close/1
    - compress/1
    - copy/3
@@ -2579,6 +2775,21 @@ mfa:
    - uudecode/1
    - uuencode/1
    - write/2
+   rand:
+   - export_seed/0
+   - export_seed_s/1
+   - module_info/0
+   - module_info/1
+   - normal/0
+   - normal_s/1
+   - seed/1
+   - seed/2
+   - seed_s/1
+   - seed_s/2
+   - uniform/0
+   - uniform/1
+   - uniform_s/1
+   - uniform_s/2
    random:
    - module_info/0
    - module_info/1
@@ -2594,6 +2805,7 @@ mfa:
    - compile/1
    - compile/2
    - grun/3
+   - inspect/2
    - module_info/0
    - module_info/1
    - replace/3
@@ -2665,6 +2877,7 @@ mfa:
    - union/1
    - union/2
    shell:
+   - catch_exception/1
    - history/1
    - local_allowed/3
    - module_info/0
@@ -2679,6 +2892,7 @@ mfa:
    - start/2
    - start_restricted/1
    - stop_restricted/0
+   - strings/1
    - whereis_evaluator/0
    - whereis_evaluator/1
    shell_default:
@@ -2741,6 +2955,7 @@ mfa:
    - pwd/0
    - q/0
    - regs/0
+   - uptime/0
    - xm/1
    - y/1
    - y/2
@@ -2897,6 +3112,7 @@ mfa:
    - code_change/3
    - count_children/1
    - delete_child/2
+   - get_childspec/2
    - handle_call/3
    - handle_cast/2
    - handle_info/2
@@ -2928,6 +3144,8 @@ mfa:
    - change_code/5
    - debug_options/1
    - get_debug/3
+   - get_state/1
+   - get_state/2
    - get_status/1
    - get_status/2
    - handle_debug/4
@@ -2946,6 +3164,8 @@ mfa:
    - print_log/1
    - remove/2
    - remove/3
+   - replace_state/2
+   - replace_state/3
    - resume/1
    - resume/2
    - statistics/2
@@ -2953,6 +3173,8 @@ mfa:
    - suspend/1
    - suspend/2
    - suspend_loop_hib/6
+   - terminate/2
+   - terminate/3
    - trace/2
    - trace/3
    timer:
@@ -3094,6 +3316,8 @@ mfa:
    - gunzip/1
    - gzip/1
    - inflate/2
+   - inflateChunk/1
+   - inflateChunk/2
    - inflateEnd/1
    - inflateInit/1
    - inflateInit/2

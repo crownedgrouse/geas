@@ -2,7 +2,8 @@
  {to,'R15B02'},
  {modules,[{new,[]},{removed,[]}]},
  {functions,[{new,[{code,['set_primary_archive/4']},
-                   {erl_prim_loader,['set_primary_archive/4']}]},
+                   {erl_prim_loader,['set_primary_archive/4']},
+                   {escript,['parse_file/1']}]},
              {removed,[{code,['set_primary_archive/3']},
                        {erl_prim_loader,['set_primary_archive/3']},
                        {erlang,['garbage_collect_message_area/0']}]}]}]
