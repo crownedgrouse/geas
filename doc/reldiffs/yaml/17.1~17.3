@@ -1,0 +1,145 @@
+%YAML 1.2
+---
+from: 17.1
+to: 17.3
+modules:
+   new:
+   removed:
+functions:
+   new:
+      OTP-PUB-KEY:
+      - getdec_internal_object_set_argument_12/1
+      - getdec_internal_object_set_argument_13/1
+      - getenc_internal_object_set_argument_12/1
+      - getenc_internal_object_set_argument_13/1
+      dialyzer_utils:
+      - get_compile_options_from_beam/1
+      erl_prim_loader:
+      - prim_read_file_info/3
+      - read_link_info/1
+      erlang:
+      - fun_info_mfa/1
+      lcnt:
+      - histogram/1
+      - histogram/2
+      maps:
+      - with/2
+      prim_inet:
+      - fdopen/5
+      pubkey_pbe:
+      - encrypt_parameters/1
+      snmp_conf:
+      - check_address/2
+      - check_address/3
+      - check_port/1
+      - domain_to_name/1
+      - keyorder/4
+      - mk_addr_string/1
+      - mk_taddress/1
+      - mk_taddress/2
+      - mk_tdomain/0
+      - no_filter/1
+      - no_gen/2
+      - no_order/2
+      - read/3
+      - tdomain_to_domain/1
+      - tdomain_to_family/1
+      snmp_config:
+      - append_config_file/6
+      - read_config_file/4
+      - write_agent_snmp_conf/4
+      - write_agent_snmp_files/6
+      - write_agent_snmp_files/11
+      - write_agent_snmp_target_addr_conf/3
+      - write_agent_snmp_target_addr_conf/5
+      - write_config_file/6
+      - write_manager_snmp_conf/4
+      snmp_framework_mib:
+      - check_agent/2
+      - intAgentTransportDomain/1
+      - intAgentTransports/1
+      - order_agent/2
+      snmp_log:
+      - log/3
+      snmpa_conf:
+      - target_addr_entry/7
+      snmpa_mpd:
+      - process_packet/5
+      snmpm_config:
+      - check_manager_config/2
+      - order_manager_config/2
+      snmpm_mpd:
+      - process_msg/6
+      ssl_certificate:
+      - trusted_cert_and_path/4
+      ssl_handshake:
+      - certify/8
+   removed:
+      dialyzer_contracts:
+      - blame_remote/3
+      - blame_remote_list/3
+      - butlast/1
+      - check_contract/3
+      - check_contract_inf_list/3
+      - check_domains/1
+      - check_extraneous/2
+      - check_extraneous_1/2
+      - constraints_fixpoint/4
+      - constraints_fixpoint/5
+      - constraints_to_dict/5
+      - constraints_to_string/1
+      - constraints_to_subs/6
+      - contract_from_form/3
+      - contract_from_form/5
+      - contract_to_string_1/1
+      - extra_contract_warning/6
+      - extra_range_warning/4
+      - final_form/5
+      - find_uses/1
+      - form_vars/2
+      - general_domain/1
+      - general_domain/2
+      - get_contract_signature/1
+      - get_invalid_contract_warnings_funs/5
+      - get_invalid_contract_warnings_modules/5
+      - initialize_constraints/4
+      - initialize_constraints/5
+      - insert_constraints/2
+      - invalid_contract_warning/4
+      - is_not_nil_list/1
+      - is_remote_types_related/4
+      - list_part/1
+      - overlapping_contract_warning/2
+      - picky_contract_check/7
+      - process_constraints/4
+      - process_contract/2
+      - process_contracts/2
+      - process_contracts/3
+      - remove_cycles/1
+      - remove_cycles/2
+      - remove_use/2
+      - remove_uses/2
+      - remove_uses/3
+      - sequence/2
+      - solve_constraints/3
+      - strip_fun/1
+      - t_from_forms_without_remote/2
+      - warn_spec_missing_fun/2
+      erl_prim_loader:
+      - prim_read_file_info/2
+      snmp_conf:
+      - check_taddress/1
+      - mk_taddress/3
+      snmp_config:
+      - append_config_file/4
+      - read_config_file/3
+      - write_config_file/4
+      snmp_framework_mib:
+      - check_agent/1
+      snmpm_config:
+      - check_manager_config/1
+      ssl_certificate:
+      - trusted_cert_and_path/3
+      ssl_handshake:
+      - certify/7
+...

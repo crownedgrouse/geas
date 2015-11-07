@@ -1,0 +1,540 @@
+%YAML 1.2
+---
+from: R16B03-1
+to: 17.0
+modules:
+   new:
+   - cdv_atom_cb
+   - cdv_bin_cb
+   - cdv_detail_wx
+   - cdv_dist_cb
+   - cdv_ets_cb
+   - cdv_fun_cb
+   - cdv_gen_cb
+   - cdv_html_wx
+   - cdv_info_wx
+   - cdv_int_tab_cb
+   - cdv_mem_cb
+   - cdv_mod_cb
+   - cdv_multi_wx
+   - cdv_port_cb
+   - cdv_proc_cb
+   - cdv_table_wx
+   - cdv_term_cb
+   - cdv_timer_cb
+   - cdv_virtual_list_wx
+   - cdv_wx
+   - crypto_ec_curves
+   - dialyzer_coordinator
+   - dialyzer_timing
+   - dialyzer_worker
+   - elf_format
+   - eunit_tests
+   - hipe_llvm
+   - hipe_llvm_liveness
+   - hipe_llvm_main
+   - hipe_llvm_merge
+   - hipe_rtl_to_llvm
+   - maps
+   - observer_html_lib
+   - ose
+   - wxInitDialogEvent
+   - wxLocale
+   removed:
+   - crashdump_viewer_html
+   - crypto_app
+   - crypto_server
+   - crypto_sup
+   - dbg_ui_break
+   - dbg_ui_break_win
+   - dbg_ui_edit
+   - dbg_ui_edit_win
+   - dbg_ui_filedialog_win
+   - dbg_ui_interpret
+   - dbg_ui_mon
+   - dbg_ui_mon_win
+   - dbg_ui_settings
+   - dbg_ui_trace
+   - dbg_ui_trace_win
+   - dbg_ui_view
+   - dbg_ui_win
+   - dbg_ui_winman
+   - dialyzer_gui
+   - et_gs_contents_viewer
+   - et_gs_viewer
+   - etop_gui
+   - hipe_tool
+functions:
+   new:
+      ELDAPv3:
+      - legacy_erlang_types/0
+      OTP-PUB-KEY:
+      - brainpoolP160r1/0
+      - brainpoolP160t1/0
+      - brainpoolP192r1/0
+      - brainpoolP192t1/0
+      - brainpoolP224r1/0
+      - brainpoolP224t1/0
+      - brainpoolP256r1/0
+      - brainpoolP256t1/0
+      - brainpoolP320r1/0
+      - brainpoolP320t1/0
+      - brainpoolP384r1/0
+      - brainpoolP384t1/0
+      - brainpoolP512r1/0
+      - brainpoolP512t1/0
+      - ecStdCurvesAndGeneration/0
+      - ellipticCurveRFC5639/0
+      - legacy_erlang_types/0
+      - versionOne/0
+      PKCS-FRAME:
+      - legacy_erlang_types/0
+      cerl:
+      - ann_c_map/2
+      - ann_c_map/3
+      - ann_c_map_pair/4
+      - map_arg/1
+      - map_es/1
+      - map_pair_key/1
+      - map_pair_op/1
+      - map_pair_val/1
+      - update_c_map/3
+      - update_c_map_pair/4
+      cerl_to_icode:
+      - module/1
+      cover:
+      - main_process_loop/1
+      - remote_process_loop/1
+      crashdump_viewer:
+      - allocated_areas/0
+      - allocator_info/0
+      - atoms/0
+      - dist_info/0
+      - ets_tables/1
+      - expand_binary/1
+      - funs/0
+      - general_info/0
+      - hash_tables/0
+      - index_tables/0
+      - internal_ets_tables/0
+      - loaded_mod_details/1
+      - loaded_modules/0
+      - memory/0
+      - node_info/1
+      - port/1
+      - ports/0
+      - proc_details/1
+      - processes/0
+      - read_file/1
+      - start/1
+      - timers/1
+      - to_proplist/2
+      - to_value_list/1
+      crypto:
+      - ec_curve/1
+      - ec_curves/0
+      - rand_seed/1
+      ct_telnet:
+      - end_gen_log/0
+      - format_data/2
+      - log/4
+      - silent_teln_expect/6
+      - start_gen_log/1
+      ct_telnet_client:
+      - open/5
+      dialyzer_callgraph:
+      - lookup_letrec/2
+      dialyzer_contracts:
+      - blame_remote/3
+      - blame_remote_list/3
+      - butlast/1
+      - check_contract/3
+      - check_contract_inf_list/3
+      - check_contracts/4
+      - check_domains/1
+      - check_extraneous/2
+      - check_extraneous_1/2
+      - constraints_fixpoint/4
+      - constraints_fixpoint/5
+      - constraints_to_dict/5
+      - constraints_to_string/1
+      - constraints_to_subs/6
+      - contract_from_form/3
+      - contract_from_form/5
+      - contract_to_string_1/1
+      - extra_contract_warning/6
+      - extra_range_warning/4
+      - final_form/5
+      - find_uses/1
+      - form_vars/2
+      - general_domain/1
+      - general_domain/2
+      - get_contract_signature/1
+      - get_invalid_contract_warnings/4
+      - get_invalid_contract_warnings_funs/5
+      - get_invalid_contract_warnings_modules/5
+      - initialize_constraints/4
+      - initialize_constraints/5
+      - insert_constraints/2
+      - invalid_contract_warning/4
+      - is_not_nil_list/1
+      - is_remote_types_related/4
+      - list_part/1
+      - overlapping_contract_warning/2
+      - picky_contract_check/7
+      - process_constraints/4
+      - process_contract/2
+      - process_contracts/2
+      - process_contracts/3
+      - remove_cycles/1
+      - remove_cycles/2
+      - remove_use/2
+      - remove_uses/2
+      - remove_uses/3
+      - sequence/2
+      - solve_constraints/3
+      - strip_fun/1
+      - t_from_forms_without_remote/2
+      - warn_spec_missing_fun/2
+      dict:
+      - is_empty/1
+      dtls_connection:
+      - abbreviated/2
+      - certify/2
+      - cipher/2
+      - code_change/4
+      - connection/2
+      - handle_event/3
+      - handle_info/3
+      - handle_normal_shutdown/3
+      - handle_own_alert/4
+      - handle_sync_event/4
+      - hello/2
+      - init/1
+      - next_record/1
+      - next_state/4
+      - read_application_data/2
+      - send_alert/2
+      - send_change_cipher/2
+      - send_handshake/2
+      - start_fsm/8
+      - start_link/7
+      - terminate/3
+      dtls_connection_sup:
+      - start_child_dist/1
+      - start_link_dist/0
+      dtls_handshake:
+      - encode_handshake/3
+      - hello/4
+      dtls_record:
+      - encode_change_cipher_spec/2
+      - encode_handshake/3
+      epp:
+      - open/1
+      - parse_file/2
+      - set_encoding/2
+      erl_bif_types:
+      - opaque_args/5
+      - type/5
+      erl_compile:
+      - compile_cmdline/0
+      erl_syntax:
+      - map_expr/1
+      - map_expr/2
+      - map_expr_argument/1
+      - map_expr_fields/1
+      - map_field_assoc/2
+      - map_field_assoc_name/1
+      - map_field_assoc_value/1
+      - map_field_exact/2
+      - map_field_exact_name/1
+      - map_field_exact_value/1
+      - named_fun_expr/2
+      - named_fun_expr_arity/1
+      - named_fun_expr_clauses/1
+      - named_fun_expr_name/1
+      erl_types:
+      - is_opaque_type/2
+      - number_max/2
+      - number_min/2
+      - t_atom_vals/2
+      - t_cons_hd/2
+      - t_cons_tl/2
+      - t_contains_opaque/2
+      - t_decorate_with_opaque/3
+      - t_find_unknown_opaque/3
+      - t_fun_args/2
+      - t_fun_arity/2
+      - t_fun_range/2
+      - t_has_opaque_subtype/2
+      - t_inf/1
+      - t_is_any_atom/2
+      - t_is_any_atom/3
+      - t_is_binary/2
+      - t_is_bitstr/2
+      - t_is_boolean/2
+      - t_is_cons/2
+      - t_is_float/2
+      - t_is_fun/2
+      - t_is_integer/2
+      - t_is_map/1
+      - t_is_map/2
+      - t_is_maybe_improper_list/2
+      - t_is_nil/2
+      - t_is_number/2
+      - t_is_opaque/2
+      - t_is_pid/2
+      - t_is_port/2
+      - t_is_reference/2
+      - t_is_tuple/2
+      - t_list_elements/2
+      - t_map/0
+      - t_map/1
+      - t_number_vals/2
+      - t_tuple_args/2
+      - t_tuple_size/2
+      - t_tuple_subtypes/2
+      erlang:
+      - check_process_code/3
+      - garbage_collect/2
+      - is_map/1
+      - map_size/1
+      erts_internal:
+      - binary_to_term/1
+      - binary_to_term/2
+      - check_process_code/2
+      - cmp_term/2
+      - request_system_task/3
+      gen_event:
+      - system_get_state/1
+      - system_replace_state/2
+      gen_fsm:
+      - system_get_state/1
+      - system_replace_state/2
+      gen_server:
+      - system_get_state/1
+      - system_replace_state/2
+      hipe:
+      - llvm_support_available/0
+      hipe_pack_constants:
+      - find_const/2
+      - mk_data_relocs/2
+      - slim_sorted_exportmap/3
+      hipe_rtl:
+      - call_fail_update/2
+      - call_normal/1
+      - call_normal_update/2
+      - mk_call/7
+      - mk_var/1
+      - mk_var/2
+      - pp_arg/2
+      - pp_reg/2
+      - pp_var/2
+      - rtl_label_range/1
+      - subst_uses_llvm/2
+      - var_liveness/1
+      - var_liveness_update/2
+      hipe_rtl_liveness:
+      - liveout/2
+      hipe_tagscheme:
+      - test_map/4
+      lists:
+      - droplast/1
+      megaco_ber_media_gateway_control_prev3a:
+      - legacy_erlang_types/0
+      megaco_ber_media_gateway_control_prev3b:
+      - legacy_erlang_types/0
+      megaco_ber_media_gateway_control_prev3c:
+      - legacy_erlang_types/0
+      megaco_ber_media_gateway_control_v1:
+      - legacy_erlang_types/0
+      megaco_ber_media_gateway_control_v2:
+      - legacy_erlang_types/0
+      megaco_ber_media_gateway_control_v3:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_prev3a:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_prev3b:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_prev3c:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_v1:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_v2:
+      - legacy_erlang_types/0
+      megaco_per_media_gateway_control_v3:
+      - legacy_erlang_types/0
+      mnesia:
+      - sync_log/0
+      mnesia_lib:
+      - other_val/1
+      - pr_other/2
+      mnesia_monitor:
+      - sync_log/1
+      observer:
+      - stop/0
+      observer_lib:
+      - create_status_bar/1
+      - destroy_progress_dialog/0
+      - display_progress_dialog/2
+      - display_yes_no_dialog/1
+      - html_window/1
+      - html_window/2
+      - report_progress/1
+      - wait_for_progress/0
+      observer_wx:
+      - stop/0
+      orddict:
+      - is_empty/1
+      prim_file:
+      - sendfile/8
+      re:
+      - inspect/2
+      ssl_connection:
+      - handshake/3
+      system_information:
+      - sanity_check/0
+      test_server:
+      - appup_test/1
+      test_server_sup:
+      - appup_test/1
+      - unique_name/0
+      - util_start/0
+      - util_stop/0
+      unix_telnet:
+      - connect/6
+      - connect1/7
+      wxEvtHandler:
+      - connect_impl/2
+      wx_misc:
+      - displaySize/0
+      - setCursor/1
+      wxe_master:
+      - fetch_msgs/0
+   removed:
+      cover:
+      - transform/4
+      crashdump_viewer:
+      - allocated_areas/2
+      - allocator_info/2
+      - atoms/3
+      - configData/0
+      - dist_info/2
+      - ets_tables/3
+      - expand/2
+      - expand_binary/2
+      - expand_memory/2
+      - filename_frame/2
+      - fun_table/3
+      - general_info/2
+      - hash_tables/2
+      - index_tables/2
+      - initial_info_frame/2
+      - internal_ets_tables/2
+      - loaded_mod_details/2
+      - loaded_modules/3
+      - memory/2
+      - menu_frame/2
+      - port/2
+      - ports/3
+      - proc_details/2
+      - processes/3
+      - read_file/2
+      - read_file_frame/2
+      - redirect/2
+      - sort_procs/3
+      - start_page/2
+      - timers/3
+      - toggle/2
+      ct_telnet:
+      - add_tabs/3
+      - call/2
+      - check_for_prompt/2
+      - check_if_prompt_was_reached/2
+      - cont_log/2
+      - convert_pattern/2
+      - debug_cont_log/2
+      - debug_log_lines/1
+      - do_try_log/2
+      - end_log/0
+      - force_cont_log/2
+      - full_addr/2
+      - get_data1/1
+      - get_haltpatterns/1
+      - get_handle/1
+      - get_handle/2
+      - get_ignore_prompt/1
+      - get_prompt_check/1
+      - get_repeat/1
+      - get_seq/1
+      - get_timeout/1
+      - heading/2
+      - log_lines/1
+      - log_lines_not_last/1
+      - match_line/4
+      - match_line/5
+      - match_lines/3
+      - match_prompt/2
+      - match_prompt/3
+      - one_expect/3
+      - one_expect1/4
+      - one_line/2
+      - reconnect/4
+      - remove_zero/1
+      - repeat_expect/4
+      - rm_dupl/2
+      - seq_expect/4
+      - seq_expect1/5
+      - set_telnet_defaults/2
+      - silent_teln_expect/5
+      - split_lines/1
+      - split_lines/3
+      - split_prompt_string/6
+      - start_log/1
+      - teln_cmd/4
+      - teln_expect/5
+      - teln_expect1/4
+      - teln_get_all_data/5
+      - teln_receive_until_prompt/4
+      - try_cont_log/2
+      - try_end_log/0
+      - try_log/3
+      - try_start_log/1
+      - type/1
+      ct_telnet_client:
+      - open/1
+      dialyzer_contracts:
+      - check_contracts/3
+      - get_invalid_contract_warnings/3
+      dtls_handshake:
+      - dtls_handshake_new_epoch/1
+      - dtls_handshake_new_flight/1
+      - encode_handshake/4
+      - hello/3
+      erl_bif_types:
+      - structure_inspecting_args/3
+      erl_compile:
+      - compile_cmdline/1
+      erl_types:
+      - t_has_opaque_subtype/1
+      - t_inf_lists_masked/3
+      - t_opaque_match_atom/2
+      - t_opaque_match_record/2
+      - t_opaque_matching_structure/2
+      - t_unify/3
+      - t_unopaque_on_mismatch/3
+      hipe_tagscheme:
+      - test_constant/4
+      prim_file:
+      - sendfile/10
+      unix_telnet:
+      - connect/5
+      - connect1/6
+      wxEvtHandler:
+      - connect_impl/3
+      - destroy_evt_listener/1
+      - disconnect_impl/3
+      - get_callback/1
+      - new_evt_listener/0
+      - replace_fun_with_id/2
+...

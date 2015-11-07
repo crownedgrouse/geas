@@ -1,0 +1,298 @@
+%YAML 1.2
+---
+from: R16B
+to: R16B01
+modules:
+   new:
+   - dtls
+   - dtls_connection
+   - dtls_handshake
+   - dtls_record
+   - prim_eval
+   - snmpa_mib_data_tttn
+   - snmpa_mib_storage
+   - snmpa_mib_storage_dets
+   - snmpa_mib_storage_ets
+   - snmpa_mib_storage_mnesia
+   - ssl_pkix_db
+   - ssl_srp_primes
+   - tls
+   - tls_connection
+   - tls_handshake
+   - tls_record
+   removed:
+   - snmpa_general_db
+   - ssl_certificate_db
+   - ssl_connection
+   - ssl_handshake
+   - ssl_record
+functions:
+   new:
+      OTP-PUB-KEY:
+      - certicom-arc/0
+      - dec_ECPrivateKey/2
+      - dec_dsaWithSHA1/3
+      - dec_ecdsa-with-sha224/3
+      - dec_ecdsa-with-sha256/3
+      - dec_ecdsa-with-sha384/3
+      - dec_ecdsa-with-sha512/3
+      - dec_sha-1with-rsa-encryption/3
+      - ecdsa-with-SHA2/0
+      - ecdsa-with-SHA224/0
+      - ecdsa-with-SHA256/0
+      - ecdsa-with-SHA384/0
+      - ecdsa-with-SHA512/0
+      - enc_ECPrivateKey/2
+      - enc_dsaWithSHA1/3
+      - enc_ecdsa-with-sha224/3
+      - enc_ecdsa-with-sha256/3
+      - enc_ecdsa-with-sha384/3
+      - enc_ecdsa-with-sha512/3
+      - enc_sha-1with-rsa-encryption/3
+      - id-dsaWithSHA1/0
+      - id-hmacWithSHA224/0
+      - id-hmacWithSHA256/0
+      - id-hmacWithSHA384/0
+      - id-hmacWithSHA512/0
+      - id-sha224/0
+      - id-sha256/0
+      - id-sha384/0
+      - id-sha512/0
+      - secp112r1/0
+      - secp112r2/0
+      - secp128r1/0
+      - secp128r2/0
+      - secp160k1/0
+      - secp160r1/0
+      - secp160r2/0
+      - secp192k1/0
+      - secp192r1/0
+      - secp224k1/0
+      - secp224r1/0
+      - secp256k1/0
+      - secp256r1/0
+      - secp384r1/0
+      - secp521r1/0
+      - sect113r1/0
+      - sect113r2/0
+      - sect131r1/0
+      - sect131r2/0
+      - sect163k1/0
+      - sect163r1/0
+      - sect163r2/0
+      - sect193r1/0
+      - sect193r2/0
+      - sect233k1/0
+      - sect233r1/0
+      - sect239k1/0
+      - sect283k1/0
+      - sect283r1/0
+      - sect409k1/0
+      - sect409r1/0
+      - sect571k1/0
+      - sect571r1/0
+      - sha-1WithRSAEncryption/0
+      application:
+      - ensure_started/1
+      - ensure_started/2
+      crypto:
+      - block_decrypt/3
+      - block_decrypt/4
+      - block_encrypt/3
+      - block_encrypt/4
+      - bytes_to_integer/1
+      - compute_key/4
+      - generate_key/2
+      - generate_key/3
+      - mod_pow/3
+      - next_iv/2
+      - next_iv/3
+      - private_decrypt/4
+      - private_encrypt/4
+      - public_decrypt/4
+      - public_encrypt/4
+      - sign/4
+      - stream_decrypt/2
+      - stream_encrypt/2
+      - stream_init/2
+      - stream_init/3
+      - supports/0
+      - verify/5
+      ct_gen_conn:
+      - get_conn_pid/1
+      ct_logs:
+      - tc_log/5
+      - tc_log_async/5
+      ct_telnet:
+      - get_prompt_check/1
+      ct_util:
+      - get_connection/2
+      - get_connections/1
+      dbg_wx_trace:
+      - start/4
+      dbg_wx_trace_win:
+      - update_strings/1
+      diameter_peer:
+      - match/2
+      - notify/3
+      - up/3
+      diameter_stats:
+      - sum/1
+      eprof:
+      - start_profiling/3
+      erlang:
+      - gather_gc_info_result/1
+      lists:
+      - filtermap/2
+      pubkey_cert_records:
+      - namedCurves/1
+      - supportedCurvesTypes/1
+      pubkey_pbe:
+      - pbdkdf2/7
+      public_key:
+      - compute_key/2
+      - compute_key/3
+      - generate_key/1
+      - pkix_sign_types/1
+      snmp_misc:
+      - is_crypto_supported/1
+      snmpa_mib_data:
+      - behaviour_info/1
+      ssl_certificate:
+      - public_key_type/1
+      ssl_cipher:
+      - filter_suites/1
+      - psk_suites/1
+      - srp_suites/0
+      ssl_tls1:
+      - ecc_curves/1
+      - enum_to_oid/1
+      - oid_to_enum/1
+      sys:
+      - get_state/1
+      - get_state/2
+      - replace_state/2
+      - replace_state/3
+      test_server_io:
+      - print_unexpected/1
+      - stop/1
+      test_server_node:
+      - kill_nodes/0
+      - nodedown/1
+      - stop_node/1
+   removed:
+      OTP-PUB-KEY:
+      - c-TwoCurve/0
+      - c2onb191v4/0
+      - c2onb191v5/0
+      - c2onb239v4/0
+      - c2onb239v5/0
+      - c2pnb163v1/0
+      - c2pnb163v2/0
+      - c2pnb163v3/0
+      - c2pnb176w1/0
+      - c2pnb208w1/0
+      - c2pnb272w1/0
+      - c2pnb304w1/0
+      - c2pnb368w1/0
+      - c2tnb191v1/0
+      - c2tnb191v2/0
+      - c2tnb191v3/0
+      - c2tnb239v1/0
+      - c2tnb239v2/0
+      - c2tnb239v3/0
+      - c2tnb359v1/0
+      - c2tnb431r1/0
+      - prime192v1/0
+      - prime192v2/0
+      - prime192v3/0
+      - prime239v1/0
+      - prime239v2/0
+      - prime239v3/0
+      - prime256v1/0
+      - primeCurve/0
+      crypto:
+      - sha224/1
+      - sha224_final/1
+      - sha224_init/0
+      - sha224_mac/2
+      - sha224_mac/3
+      - sha224_update/2
+      - sha256/1
+      - sha256_final/1
+      - sha256_init/0
+      - sha256_mac/2
+      - sha256_mac/3
+      - sha256_update/2
+      - sha384/1
+      - sha384_final/1
+      - sha384_init/0
+      - sha384_mac/2
+      - sha384_mac/3
+      - sha384_update/2
+      - sha512/1
+      - sha512_final/1
+      - sha512_init/0
+      - sha512_mac/2
+      - sha512_mac/3
+      - sha512_update/2
+      ct_config:
+      - get_name_from_ref/1
+      - get_ref_from_name/1
+      ct_util:
+      - ct_make_ref/0
+      - get_connections/2
+      diameter_lib:
+      - ip4address/1
+      - ip6address/1
+      - report/2
+      diameter_peer:
+      - notify/2
+      erts_internal:
+      - port_get_data/1
+      - port_set_data/2
+      http_chunk:
+      - decode/4
+      httpc_handler:
+      - stream/3
+      pubkey_cert:
+      - digest_type/1
+      pubkey_pbe:
+      - pbdkdf2/6
+      snmpa_mib_data:
+      - backup/2
+      - close/1
+      - code_change/2
+      - dump/1
+      - dump/2
+      - info/1
+      - info/2
+      - load_mib/4
+      - lookup/2
+      - new/0
+      - new/1
+      - next/3
+      - register_subagent/3
+      - sync/1
+      - unload_mib/4
+      - unregister_subagent/2
+      - whereis_mib/2
+      - which_mib/2
+      - which_mibs/1
+      ssh_bits:
+      - irandom/1
+      - irandom/3
+      ssh_math:
+      - ilog2/1
+      - invert/2
+      - ipow2/3
+      ssl_certificate:
+      - signature_type/1
+      test_server_io:
+      - stop/0
+      test_server_node:
+      - kill_nodes/1
+      - nodedown/2
+      - stop/1
+      - stop_node/2
+...

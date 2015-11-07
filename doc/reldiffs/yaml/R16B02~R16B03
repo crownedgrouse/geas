@@ -1,0 +1,264 @@
+%YAML 1.2
+---
+from: R16B02
+to: R16B03
+modules:
+   new:
+   - dtls_connection_sup
+   - ssh_message
+   - ssl_config
+   - ssl_connection
+   - tls_connection_sup
+   removed:
+   - ssh_connection_manager
+   - ssh_userreg
+   - ssl_connection_sup
+functions:
+   new:
+      OTP-PUB-KEY:
+      - dec_OTP-emailAddress/2
+      - enc_OTP-emailAddress/2
+      cth_log_redirect:
+      - code_change/3
+      - terminate/2
+      dtls:
+      - accept/1
+      - accept/2
+      - connect/2
+      - connect/3
+      - handshake/1
+      - handshake/2
+      - handshake/3
+      - listen/2
+      dtls_handshake:
+      - client_hello/8
+      eldap:
+      - start_tls/2
+      - start_tls/3
+      eunit_proc:
+      - io_error_test_/0
+      ftp:
+      - latest_ctrl_response/1
+      httpc_handler:
+      - cancel/2
+      inet:
+      - peernames/1
+      - peernames/2
+      - socknames/1
+      - socknames/2
+      os:
+      - unsetenv/1
+      prim_inet:
+      - peernames/1
+      - peernames/2
+      - socknames/1
+      - socknames/2
+      snmp:
+      - log_to_io/7
+      - log_to_txt/8
+      snmp_log:
+      - log_to_io/7
+      - log_to_txt/8
+      snmp_usm:
+      - aes_encrypt/5
+      snmpa:
+      - log_to_io/7
+      - log_to_txt/8
+      snmpm:
+      - log_to_io/7
+      - log_to_txt/8
+      ssh_bits:
+      - erlint/2
+      ssh_connection:
+      - channel_data/5
+      - channel_status_msg/1
+      - handle_msg/3
+      ssh_connection_handler:
+      - adjust_window/3
+      - channel_info/3
+      - close/2
+      - connection_info/2
+      - global_request/4
+      - info/1
+      - info/2
+      - open_channel/6
+      - reply_request/3
+      - request/6
+      - request/7
+      - send/5
+      - send_eof/2
+      - start_connection/4
+      - start_link/3
+      - stop/1
+      ssh_connection_sup:
+      - start_child/2
+      ssh_no_io:
+      - read_line/2
+      - read_password/2
+      - yes_no/2
+      ssl_alert:
+      - encode/3
+      ssl_cipher:
+      - ec_keyed_suites/0
+      ssl_handshake:
+      - client_hello_extensions/6
+      - init_handshake_history/0
+      - premaster_secret/2
+      - premaster_secret/3
+      - premaster_secret/4
+      - select_curve/2
+      - server_hello/4
+      - supported_ecc/1
+      - update_handshake_history/2
+      - verify_server_key/5
+      ssl_record:
+      - cipher/4
+      - decipher/3
+      ssl_socket:
+      - socket/4
+      tls:
+      - accept/1
+      - accept/2
+      - handshake/1
+      - handshake/2
+      - handshake/3
+      tls_connection:
+      - alert_user/5
+      - alert_user/8
+      - handle_close_alert/3
+      - handle_normal_shutdown/3
+      - handle_own_alert/4
+      - handle_unexpected_message/3
+      - next_record/1
+      - next_record_if_active/1
+      - next_state/4
+      - next_state_connection/2
+      - passive_receive/2
+      - read_application_data/2
+      - renegotiate/1
+      - send_alert/2
+      - send_change_cipher/2
+      - send_handshake/2
+      - start_fsm/8
+      - workaround_transport_delivery_problems/2
+      - write_application_data/3
+   removed:
+      dtls_record:
+      - cipher/4
+      - decipher/2
+      httpc_handler:
+      - cancel/3
+      httpc_manager:
+      - request_canceled/3
+      snmp_usm:
+      - aes_encrypt/3
+      ssh_auth:
+      - userauth_messages/0
+      ssh_bits:
+      - b64_decode/1
+      - b64_encode/1
+      - bignum/1
+      - bin2i/1
+      - decode/1
+      - decode/2
+      - decode/3
+      - encode/1
+      - fill_bits/2
+      - i2bin/2
+      - install_messages/1
+      - isize/1
+      - uninstall_messages/1
+      - xor_bits/2
+      ssh_cli:
+      - listen/1
+      - listen/2
+      - listen/3
+      - listen/4
+      - stop/1
+      ssh_connection:
+      - channel_data/6
+      - handle_msg/4
+      - messages/0
+      ssh_connection_handler:
+      - connection_info/3
+      - peer_address/1
+      - send/2
+      - send_event/2
+      - ssh_info_handler/3
+      - start_link/4
+      ssh_connection_sup:
+      - connection_manager/1
+      - start_handler_child/2
+      - start_manager_child/2
+      ssh_no_io:
+      - read_line/1
+      - read_password/1
+      - yes_no/1
+      ssh_transport:
+      - accept/4
+      - connect/5
+      - kex_dh_gex_messages/0
+      - kexdh_messages/0
+      - transport_messages/1
+      ssl_handshake:
+      - available_suites/3
+      - client_hello_extensions/5
+      - decrypt_premaster_secret/2
+      ssl_socket:
+      - socket/3
+      tls:
+      - cipher_suites/0
+      - cipher_suites/1
+      - clear_pem_cache/0
+      - close/1
+      - connect/4
+      - connection_info/1
+      - controlling_process/2
+      - format_error/1
+      - getopts/2
+      - negotiated_next_protocol/1
+      - peercert/1
+      - peername/1
+      - prf/5
+      - random_bytes/1
+      - recv/2
+      - recv/3
+      - renegotiate/1
+      - send/2
+      - session_info/1
+      - setopts/2
+      - shutdown/2
+      - sockname/1
+      - ssl_accept/1
+      - ssl_accept/2
+      - ssl_accept/3
+      - start/0
+      - start/1
+      - stop/0
+      - suite_definition/1
+      - transport_accept/1
+      - transport_accept/2
+      - versions/0
+      tls_connection:
+      - close/1
+      - connect/7
+      - get_opts/2
+      - handshake/2
+      - info/1
+      - negotiated_next_protocol/1
+      - new_user/2
+      - peer_certificate/1
+      - prf/5
+      - recv/3
+      - renegotiation/1
+      - send/2
+      - session_info/1
+      - set_opts/2
+      - shutdown/2
+      - socket_control/3
+      - ssl_accept/6
+      tls_handshake:
+      - init_handshake_history/0
+      - server_hello/4
+      - update_handshake_history/2
+...

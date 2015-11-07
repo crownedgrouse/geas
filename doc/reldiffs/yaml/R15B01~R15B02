@@ -1,0 +1,287 @@
+%YAML 1.2
+---
+from: R15B01
+to: R15B02
+modules:
+   new:
+   - ct_conn_log_h
+   - ct_netconfc
+   - cth_conn_log
+   - diameter_transport
+   - observer
+   - observer_app_wx
+   - observer_lib
+   - observer_perf_wx
+   - observer_pro_wx
+   - observer_procinfo
+   - observer_sys_wx
+   - observer_trace_wx
+   - observer_traceoptions_wx
+   - observer_tv_table
+   - observer_tv_wx
+   - observer_wx
+   removed:
+   - cerl_hybrid_transform
+   - eunit_tests
+functions:
+   new:
+      OTP-PUB-KEY:
+      - dec_OTP-X520countryname/2
+      - enc_OTP-X520countryname/2
+      - sha224WithRSAEncryption/0
+      asn1rt_per_bin:
+      - minimum_bits/1
+      code:
+      - set_primary_archive/4
+      crypto:
+      - hash/2
+      - hash_final/1
+      - hash_init/1
+      - hash_update/2
+      - sha224/1
+      - sha224_final/1
+      - sha224_init/0
+      - sha224_mac/2
+      - sha224_mac/3
+      - sha224_update/2
+      - sha256_mac/2
+      - sha256_mac/3
+      - sha384/1
+      - sha384_final/1
+      - sha384_init/0
+      - sha384_mac/2
+      - sha384_mac/3
+      - sha384_update/2
+      - sha512_mac/2
+      - sha512_mac/3
+      ct:
+      - break/1
+      - break/2
+      - continue/0
+      - continue/1
+      - log/4
+      - notify/2
+      - pal/4
+      - print/4
+      - sync_notify/2
+      ct_event:
+      - notify/2
+      - sync_notify/2
+      ct_framework:
+      - get_html_wrapper/4
+      ct_gen_conn:
+      - call/3
+      - check_opts/1
+      - check_opts/2
+      - do_start/1
+      - do_start/4
+      ct_logs:
+      - get_ts_html_wrapper/4
+      - init/2
+      - insert_javascript/1
+      - locate_priv_file/1
+      - tc_pal/4
+      - tc_print/4
+      ct_util:
+      - get_testdata/2
+      - is_silenced/2
+      - start/3
+      - update_testdata/3
+      dialyzer_analysis_callgraph:
+      - add_to_result/4
+      - compile_init_result/0
+      - continue_compilation/2
+      - start_compilation/2
+      dialyzer_behaviours:
+      - check_callbacks/5
+      dialyzer_callgraph:
+      - add_edges/3
+      - dispose_race_server/1
+      - duplicate/1
+      - get_depends_on/2
+      - get_required_by/2
+      - renew_race_code/2
+      - renew_race_public_tables/2
+      dialyzer_dataflow:
+      - dispose_state/1
+      - state__duplicate/1
+      dialyzer_plt:
+      - get_mini_plt/1
+      - restore_full_plt/2
+      dialyzer_races:
+      - get_race_list_and_size/1
+      dialyzer_succ_typings:
+      - analyze_callgraph/6
+      - collect_warnings/2
+      - find_depends_on/2
+      - find_required_by/2
+      - find_succ_types_for_scc/2
+      - get_warnings/8
+      - lookup_names/2
+      - refine_one_module/2
+      dialyzer_typesig:
+      - analyze_scc/6
+      dialyzer_utils:
+      - parallelism/0
+      diameter_etcp:
+      - getstat/1
+      - peername/1
+      - sockname/1
+      diameter_peer:
+      - start/1
+      diameter_sctp:
+      - info/1
+      diameter_tcp:
+      - info/1
+      dyntrace:
+      - pn/1
+      - pn/2
+      - pn/3
+      - pn/4
+      - pn/5
+      - pn/6
+      - pn/7
+      - pn/8
+      - pn/9
+      erl_prim_loader:
+      - set_primary_archive/4
+      escript:
+      - parse_file/1
+      eunit_data:
+      - trivial_generator_test_/0
+      - trivial_test/0
+      eunit_lib:
+      - format_exception_test_/0
+      - is_not_test/1
+      eunit_test:
+      - mf_wrapper/2
+      httpc:
+      - which_sessions/0
+      - which_sessions/1
+      httpc_manager:
+      - lookup_session/2
+      - which_session_info/1
+      - which_sessions/1
+      ssl:
+      - clear_pem_cache/0
+      - random_bytes/1
+      - suite_definition/1
+      ssl_certificate_db:
+      - cache_pem_file/2
+      - cache_pem_file/3
+      - clear/1
+      - db_size/1
+      - insert/3
+      - lookup_cached_pem/2
+      - ref_count/3
+      - remove/2
+      ssl_cipher:
+      - cipher/5
+      - hash_algorithm/1
+      - security_parameters/3
+      - sign_algorithm/1
+      ssl_handshake:
+      - certificate_verify/6
+      - client_certificate_verify/6
+      - client_hello/8
+      - finished/5
+      - get_tls_handshake/3
+      - init_handshake_history/0
+      - key_exchange/3
+      - update_handshake_history/2
+      - verify_connection/6
+      ssl_manager:
+      - clean_cert_db/2
+      - clear_pem_cache/0
+      - new_session_id/1
+      ssl_session:
+      - client_id/4
+      - server_id/6
+      ssl_tls1:
+      - certificate_verify/3
+      - finished/5
+      - master_secret/4
+      - prf/5
+      - setup_keys/8
+      - suites/1
+      test_server:
+      - break/2
+      - break/3
+      - continue/1
+      - permit_io/2
+      test_server_ctrl:
+      - reject_io_reqs/1
+   removed:
+      code:
+      - set_primary_archive/3
+      ct_framework:
+      - get_html_wrapper/3
+      ct_gen_conn:
+      - nozero/1
+      ct_logs:
+      - get_ts_html_wrapper/3
+      - init/1
+      - locate_default_css_file/0
+      dialyzer_behaviours:
+      - check_callbacks/4
+      dialyzer_callgraph:
+      - take_scc/1
+      dialyzer_codeserver:
+      - store_contracts/3
+      - store_records/3
+      dialyzer_dataflow:
+      - get_top_level_signatures/2
+      - pp/1
+      dialyzer_succ_typings:
+      - analyze_callgraph/4
+      - doit/1
+      - get_top_level_signatures/3
+      - get_warnings/6
+      dialyzer_typesig:
+      - analyze_scc/5
+      diameter_etcp:
+      - port/1
+      diameter_service:
+      - flush_stats/1
+      diameter_stats:
+      - flush/0
+      - incr/2
+      dyntrace:
+      - scaff/0
+      erl_prim_loader:
+      - set_primary_archive/3
+      erlang:
+      - garbage_collect_message_area/0
+      eunit_test:
+      - function_wrapper/2
+      ssl_certificate_db:
+      - cache_pem_file/4
+      - lookup_cached_certs/2
+      - uncache_pem_file/2
+      ssl_cipher:
+      - cipher/4
+      - security_parameters/2
+      ssl_handshake:
+      - certificate_verify/5
+      - client_certificate_verify/5
+      - client_hello/6
+      - finished/4
+      - get_tls_handshake/2
+      - init_hashes/0
+      - key_exchange/2
+      - update_hashes/2
+      - verify_connection/5
+      ssl_manager:
+      - client_session_id/4
+      - server_session_id/4
+      ssl_session:
+      - id/4
+      - id/7
+      ssl_tls1:
+      - certificate_verify/2
+      - finished/3
+      - master_secret/3
+      - prf/4
+      - setup_keys/6
+      - suites/0
+...

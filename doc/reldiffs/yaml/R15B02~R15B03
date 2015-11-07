@@ -1,0 +1,173 @@
+%YAML 1.2
+---
+from: R15B02
+to: R15B03
+modules:
+   new:
+   - egd
+   - egd_font
+   - egd_png
+   - egd_primitives
+   - egd_render
+   - lcnt
+   - percept_image
+   removed:
+functions:
+   new:
+      OTP-PUB-KEY:
+      - data/0
+      - dec_CRLSequence/2
+      - dec_CertificateRevocationLists/2
+      - dec_Certificates/2
+      - dec_CertificationRequest/2
+      - dec_CertificationRequestInfo/2
+      - dec_ContentEncryptionAlgorithmIdentifier/2
+      - dec_ContentInfo/2
+      - dec_ContentType/2
+      - dec_Data/2
+      - dec_Digest/2
+      - dec_DigestAlgorithmIdentifier/2
+      - dec_DigestAlgorithmIdentifiers/2
+      - dec_DigestEncryptionAlgorithmIdentifier/2
+      - dec_DigestInfoPKCS-1/2
+      - dec_DigestInfoPKCS-7/2
+      - dec_DigestedData/2
+      - dec_EncryptedContent/2
+      - dec_EncryptedContentInfo/2
+      - dec_EncryptedData/2
+      - dec_EncryptedDigest/2
+      - dec_EncryptedKey/2
+      - dec_EnvelopedData/2
+      - dec_ExtendedCertificate/2
+      - dec_ExtendedCertificateOrCertificate/2
+      - dec_ExtendedCertificatesAndCertificates/2
+      - dec_IssuerAndSerialNumber/2
+      - dec_KeyEncryptionAlgorithmIdentifier/2
+      - dec_MessageDigest/2
+      - dec_RecipientInfo/2
+      - dec_RecipientInfos/2
+      - dec_SignedAndEnvelopedData/2
+      - dec_SignedData/2
+      - dec_SignerInfo/2
+      - dec_SignerInfos/2
+      - dec_SigningTime/2
+      - dec_contentType/3
+      - dec_counterSignature/3
+      - dec_messageDigest/3
+      - dec_signingTime/3
+      - digestedData/0
+      - enc_CRLSequence/2
+      - enc_CertificateRevocationLists/2
+      - enc_Certificates/2
+      - enc_CertificationRequest/2
+      - enc_CertificationRequestInfo/2
+      - enc_ContentEncryptionAlgorithmIdentifier/2
+      - enc_ContentInfo/2
+      - enc_ContentType/2
+      - enc_Data/2
+      - enc_Digest/2
+      - enc_DigestAlgorithmIdentifier/2
+      - enc_DigestAlgorithmIdentifiers/2
+      - enc_DigestEncryptionAlgorithmIdentifier/2
+      - enc_DigestInfoPKCS-1/2
+      - enc_DigestInfoPKCS-7/2
+      - enc_DigestedData/2
+      - enc_EncryptedContent/2
+      - enc_EncryptedContentInfo/2
+      - enc_EncryptedData/2
+      - enc_EncryptedDigest/2
+      - enc_EncryptedKey/2
+      - enc_EnvelopedData/2
+      - enc_ExtendedCertificate/2
+      - enc_ExtendedCertificateOrCertificate/2
+      - enc_ExtendedCertificatesAndCertificates/2
+      - enc_IssuerAndSerialNumber/2
+      - enc_KeyEncryptionAlgorithmIdentifier/2
+      - enc_MessageDigest/2
+      - enc_RecipientInfo/2
+      - enc_RecipientInfos/2
+      - enc_SignedAndEnvelopedData/2
+      - enc_SignedData/2
+      - enc_SignerInfo/2
+      - enc_SignerInfos/2
+      - enc_SigningTime/2
+      - enc_contentType/3
+      - enc_counterSignature/3
+      - enc_messageDigest/3
+      - enc_signingTime/3
+      - encryptedData/0
+      - envelopedData/0
+      - getdec_Authenticated/2
+      - getdec_CRIAttributes/2
+      - getdec_ContentEncryptionAlgorithms/2
+      - getdec_Contents/2
+      - getdec_DigestAlgorithms/2
+      - getdec_DigestEncryptionAlgorithms/2
+      - getdec_KeyEncryptionAlgorithms/2
+      - getdec_PKInfoAlgorithms/2
+      - getdec_SignatureAlgorithms/2
+      - getdec_Unauthenticated/2
+      - getdec_internal_object_set_argument_1/2
+      - getdec_internal_object_set_argument_10/2
+      - getdec_internal_object_set_argument_11/2
+      - getdec_internal_object_set_argument_2/2
+      - getdec_internal_object_set_argument_3/2
+      - getdec_internal_object_set_argument_4/2
+      - getdec_internal_object_set_argument_5/2
+      - getdec_internal_object_set_argument_6/2
+      - getdec_internal_object_set_argument_7/2
+      - getdec_internal_object_set_argument_8/2
+      - getdec_internal_object_set_argument_9/2
+      - getenc_Authenticated/2
+      - getenc_CRIAttributes/2
+      - getenc_ContentEncryptionAlgorithms/2
+      - getenc_Contents/2
+      - getenc_DigestAlgorithms/2
+      - getenc_DigestEncryptionAlgorithms/2
+      - getenc_KeyEncryptionAlgorithms/2
+      - getenc_PKInfoAlgorithms/2
+      - getenc_SignatureAlgorithms/2
+      - getenc_Unauthenticated/2
+      - getenc_internal_object_set_argument_1/2
+      - getenc_internal_object_set_argument_10/2
+      - getenc_internal_object_set_argument_11/2
+      - getenc_internal_object_set_argument_2/2
+      - getenc_internal_object_set_argument_3/2
+      - getenc_internal_object_set_argument_4/2
+      - getenc_internal_object_set_argument_5/2
+      - getenc_internal_object_set_argument_6/2
+      - getenc_internal_object_set_argument_7/2
+      - getenc_internal_object_set_argument_8/2
+      - getenc_internal_object_set_argument_9/2
+      - pkcs-7/0
+      - pkcs-9-at-contentType/0
+      - pkcs-9-at-counterSignature/0
+      - pkcs-9-at-messageDigest/0
+      - pkcs-9-at-signingTime/0
+      - signedAndEnvelopedData/0
+      - signedData/0
+      diameter_reg:
+      - wait/1
+      diameter_session:
+      - sequence/1
+      ssh_io:
+      - read_line/2
+      - read_password/2
+      - yes_no/2
+   removed:
+      OTP-PUB-KEY:
+      - dec_DigestInfo/2
+      - enc_DigestInfo/2
+      ct_framework:
+      - make_all_conf/3
+      - make_conf/5
+      dialyzer_behaviours:
+      - get_behaviour_apis/1
+      - translatable_behaviours/1
+      - translate_behaviour_api_call/5
+      - translate_callgraph/3
+      ssh_io:
+      - read_line/1
+      - read_password/1
+      - yes_no/1
+...

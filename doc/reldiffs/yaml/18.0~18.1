@@ -1,0 +1,72 @@
+%YAML 1.2
+---
+from: 18.0
+to: 18.1
+modules:
+   new:
+   - wxAuiSimpleTabArt
+   - wxMouseCaptureLostEvent
+   removed:
+   - ssh_math
+functions:
+   new:
+      erl_types:
+      - lift_list_to_pos_empty/2
+      - t_from_form_without_remote/3
+      - t_list_termination/2
+      error_logger_tty_h:
+      - write_event/3
+      hipe:
+      - erts_checksum/0
+      httpd_request_handler:
+      - format_status/2
+      proc_lib:
+      - format/3
+      shell:
+      - catch_exception/1
+      ssh_connection_handler:
+      - kex/1
+      - key_exchange_dh_gex_init/2
+      - key_exchange_dh_gex_reply/2
+      - set_prefix_if_trouble/2
+      ssh_transport:
+      - handle_kex_dh_gex_init/2
+      - handle_kex_ecdh_init/2
+      - handle_kex_ecdh_reply/2
+      ssl:
+      - close/2
+      ssl_connection:
+      - close/2
+      tls_connection:
+      - close/5
+      wxAuiDockArt:
+      - getColour/2
+      - getFont/2
+      - getMetric/2
+      - setColour/3
+      - setFont/3
+      - setMetric/3
+      wxAuiPaneInfo:
+      - getDirection/1
+      - getFloatingPosition/1
+      - getFloatingSize/1
+      - getFrame/1
+      - getLayer/1
+      - getPosition/1
+      - getRow/1
+      - getWindow/1
+      wxAuiTabArt:
+      - setActiveColour/2
+      - setColour/2
+      - setFlags/2
+      - setMeasuringFont/2
+      - setNormalFont/2
+      - setSelectedFont/2
+   removed:
+      erl_types:
+      - t_from_form_without_remote/2
+      ssl_connection:
+      - close/1
+      tls_connection:
+      - workaround_transport_delivery_problems/2
+...

@@ -1,0 +1,529 @@
+%YAML 1.2
+---
+from: 17.5
+to: 18.0
+modules:
+   new:
+   - cdv_sched_cb
+   - cerl_sets
+   - erl_anno
+   - httpd_custom
+   - inets_lib
+   - inets_time_compat
+   - merl
+   - merl_transform
+   - observer_alloc_wx
+   - rand
+   - ssl_crl
+   - ssl_crl_cache
+   - ssl_crl_cache_api
+   - sys_core_fold_lists
+   removed:
+   - mod_include
+   - pg
+functions:
+   new:
+      CosNotification_Common:
+      - create_name/0
+      ELDAPv3:
+      - dec_PasswdModifyRequestValue/2
+      - dec_PasswdModifyResponseValue/2
+      - enc_PasswdModifyRequestValue/2
+      - enc_PasswdModifyResponseValue/2
+      beam_utils:
+      - join_even/2
+      - split_even/1
+      c:
+      - uptime/0
+      cdv_bin_cb:
+      - get_details/2
+      cdv_detail_wx:
+      - start_link/4
+      cdv_dist_cb:
+      - get_details/2
+      cdv_ets_cb:
+      - detail_pages/0
+      - get_details/2
+      cdv_mod_cb:
+      - get_details/2
+      cdv_port_cb:
+      - get_details/2
+      cdv_proc_cb:
+      - get_details/2
+      cdv_term_cb:
+      - get_details/2
+      cdv_virtual_list_wx:
+      - start_detail_win/2
+      cerl:
+      - ann_c_map_pattern/2
+      - c_map_pattern/1
+      - is_c_map/1
+      cerl_pmatch:
+      - core_transform/2
+      - expr/2
+      - transform/2
+      cover:
+      - analyse/0
+      - analyse_to_file/0
+      - analyze/0
+      - analyze_to_file/0
+      crashdump_viewer:
+      - schedulers/0
+      ct:
+      - get_testspec_terms/0
+      - get_testspec_terms/1
+      ct_netconfc:
+      - edit_config/5
+      - hello/3
+      ct_testspec:
+      - testspec_rec2list/1
+      - testspec_rec2list/2
+      dialyzer_codeserver:
+      - insert_fun_meta_info/2
+      - lookup_meta_info/2
+      dialyzer_dataflow:
+      - get_fun_types/5
+      - state__find_function/2
+      dialyzer_options:
+      - build_warnings/2
+      dialyzer_succ_typings:
+      - get_warnings/7
+      dialyzer_utils:
+      - family/1
+      - get_fun_meta_info/3
+      - is_suppressed_fun/2
+      - is_suppressed_tag/3
+      edlin:
+      - init/1
+      edoc:
+      - run/2
+      edoc_lib:
+      - find_file/2
+      - get_doc_env/3
+      - write_info_file/3
+      eldap:
+      - modify_password/3
+      - modify_password/4
+      erl_internal:
+      - is_type/2
+      erl_parse:
+      - anno_from_term/1
+      - anno_to_term/1
+      - fold_anno/3
+      - map_anno/2
+      - mapfold_anno/3
+      - new_anno/1
+      - type_inop_prec/1
+      - type_preop_prec/1
+      erl_scan:
+      - category/1
+      - column/1
+      - end_location/1
+      - line/1
+      - location/1
+      - symbol/1
+      - text/1
+      erl_types:
+      - t_check_record_fields/4
+      - t_check_record_fields/5
+      - t_from_form/4
+      - t_from_form/5
+      - t_from_form_without_remote/2
+      - t_var_names/1
+      erlang:
+      - cancel_timer/2
+      - convert_time_unit/3
+      - get_keys/0
+      - monotonic_time/0
+      - monotonic_time/1
+      - read_timer/2
+      - send_after/4
+      - start_timer/4
+      - system_time/0
+      - system_time/1
+      - time_offset/0
+      - time_offset/1
+      - timestamp/0
+      - unique_integer/0
+      - unique_integer/1
+      erts_debug:
+      - ic/1
+      - map_info/1
+      erts_internal:
+      - await_result/1
+      - flush_monitor_messages/3
+      - gather_io_bytes/2
+      - is_system_process/1
+      - map_hashmap_children/1
+      - map_type/1
+      - time_unit/0
+      ets:
+      - take/2
+      - update_counter/4
+      gb_sets:
+      - iterator_from/2
+      gb_trees:
+      - iterator_from/2
+      gen:
+      - stop/1
+      - stop/3
+      gen_event:
+      - stop/3
+      gen_fsm:
+      - stop/1
+      - stop/3
+      gen_server:
+      - stop/1
+      - stop/3
+      hipe_unified_loader:
+      - load/3
+      - load_module/4
+      - load_native_code/3
+      - post_beam_load/2
+      httpd_conf:
+      - get_config/4
+      - white_space_clean/1
+      httpd_manager:
+      - config_match/4
+      httpd_misc_sup:
+      - start_auth_server/3
+      - start_link/3
+      - start_sec_server/3
+      - stop_auth_server/3
+      - stop_sec_server/3
+      httpd_sup:
+      - restart_child/3
+      - stop_child/3
+      io_lib:
+      - build_text/1
+      - scan_format/2
+      - unscan_format/1
+      io_lib_format:
+      - build/1
+      - scan/2
+      - unscan/1
+      maps:
+      - filter/2
+      math:
+      - log2/1
+      mnesia_controller:
+      - snapshot_dcd/1
+      mnesia_dumper:
+      - needs_dump_ets/1
+      - snapshot_dcd/1
+      mod_auth_server:
+      - start/3
+      - start_link/3
+      - stop/3
+      mod_security_server:
+      - check_blocked_user/6
+      - delete_tables/3
+      - new_table/4
+      - start/3
+      - start_link/3
+      - stop/3
+      - store_failed_auth/6
+      - store_successful_auth/5
+      observer_perf_wx:
+      - refresh_panel/6
+      - setup_graph_drawing/1
+      os:
+      - getenv/2
+      - system_time/0
+      - system_time/1
+      otp_internal:
+      - obsolete_type/3
+      proc_lib:
+      - stop/1
+      - stop/3
+      shell_default:
+      - uptime/0
+      ssh:
+      - default_algorithms/0
+      - stop_daemon/3
+      - stop_listener/3
+      ssh_acceptor_sup:
+      - stop_child/4
+      ssh_auth:
+      - default_public_key_algorithms/0
+      ssh_connection_handler:
+      - add_request/4
+      - after_new_keys/1
+      - after_new_keys_events/2
+      - available_host_key/3
+      - check_cache/2
+      - connected_fun/4
+      - counterpart_versions/3
+      - disconnect_fun/2
+      - disconnect_replies/3
+      - do_retry_fun/4
+      - error_code/1
+      - event/3
+      - generate_event/4
+      - generate_event_new_state/2
+      - get_idle_time/1
+      - getopt/2
+      - handle_channel_down/2
+      - handle_disconnect/2
+      - handle_disconnect/3
+      - handle_disconnect/4
+      - handle_global_request/2
+      - handle_idle_timeout/1
+      - handle_idle_timer/2
+      - handle_request/6
+      - handle_request/7
+      - handle_ssh_packet/3
+      - handle_ssh_packet_data/5
+      - handle_version/3
+      - handshake/3
+      - init_role/1
+      - init_ssh/5
+      - log_error/1
+      - new_channel_id/1
+      - next_packet/1
+      - not_connected_filter/1
+      - opposite_role/1
+      - remove_timer_ref/1
+      - retry_fun/4
+      - send_all_state_event/2
+      - send_event/2
+      - send_msg/2
+      - send_replies/2
+      - send_reply/1
+      - socket_control/3
+      - ssh_channel_info/3
+      - ssh_info/3
+      - start_the_connection_child/4
+      - start_timeout/3
+      - string_version/1
+      - supported_host_keys/3
+      - sync_send_all_state_event/2
+      - sync_send_all_state_event/3
+      - terminate_subsytem/1
+      - unexpected_fun/3
+      - update_sys/4
+      ssh_info:
+      - indent/2
+      - line/3
+      - nyi/1
+      - print/1
+      - print_channel/2
+      - print_channels/2
+      - print_client/2
+      - print_clients/1
+      - print_general/1
+      - print_server/2
+      - print_servers/1
+      - print_system_sup/2
+      - underline/3
+      - walk_sups/3
+      ssh_system_sup:
+      - restart_acceptor/3
+      - restart_subsystem/3
+      - stop_listener/3
+      - stop_system/3
+      - system_supervisor/3
+      ssh_transport:
+      - default_algorithms/0
+      - default_algorithms/1
+      - supported_algorithms/0
+      - supported_algorithms/1
+      sshd_sup:
+      - stop_child/3
+      ssl:
+      - connection_information/1
+      - connection_information/2
+      - handle_options/2
+      - negotiated_protocol/1
+      ssl_certificate:
+      - file_to_crls/2
+      - validate/3
+      ssl_cipher:
+      - anonymous_suites/1
+      - cipher_aead/6
+      - cipher_init/3
+      - decipher_aead/6
+      - rc4_suites/1
+      ssl_connection:
+      - connection_information/1
+      - handle_session/7
+      - negotiated_protocol/1
+      ssl_handshake:
+      - certify/10
+      ssl_manager:
+      - connection_init/3
+      - delete_crls/1
+      - delete_crls/2
+      - insert_crls/2
+      - insert_crls/3
+      ssl_pkix_db:
+      - add_crls/3
+      - remove_crls/2
+      - select_cert_by_issuer/2
+      ssl_record:
+      - cipher_aead/4
+      - decipher_aead/4
+      supervisor:
+      - get_childspec/2
+      sys:
+      - terminate/2
+      - terminate/3
+      wx_object:
+      - stop/1
+      - stop/3
+      zlib:
+      - inflateChunk/1
+      - inflateChunk/2
+   removed:
+      beam_validator:
+      - file/1
+      - files/1
+      cdv_bin_cb:
+      - get_details/1
+      cdv_detail_wx:
+      - start_link/3
+      cdv_dist_cb:
+      - get_details/1
+      cdv_mod_cb:
+      - get_details/1
+      cdv_port_cb:
+      - get_details/1
+      cdv_proc_cb:
+      - get_details/1
+      cdv_term_cb:
+      - get_details/1
+      cosEventDomainApp:
+      - create_id/0
+      - create_name/1
+      - create_name/2
+      ct_gen_conn:
+      - check_opts/2
+      - do_start/1
+      - do_start/4
+      - init_gen/2
+      - log/2
+      - loop/1
+      - reconnect/1
+      dialyzer_dataflow:
+      - get_fun_types/4
+      dialyzer_succ_typings:
+      - get_warnings/8
+      edoc:
+      - packages/1
+      - packages/2
+      - run/3
+      edoc_data:
+      - package/4
+      edoc_layout:
+      - package/2
+      edoc_lib:
+      - find_file/3
+      - find_sources/3
+      - get_doc_env/4
+      - write_file/5
+      - write_info_file/4
+      edoc_refs:
+      - package/1
+      - relative_module_path/2
+      - relative_package_path/2
+      edoc_run:
+      - packages/1
+      edoc_types:
+      - is_predefined_otp_type/2
+      erl_pp:
+      - rule/1
+      - rule/2
+      erl_syntax:
+      - record_access/2
+      - rule/2
+      - rule_arity/1
+      - rule_clauses/1
+      - rule_name/1
+      erl_syntax_lib:
+      - analyze_rule/1
+      erl_types:
+      - module_builtin_opaques/1
+      - t_constant/0
+      - t_from_form/1
+      - t_from_form/2
+      - t_from_form/3
+      - t_is_constant/1
+      - t_solve_remote/3
+      - t_tid/0
+      erlang:
+      - flush_monitor_message/2
+      hipe_unified_loader:
+      - load/2
+      - load_module/3
+      - load_native_code/2
+      - post_beam_load/1
+      httpd_conf:
+      - get_config/2
+      httpd_manager:
+      - config_match/2
+      httpd_misc_sup:
+      - start_auth_server/2
+      - start_link/2
+      - start_sec_server/2
+      - stop_auth_server/2
+      - stop_sec_server/2
+      httpd_sup:
+      - restart_child/2
+      - stop_child/2
+      mnesia_lib:
+      - other_val/2
+      - pr_other/2
+      mod_auth_server:
+      - start/2
+      - start_link/2
+      - stop/2
+      mod_security_server:
+      - check_blocked_user/5
+      - delete_tables/2
+      - new_table/3
+      - start/2
+      - start_link/2
+      - stop/1
+      - store_failed_auth/5
+      - store_successful_auth/4
+      otpsgml_layout:
+      - package/2
+      ssh_acceptor_sup:
+      - stop_child/3
+      ssh_bits:
+      - erlint/2
+      ssh_info:
+      - indent/1
+      - line/2
+      - nyi/0
+      - print_channel/1
+      - print_channels/1
+      - print_client/1
+      - print_clients/0
+      - print_general/0
+      - print_server/1
+      - print_servers/0
+      - print_system_sup/1
+      - underline/1
+      - walk_sups/1
+      ssh_system_sup:
+      - restart_acceptor/2
+      - restart_subsystem/2
+      - stop_listener/2
+      - stop_system/2
+      - system_supervisor/2
+      sshd_sup:
+      - stop_child/2
+      ssl_certificate:
+      - validate_extension/3
+      ssl_cipher:
+      - anonymous_suites/0
+      ssl_connection:
+      - handle_session/6
+      - info/1
+      - negotiated_next_protocol/1
+      ssl_handshake:
+      - certify/8
+      ssl_manager:
+      - connection_init/2
+...

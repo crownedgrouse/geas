@@ -1,0 +1,51 @@
+%YAML 1.2
+---
+from: 17.3
+to: 17.4
+modules:
+   new:
+   - ssh_info
+   removed:
+functions:
+   new:
+      ct_telnet:
+      - send/3
+      - sendf/4
+      ct_telnet_client:
+      - send_data/3
+      eldap:
+      - extensibleMatch/2
+      - getopts/2
+      erl_tar:
+      - init/3
+      orber_socket:
+      - get_ip_family_opts/1
+      ssh_acceptor:
+      - number_of_connections/1
+      ssh_acceptor_sup:
+      - stop_child/3
+      ssh_channel:
+      - get_print_info/1
+      ssh_connection:
+      - ptty_alloc/3
+      - ptty_alloc/4
+      ssh_connection_handler:
+      - error/2
+      - format_status/2
+      - get_print_info/1
+      ssh_sftp:
+      - open_tar/3
+      - open_tar/4
+      ssh_xfer:
+      - connect/4
+      - protocol_version_request/2
+   removed:
+      ssh_acceptor_sup:
+      - stop_child/2
+      ssh_connection:
+      - open_pty/3
+      - open_pty/7
+      - open_pty/9
+      ssh_xfer:
+      - protocol_version_request/1
+...

@@ -1,0 +1,126 @@
+%YAML 1.2
+---
+from: 17.0
+to: 17.1
+modules:
+   new:
+   - ssl_listen_tracker_sup
+   - wxActivateEvent
+   - wxPopupTransientWindow
+   - wxPopupWindow
+   removed:
+functions:
+   new:
+      ELDAPv3:
+      - dialyzer-suppressions/1
+      OTP-PUB-KEY:
+      - dialyzer-suppressions/1
+      PKCS-FRAME:
+      - dialyzer-suppressions/1
+      cerl:
+      - c_map/1
+      - c_map_pair/2
+      - is_c_map_empty/1
+      ct_util:
+      - match_delete_testdata/1
+      diameter_lib:
+      - eval_name/1
+      - get_stacktrace/0
+      diameter_traffic:
+      - incr/4
+      - incr_error/4
+      - incr_rc/4
+      erl_types:
+      - subst_all_remote/2
+      - t_find_opaque_mismatch/3
+      erts_internal:
+      - map_to_tuple_keys/1
+      maps:
+      - get/3
+      megaco_ber_media_gateway_control_prev3a:
+      - dialyzer-suppressions/1
+      megaco_ber_media_gateway_control_prev3b:
+      - dialyzer-suppressions/1
+      megaco_ber_media_gateway_control_prev3c:
+      - dialyzer-suppressions/1
+      megaco_ber_media_gateway_control_v1:
+      - dialyzer-suppressions/1
+      megaco_ber_media_gateway_control_v2:
+      - dialyzer-suppressions/1
+      megaco_ber_media_gateway_control_v3:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_prev3a:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_prev3b:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_prev3c:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_v1:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_v2:
+      - dialyzer-suppressions/1
+      megaco_per_media_gateway_control_v3:
+      - dialyzer-suppressions/1
+      ssl_alert:
+      - decode/1
+      ssl_cipher:
+      - all_suites/1
+      ssl_connection:
+      - format_status/2
+      - socket_control/5
+      ssl_handshake:
+      - select_hashsign/3
+      - select_hashsign_algs/2
+      - select_hashsign_algs/3
+      ssl_socket:
+      - code_change/3
+      - default_inet_values/0
+      - emulated_options/0
+      - get_all_opts/1
+      - get_emulated_opts/1
+      - handle_call/3
+      - handle_cast/2
+      - handle_info/2
+      - inherit_tracker/3
+      - init/1
+      - internal_inet_values/0
+      - set_emulated_opts/2
+      - socket/5
+      - start_link/3
+      - terminate/2
+      test_server:
+      - cover_analyse/2
+      test_server_ctrl:
+      - cover/1
+      - cover_analyse/2
+      - cover_compile/7
+      tls_connection:
+      - alert_user/6
+      - alert_user/9
+      - format_status/2
+      wxTextCtrl:
+      - changeValue/2
+   removed:
+      erl_types:
+      - t_find_opaque_mismatch/2
+      erlang:
+      - bitstr_to_list/1
+      - list_to_bitstr/1
+      erts_internal:
+      - binary_to_term/1
+      - binary_to_term/2
+      file:
+      - file_info/1
+      ssl_handshake:
+      - select_cert_hashsign/3
+      - select_hashsign/2
+      ssl_socket:
+      - socket/4
+      test_server:
+      - cover_analyse/3
+      test_server_ctrl:
+      - cover/8
+      tls_connection:
+      - alert_user/5
+      - alert_user/8
+...

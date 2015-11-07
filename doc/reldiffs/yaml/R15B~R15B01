@@ -1,0 +1,311 @@
+%YAML 1.2
+---
+from: R15B
+to: R15B01
+modules:
+   new:
+   - ELDAPv3
+   - beam_except
+   - ct_hooks
+   - ct_hooks_lock
+   - cth_log_redirect
+   - cth_surefire
+   - dyntrace
+   - eldap
+   - inets_trace
+   - snmpm_net_if_mt
+   - ssh_connection_sup
+   - ssh_key_api
+   - wxTaskBarIcon
+   - wxTaskBarIconEvent
+   removed:
+   - DSS
+   - PKCS-1
+   - ssh_connection_controler
+   - ssh_dsa
+   - ssh_rsa
+functions:
+   new:
+      ct:
+      - make_priv_dir/0
+      ct_framework:
+      - end_per_group/2
+      - end_per_suite/1
+      - init_per_group/2
+      - init_per_suite/1
+      ct_logs:
+      - locate_default_css_file/0
+      - make_relative/1
+      - tc_log/4
+      - tc_log_async/3
+      - xhtml/2
+      ct_master:
+      - basic_html/1
+      ct_run:
+      - run_test2/1
+      dialyzer_plt:
+      - all_modules/1
+      erlang:
+      - await_sched_wall_time_modifications/2
+      - dt_append_vm_tag_data/1
+      - dt_get_tag/0
+      - dt_get_tag_data/0
+      - dt_prepend_vm_tag_data/1
+      - dt_put_tag/1
+      - dt_restore_tag/1
+      - dt_spread_tag/1
+      - gather_sched_wall_time_result/1
+      - halt/2
+      gl:
+      - bindImageTexture/7
+      - drawArraysInstancedBaseInstance/5
+      - drawElementsInstancedBaseInstance/6
+      - drawElementsInstancedBaseVertexBaseInstance/7
+      - drawTransformFeedbackInstanced/3
+      - drawTransformFeedbackStreamInstanced/4
+      - getInternalformativ/4
+      - memoryBarrier/1
+      - texStorage1D/4
+      - texStorage2D/5
+      - texStorage3D/6
+      http_uri:
+      - scheme_defaults/0
+      httpc:
+      - get_option/1
+      - get_option/2
+      - get_options/1
+      - get_options/2
+      httpc_manager:
+      - get_options/2
+      - update_session/4
+      inets_sup:
+      - start_link/0
+      observer_backend:
+      - fetch_stats/2
+      os_mon:
+      - open_port/2
+      reltool_utils:
+      - add_warning/3
+      - get_column_width/1
+      - normalize_dir/1
+      - wait_for_stop_motion/2
+      snmp:
+      - log_to_io/4
+      - log_to_io/5
+      - log_to_io/6
+      snmp_log:
+      - open/1
+      - open/2
+      snmpa:
+      - log_to_io/1
+      - log_to_io/2
+      - log_to_io/3
+      - log_to_io/4
+      - log_to_io/5
+      - log_to_io/6
+      - log_to_txt/1
+      snmpa_agent:
+      - handle_pdu/8
+      snmpm:
+      - log_to_io/1
+      - log_to_io/2
+      - log_to_io/3
+      - log_to_io/4
+      - log_to_io/5
+      - log_to_io/6
+      - log_to_txt/1
+      ssh_file:
+      - host_key/2
+      - is_auth_key/4
+      - is_host_key/4
+      - user_key/2
+      ssh_transport:
+      - sign/3
+      - verify/4
+      sshc_sup:
+      - stop_child/1
+      ssl:
+      - prf/5
+      ssl_connection:
+      - prf/5
+      ssl_handshake:
+      - prf/5
+      ssl_tls1:
+      - prf/4
+      ssl_tls_dist_proxy:
+      - get_tcp_address/1
+      supervisor:
+      - try_again_restart/2
+      test_server:
+      - make_priv_dir/0
+      test_server_ctrl:
+      - create_priv_dir/1
+      test_server_sup:
+      - timetrap/4
+      wxBufferedDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxBufferedPaintDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxClientDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxGraphicsContext:
+      - destroy/1
+      - drawLines/2
+      - getPartialTextExtents/2
+      - strokeLines/2
+      wxGraphicsObject:
+      - destroy/1
+      wxListCtrl:
+      - getItemPosition/2
+      - getItemRect/2
+      - hitTest/3
+      wxMemoryDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxMirrorDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxPaintDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxPostScriptDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxScreenDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      wxStyledTextCtrl:
+      - setEdgeMode/2
+      wxWindowDC:
+      - getClippingBox/1
+      - getPartialTextExtents/2
+      - getPixel/2
+      xmerl_sax_parser_latin1:
+      - cf/3
+      - cf/4
+      - cf/5
+      xmerl_sax_parser_list:
+      - cf/3
+      - cf/4
+      - cf/5
+      xmerl_sax_parser_utf16be:
+      - cf/3
+      - cf/4
+      - cf/5
+      xmerl_sax_parser_utf16le:
+      - cf/3
+      - cf/4
+      - cf/5
+      xmerl_sax_parser_utf8:
+      - cf/3
+      - cf/4
+      - cf/5
+   removed:
+      ct_framework:
+      - ct_end_per_group/2
+      - ct_init_per_group/2
+      ct_run:
+      - run_test1/1
+      dialyzer_plt:
+      - contains_module/2
+      - delete_contract_list/2
+      gl:
+      - resizeBuffersMESA/0
+      - windowPos4dMESA/4
+      - windowPos4dvMESA/1
+      - windowPos4fMESA/4
+      - windowPos4fvMESA/1
+      - windowPos4iMESA/4
+      - windowPos4ivMESA/1
+      - windowPos4sMESA/4
+      - windowPos4svMESA/1
+      reltool_utils:
+      - add_warning/2
+      - return_first_error/2
+      ssh_connection_handler:
+      - state_name/3
+      ssh_file:
+      - decode_public_key_v2/2
+      - encode_public_key/1
+      - file_name/3
+      - lookup_host_key/3
+      - lookup_user_key/3
+      - private_host_dsa_key/2
+      - private_host_key/2
+      - private_host_rsa_key/2
+      - private_identity_key/2
+      - public_host_dsa_key/2
+      - public_host_key/2
+      - public_host_rsa_key/2
+      - public_identity_key/2
+      - ssh_dir/2
+      ssl_tls_dist_proxy:
+      - get_remote_id/2
+      wxBufferedDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxBufferedPaintDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxClientDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxGraphicsContext:
+      - drawLines/4
+      - getNativeContext/1
+      - getPartialTextExtents/3
+      - strokeLines/3
+      - strokeLines/4
+      wxGraphicsMatrix:
+      - getNativeMatrix/1
+      wxListCtrl:
+      - getItemPosition/3
+      - getItemRect/4
+      - hitTest/2
+      wxMemoryDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxMirrorDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxPaintDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxPostScriptDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxScreenDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+      wxWindowDC:
+      - getClippingBox/2
+      - getPartialTextExtents/3
+      - getPixel/3
+...

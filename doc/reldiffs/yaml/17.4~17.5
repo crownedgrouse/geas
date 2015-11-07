@@ -1,0 +1,65 @@
+%YAML 1.2
+---
+from: 17.4
+to: 17.5
+modules:
+   new:
+   removed:
+functions:
+   new:
+      ct:
+      - get_event_mgr_ref/0
+      ct_logs:
+      - register_groupleader/2
+      - unregister_groupleader/1
+      ct_master:
+      - get_event_mgr_ref/0
+      diameter_capx:
+      - binary_caps/1
+      diameter_codec:
+      - getopt/1
+      - setopts/1
+      diameter_lib:
+      - fold_n/3
+      - for_n/2
+      - micro_diff/1
+      - micro_diff/2
+      - now/0
+      - seed/0
+      - timestamp/1
+      diameter_sctp:
+      - listener/1
+      diameter_tcp:
+      - listener/1
+      erl2html2:
+      - convert/4
+      http_request:
+      - key_value/1
+      pubkey_cert:
+      - distribution_points/1
+      public_key:
+      - pkix_crl_issuer/1
+      - pkix_crl_verify/2
+      - pkix_dist_point/1
+      - pkix_dist_points/1
+      ssl_cipher:
+      - decipher/6
+      - is_fallback/1
+      ssl_manager:
+      - init_pem_cache_validator/1
+      - invalidate_pem/1
+      ssl_record:
+      - decipher/4
+      tls_record:
+      - decode_cipher_text/3
+      - is_higher/2
+   removed:
+      erl2html2:
+      - convert/2
+      ssl_cipher:
+      - decipher/5
+      ssl_record:
+      - decipher/3
+      tls_record:
+      - decode_cipher_text/2
+...

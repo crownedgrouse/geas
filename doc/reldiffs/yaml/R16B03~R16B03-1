@@ -1,0 +1,62 @@
+%YAML 1.2
+---
+from: R16B03
+to: R16B03-1
+modules:
+   new:
+   - httpd_connection_sup
+   removed:
+functions:
+   new:
+      httpd_acceptor:
+      - acceptor_init/9
+      - acceptor_loop/8
+      - start_link/8
+      httpd_acceptor_sup:
+      - start_link/1
+      httpd_request_handler:
+      - start_link/2
+      - start_link/3
+      ssl_handshake:
+      - handle_client_hello_extensions/9
+   removed:
+      httpd:
+      - get_admin_state/0
+      - get_admin_state/1
+      - get_admin_state/2
+      - get_status/1
+      - get_status/2
+      - get_status/3
+      - get_usage_state/0
+      - get_usage_state/1
+      - get_usage_state/2
+      httpd_acceptor:
+      - acceptor_init/7
+      - acceptor_loop/6
+      - start_link/6
+      httpd_acceptor_sup:
+      - start_acceptor/6
+      - start_acceptor/7
+      - start_link/2
+      - stop_acceptor/2
+      httpd_manager:
+      - c/1
+      - config_lookup/2
+      - config_lookup/3
+      - config_multi_lookup/2
+      - config_multi_lookup/3
+      - done_connection/1
+      - get_admin_state/1
+      - get_status/1
+      - get_status/2
+      - get_usage_state/1
+      - is_blocked/1
+      - is_busy/1
+      - is_busy/2
+      - is_busy_or_blocked/1
+      httpd_request_handler:
+      - start/2
+      - start/3
+      ssl_handshake:
+      - handle_client_hello_extensions/8
+...
