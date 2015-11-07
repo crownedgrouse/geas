@@ -611,10 +611,10 @@ get_date(File) ->  Bn = filename:rootname(File, ".beam"),
 
 %%-------------------------------------------------------------------------
 %% @doc Get application author
-%% <code>beam_lib:chunks("/home/eric/git/swab/ebin/swab", [attributes]).
-%% {ok,{swab,[{attributes,[{author,"Eric Pailleau <swab@crownedgrouse.com>"},
-%%                         {vsn,[29884121306770099633619336282407733599]}]}]}}</code>
 %% @end
+%% beam_lib:chunks("/home/eric/git/swab/ebin/swab", [attributes]).
+%% {ok,{swab,[{attributes,[{author,"Eric Pailleau <swab@crownedgrouse.com>"},
+%%                         {vsn,[29884121306770099633619336282407733599]}]}]}}
 %%-------------------------------------------------------------------------
 -spec get_author(list()) -> list() | undefined.
 
