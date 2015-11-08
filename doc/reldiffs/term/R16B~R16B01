@@ -107,4 +107,4 @@
            {ssl_certificate,['signature_type/1']},
            {test_server_io,['stop/0']},
            {test_server_node,
-               ['kill_nodes/1','nodedown/2','stop/1','stop_node/2']}]}]}]
+               ['kill_nodes/1','nodedown/2','stop/1','stop_node/2']}]}]}].

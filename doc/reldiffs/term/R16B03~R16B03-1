@@ -25,4 +25,4 @@
                 'get_status/2','get_usage_state/1','is_blocked/1','is_busy/1',
                 'is_busy/2','is_busy_or_blocked/1']},
            {httpd_request_handler,['start/2','start/3']},
-           {ssl_handshake,['handle_client_hello_extensions/8']}]}]}]
+           {ssl_handshake,['handle_client_hello_extensions/8']}]}]}].

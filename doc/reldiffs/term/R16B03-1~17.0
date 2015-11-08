@@ -214,4 +214,4 @@
            {wxEvtHandler,
                ['connect_impl/3','destroy_evt_listener/1','disconnect_impl/3',
                 'get_callback/1','new_evt_listener/0',
-                'replace_fun_with_id/2']}]}]}]
+                'replace_fun_with_id/2']}]}]}].

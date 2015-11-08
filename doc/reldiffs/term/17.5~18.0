@@ -226,4 +226,4 @@
            {ssl_connection,
                ['handle_session/6','info/1','negotiated_next_protocol/1']},
            {ssl_handshake,['certify/8']},
-           {ssl_manager,['connection_init/2']}]}]}]
+           {ssl_manager,['connection_init/2']}]}]}].

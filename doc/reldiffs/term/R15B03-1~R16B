@@ -605,4 +605,4 @@
            {wxTreeCtrl,['getBoundingRect/4']},
            {wxe_master,['init_port/0','start/0']},
            {wxe_server,['start/0']},
-           {wxe_util,['priv_dir/1']}]}]}]
+           {wxe_util,['priv_dir/1']}]}]}].

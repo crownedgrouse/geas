@@ -100,4 +100,4 @@
            {dialyzer_behaviours,
                ['get_behaviour_apis/1','translatable_behaviours/1',
                 'translate_behaviour_api_call/5','translate_callgraph/3']},
-           {ssh_io,['read_line/1','read_password/1','yes_no/1']}]}]}]
+           {ssh_io,['read_line/1','read_password/1','yes_no/1']}]}]}].

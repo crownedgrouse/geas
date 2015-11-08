@@ -966,4 +966,4 @@
                 'set_mac_secret/4','set_master_secret/2',
                 'set_pending_cipher_state/4','set_renegotiation_flag/2',
                 'set_server_verify_data/3','update_security_params/3']},
-           {wxStatusBar,['getFieldRect/3']}]}]}]
+           {wxStatusBar,['getFieldRect/3']}]}]}].

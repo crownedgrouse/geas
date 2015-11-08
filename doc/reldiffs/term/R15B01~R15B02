@@ -122,4 +122,4 @@
            {ssl_session,['id/4','id/7']},
            {ssl_tls1,
                ['certificate_verify/2','finished/3','master_secret/3','prf/4',
-                'setup_keys/6','suites/0']}]}]}]
+                'setup_keys/6','suites/0']}]}]}].

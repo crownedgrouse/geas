@@ -135,4 +135,4 @@
                ['getClippingBox/2','getPartialTextExtents/3','getPixel/3']},
            {wxWindowDC,
                ['getClippingBox/2','getPartialTextExtents/3',
-                'getPixel/3']}]}]}]
+                'getPixel/3']}]}]}].

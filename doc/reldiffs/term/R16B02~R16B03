@@ -105,4 +105,4 @@
                 'socket_control/3','ssl_accept/6']},
            {tls_handshake,
                ['init_handshake_history/0','server_hello/4',
-                'update_handshake_history/2']}]}]}]
+                'update_handshake_history/2']}]}]}].

@@ -28,7 +28,7 @@
 -export([release_infos/1, release_infos/2]).
 -export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
--export([relinfo/1, relinfo/2, reldiff/4]).
+-export([relinfo/1, relinfo/2, reldiff/4, relinfo_term/2]).
 
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release info
@@ -122,7 +122,7 @@ release_diffs(yaml, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
 %% @doc Release difference from two Release informations in term file
 %%-------------------------------------------------------------------------
 release_diffs(term, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
-                                          io:format(Io,"~p~n",[release_diff(Rel1, Rel2)]),
+                                          io:format(Io,"~p.~n",[release_diff(Rel1, Rel2)]),
                                           file:close(Io).
 %%-------------------------------------------------------------------------
 %% @doc List modules difference between two releases infos
