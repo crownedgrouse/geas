@@ -27,6 +27,8 @@
 
 -export([info/1, what/1]).
 
+-include("geas_db.hrl").
+
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
             % Informations inventory
@@ -41,7 +43,8 @@
             Os        = get_os(),
             %Erts      = get_erts_version(AppBeam),
             Comp      = get_compile_version(AppBeam),
-            Erlang    = get_erlang_version(Comp)
+            Erlang    = get_erlang_version(Comp),
+            Compat    = get_erlang_compat(Dir)
 ).
 
 %%-------------------------------------------------------------------------
@@ -84,6 +87,7 @@ info(Dir) when is_list(Dir) ->
              {word, Word},
              {compile, Comp},
              {erlang, Erlang},
+             {compat, Compat},
              {author, Author},             
              {vcs, {VCS, VcsVsn, VcsUrl}},
              {maintainer, Maint},
@@ -652,7 +656,125 @@ get_erlang_version("4.6.4")     -> {"R13B03", "R13B03", "R13B03"};
 get_erlang_version(_)           -> undefined.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Guessing the minimal Erlang release usable with a .beam
+%%%  Guessing the minimal/maximal Erlang release usable with a .beam
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%-------------------------------------------------------------------------
+%% @doc Analyze compatibility of all beam in directory
+%%-------------------------------------------------------------------------
+get_erlang_compat(Dir) -> Beams = filelib:wildcard("*.beam", Dir),
+                          X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
+                          {MinList, MaxList} = lists:unzip(X),
+                          %io:format("~p~n", [{MinList, MaxList}]),
+                          % Get the highest version of Min releases of all beam
+                          MinR = highest_version(MinList),
+                          % Get the lowest version of Max releases of all beam
+                          MaxR = lowest_version(MaxList),
+                          {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
+
+%%-------------------------------------------------------------------------
+%% @doc Analyze compatibility of a beam file
+%%-------------------------------------------------------------------------
+get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
+                                {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
+                                X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+                                %io:format("~p~n", [X)])
+                                % Get the min and max release for each MFA
+                                % Get the min release compatible
+                                Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
+                                {MinRelss, _} = lists:unzip(Min),
+                                MinRels = lists:filter(fun(X) -> case X of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
+                                % Get the max release compatible
+                                Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
+                                {MaxRelss, _} = lists:unzip(Max),
+                                MaxRels = lists:filter(fun(X) -> case X of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
+                                {lowest_version(MinRels), highest_version(MaxRels)}. 
+
+
+get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args}) 
+                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
+get_remote_call({_, _, _, L1, L2, L3}) when is_list(L1),
+                                            is_list(L2),
+                                            is_list(L3) -> [lists:flatmap(fun(X) -> get_remote_call(X) end, L1),
+                                                            lists:flatmap(fun(X) -> get_remote_call(X) end, L2),
+                                                            lists:flatmap(fun(X) -> get_remote_call(X) end, L3)]
+                                                                 ;
+get_remote_call({_, _, _, _, L}) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
+get_remote_call({_, _, _, _, _}) -> [] ;
+get_remote_call({_, _, _, L})   when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
+get_remote_call({_, _, _, T})   when is_tuple(T) -> get_remote_call(T) ;
+get_remote_call({_, _, _, _}) -> [] ; 
+get_remote_call({_, _, L}) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
+get_remote_call({_, _, _}) -> [] ;
+get_remote_call({_, _}) -> [] ;
+get_remote_call(_I) when is_integer(_I) -> [];
+get_remote_call(_A) when is_atom(_A) -> [];
+get_remote_call(_Z) -> io:format("Missed : ~p~n", [_Z]), [].
+
+lowest_version([]) -> [] ;
+lowest_version(L) when is_list(L),
+                       (length(L) == 1) -> [V] = L, V ;
+lowest_version(L) when is_list(L),
+                       (length(L) > 1)  -> [V | _] = lists:usort(fun(A, B) -> 
+                                                                     X = lowest_version(A, B),
+                                                                     case (X == A) of
+                                                                        true -> true ;
+                                                                        _    -> false
+                                                                     end                          
+                                                                 end, L), V.
+
+lowest_version([], B) -> B;
+lowest_version(A, []) -> A;
+lowest_version(A, B) when A =/= B  -> AA = versionize(A),
+                                      BB = versionize(B),
+                                      [Vmin, Vmax] = lists:usort([AA,BB]),
+                                      Vmin;
+lowest_version(A, B) -> A.
+
+highest_version([]) -> [] ;
+highest_version(L) when is_list(L),
+                       (length(L) == 1) -> [V] = L, V ;
+highest_version(L) when is_list(L),
+                       (length(L) > 1)  -> [V | _] = lists:usort(fun(A, B) -> 
+                                                                     X = highest_version(A, B),
+                                                                     case (X == A) of
+                                                                        true -> true ;
+                                                                        _    -> false
+                                                                     end                          
+                                                                 end, L), V.
+
+
+highest_version([], B) -> B;
+highest_version(A, []) -> A;
+highest_version(A, B) when A =/= B -> AA = versionize(A),
+                                      BB = versionize(B),
+                                      [Vmin, Vmax] = lists:usort([AA,BB]),                                      
+                                      Vmax;
+highest_version(A, B) -> A.
+
+versionize([]) -> [];
+versionize(V)  -> 
+                 [Pref | Tail] = V,
+                 case Pref of
+                     $R -> Split = re:split(Tail,"([AB])",[{return,list}]),
+                           New = lists:map(fun(X) -> XX = case X of 
+                                                                "A" -> "1" ;
+                                                                "B" -> "2" ;
+                                                                X   -> X 
+                                                           end,
+                                                     XXX = case string:to_integer(XX) of
+                                                                {error, no_integer} -> [] ;
+                                                                {L, []} -> [integer_to_list(L)] ;
+                                                                {L, R} when is_list(R) -> [integer_to_list(L) ++ R] ;
+                                                                {L, R} -> [integer_to_list(L) ++ "." ++ integer_to_list(R)]
+                                                            end
+                                            end, Split),
+                            VV = lists:flatten(string:join(New, ".")),
+                                 %io:format("1 ~p~n",[VV]),
+                                 VV;
+                     _   -> %io:format("2 ~p~n",[V]),
+                            V
+                 end.
+
+  
 
 
