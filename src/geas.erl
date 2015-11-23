@@ -140,6 +140,7 @@ what_dir(Dir) ->
                  {word, Word},
                  {compile, Comp},
                  {erlang, Erlang},
+                 {compat, Compat},
                  {author, Author}]}.
 
 %%-------------------------------------------------------------------------
@@ -160,6 +161,7 @@ what_beam(File) ->
             %Erts      = get_erts_version(AppBeam),
             Comp      = get_compile_version(File),
             Erlang    = get_erlang_version(Comp),
+            Compat    = get_erlang_compat_file(File),
 
             {ok,
                 [{name, Name},
@@ -172,6 +174,7 @@ what_beam(File) ->
                  {word, Word},
                  {compile, Comp},
                  {erlang, Erlang},
+                 {compat, Compat},
                  {author, Author}]}.
 
 %%-------------------------------------------------------------------------
@@ -630,6 +633,8 @@ get_author(File) -> Bn = filename:rootname(File, ".beam"),
 %% @doc Get {min, recommanded, max} Erlang version from erts version
 %% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
 %%-------------------------------------------------------------------------
+-spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
+
 get_erlang_version("6.0.1")     -> {"18.1", "18.1", "18.1"};
 get_erlang_version("6.0")       -> {"18.0-rc2", "18.0-rc2", "18.0-rc2"};
 get_erlang_version("5.0.4")     -> {"17.5", "17.5.3", "17.5.3"};
@@ -661,10 +666,11 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of all beam in directory
 %%-------------------------------------------------------------------------
+-spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
+
 get_erlang_compat(Dir) -> Beams = filelib:wildcard("*.beam", Dir),
                           X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
                           {MinList, MaxList} = lists:unzip(X),
-                          %io:format("~p~n", [{MinList, MaxList}]),
                           % Get the highest version of Min releases of all beam
                           MinR = highest_version(MinList),
                           % Get the lowest version of Max releases of all beam
@@ -672,8 +678,23 @@ get_erlang_compat(Dir) -> Beams = filelib:wildcard("*.beam", Dir),
                           {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------
+%% @doc Analyze compatibility of a beam from file
+%%-------------------------------------------------------------------------
+-spec get_erlang_compat_file(list()) -> {list(), list(), list(), list()}.
+
+get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(F)] end, [File])),
+                                {MinList, MaxList} = lists:unzip(X),
+                                % Get the highest version of Min releases of all beam
+                                MinR = highest_version(MinList),
+                                % Get the lowest version of Max releases of all beam
+                                MaxR = lowest_version(MaxList),
+                                {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
+
+%%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam file
 %%-------------------------------------------------------------------------
+-spec get_erlang_compat_beam(list()) -> {list(), list()}.
+
 get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
                                 {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
                                 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
@@ -682,13 +703,17 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
                                 % Get the min release compatible
                                 Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
                                 {MinRelss, _} = lists:unzip(Min),
-                                MinRels = lists:filter(fun(X) -> case X of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
+                                MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
                                 % Get the max release compatible
                                 Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
                                 {MaxRelss, _} = lists:unzip(Max),
-                                MaxRels = lists:filter(fun(X) -> case X of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
+                                MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
                                 {lowest_version(MinRels), highest_version(MaxRels)}. 
 
+%%-------------------------------------------------------------------------
+%% @doc Extract remote call of external functions in abstract code
+%%-------------------------------------------------------------------------
+-spec get_remote_call(tuple()) -> list().
 
 get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args}) 
                 when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
@@ -710,6 +735,11 @@ get_remote_call(_I) when is_integer(_I) -> [];
 get_remote_call(_A) when is_atom(_A) -> [];
 get_remote_call(_Z) -> io:format("Missed : ~p~n", [_Z]), [].
 
+%%-------------------------------------------------------------------------
+%% @doc  Give the lowest version from a list of versions
+%%-------------------------------------------------------------------------
+-spec lowest_version(list()) -> list().
+
 lowest_version([]) -> [] ;
 lowest_version(L) when is_list(L),
                        (length(L) == 1) -> [V] = L, V ;
@@ -722,13 +752,23 @@ lowest_version(L) when is_list(L),
                                                                      end                          
                                                                  end, L), V.
 
+%%-------------------------------------------------------------------------
+%% @doc Give the lowest version from two versions
+%%-------------------------------------------------------------------------
+-spec lowest_version(list(), list()) -> list().
+
 lowest_version([], B) -> B;
 lowest_version(A, []) -> A;
 lowest_version(A, B) when A =/= B  -> AA = versionize(A),
                                       BB = versionize(B),
-                                      [Vmin, Vmax] = lists:usort([AA,BB]),
+                                      [Vmin, _Vmax] = lists:usort([AA,BB]),
                                       Vmin;
-lowest_version(A, B) -> A.
+lowest_version(A, _B) -> A.
+
+%%-------------------------------------------------------------------------
+%% @doc Give the highest version from a list of versions
+%%-------------------------------------------------------------------------
+-spec highest_version(list()) -> list().
 
 highest_version([]) -> [] ;
 highest_version(L) when is_list(L),
@@ -742,14 +782,24 @@ highest_version(L) when is_list(L),
                                                                      end                          
                                                                  end, L), V.
 
+%%-------------------------------------------------------------------------
+%% @doc Give the highest version from two versions
+%%-------------------------------------------------------------------------
+-spec highest_version(list(), list()) -> list().
 
 highest_version([], B) -> B;
 highest_version(A, []) -> A;
 highest_version(A, B) when A =/= B -> AA = versionize(A),
                                       BB = versionize(B),
-                                      [Vmin, Vmax] = lists:usort([AA,BB]),                                      
+                                      [_Vmin, Vmax] = lists:usort([AA,BB]),                                      
                                       Vmax;
-highest_version(A, B) -> A.
+highest_version(A, _B) -> A.
+
+%%-------------------------------------------------------------------------
+%% @doc Translate old release name into new name
+%%      Exemple R16B03 into 16.2.3
+%%-------------------------------------------------------------------------
+-spec versionize(list()) -> list().
 
 versionize([]) -> [];
 versionize(V)  -> 
@@ -761,18 +811,18 @@ versionize(V)  ->
                                                                 "B" -> "2" ;
                                                                 X   -> X 
                                                            end,
-                                                     XXX = case string:to_integer(XX) of
+                                                           case string:to_integer(XX) of
                                                                 {error, no_integer} -> [] ;
+                                                                {error, not_a_list} -> [] ;
                                                                 {L, []} -> [integer_to_list(L)] ;
-                                                                {L, R} when is_list(R) -> [integer_to_list(L) ++ R] ;
-                                                                {L, R} -> [integer_to_list(L) ++ "." ++ integer_to_list(R)]
-                                                            end
+                                                                {L, R} when is_integer(L),
+                                                                            is_list(R) -> [integer_to_list(L) ++ R] ;
+                                                                _                   -> []
+                                                           end
                                             end, Split),
                             VV = lists:flatten(string:join(New, ".")),
-                                 %io:format("1 ~p~n",[VV]),
                                  VV;
-                     _   -> %io:format("2 ~p~n",[V]),
-                            V
+                     _   -> V
                  end.
 
   

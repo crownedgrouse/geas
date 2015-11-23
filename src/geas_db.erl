@@ -31,9 +31,19 @@
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
 
+%%-------------------------------------------------------------------------
+%% @doc Generate target geas database from inventory root path
+%%-------------------------------------------------------------------------
+-spec generate(list(), list()) -> ok.
+
 generate(Dir, Target) -> generate(filename:join([Dir, "relinfos", "term"]), 
                                   filename:join([Dir, "reldiffs", "term"]), 
                                   Target).
+
+%%-------------------------------------------------------------------------
+%% @doc Generate target geas database from info and diff directories
+%%-------------------------------------------------------------------------
+-spec generate(list(), list(), list()) -> ok | {'error',atom()}.
 
 generate(IDir, DDir, Target) -> {ok, TargetIo} = file:open(Target, [write]),
                                 do_header(TargetIo),
@@ -53,75 +63,94 @@ generate(IDir, DDir, Target) -> {ok, TargetIo} = file:open(Target, [write]),
                                 {mfa, Data22} = lists:keyfind(mfa, 1, R1),
                                 do_min_modules(TargetIo, Data22),
                                 % Close file
-                                file:close(TargetIo),
-                                ok.
+                                file:close(TargetIo).
 
-get_removed_functions(DDir) -> % List all reldiffs files
-                               {ok, Reldiffs} = file:list_dir(DDir),
-                               % Loop over list and pick up all removed functions, linked to 'From' 
-                               _RMF = lists:map(fun(F) -> % Load file
-                                                      {ok, [R]} = file:consult(filename:join(DDir, F)),
-                                                      % Pick 'From' where last presence of function is
-                                                      {from, From} = lists:keyfind(from, 1, R),   
-                                                      From_s =  atom_to_list(From),                                                    
-                                                      % Pick 'functions' entry
-                                                      {functions, Fs} = lists:keyfind(functions, 1, R),
-                                                      % Pick 'removed' entry
-                                                      {removed, RF} = lists:keyfind(removed, 1, Fs),
-                                                      
-                                                      % Compose [{module, function, arity, release}, ...]
-                                                      lists:map(fun({Mm, FL}) -> 
-                                                                    lists:map(fun(Fa) -> 
-                                                                                  Fa_s = atom_to_list(Fa),
-                                                                                  % Extract function and arity
-                                                                                  [Ff, Aa] = string:tokens(Fa_s, "/"),
-                                                                                  {Int, _} = string:to_integer(Aa),
-                                                                                  [{Mm, list_to_atom(Ff), Int, From_s}] 
-                                                                               end, FL)
-                                                                end, RF)
-                                            end, Reldiffs).
-get_added_functions(DDir) ->   % List all reldiffs files
-                               {ok, Reldiffs} = file:list_dir(DDir),
-                               % Loop over list and pick up all removed functions, linked to 'From' 
-                               _AMF = lists:map(fun(F) -> % Load file
-                                                      {ok, [R]} = file:consult(filename:join(DDir, F)),
-                                                      % Pick 'From' where last presence of function is
-                                                      {from, From} = lists:keyfind(from, 1, R),   
-                                                      From_s =  atom_to_list(From),                                                    
-                                                      % Pick 'functions' entry
-                                                      {functions, Fs} = lists:keyfind(functions, 1, R),
-                                                      % Pick 'removed' entry
-                                                      {new, NF} = lists:keyfind(new, 1, Fs),
-                                                      
-                                                      % Compose [{module, function, arity, release}, ...]
-                                                      lists:map(fun({Mm, FL}) -> 
-                                                                    lists:map(fun(Fa) -> 
-                                                                                  Fa_s = atom_to_list(Fa),
-                                                                                  % Extract function and arity
-                                                                                  [Ff, Aa] = string:tokens(Fa_s, "/"),
-                                                                                  {Int, _} = string:to_integer(Aa),
-                                                                                  [{Mm, list_to_atom(Ff), Int, From_s}] 
-                                                                               end, FL)
-                                                                end, NF)
-                                            end, Reldiffs).
+%%-------------------------------------------------------------------------
+%% @doc Get all removed functions from diff directory
+%%-------------------------------------------------------------------------
+-spec get_removed_functions(list()) -> list().
 
+get_removed_functions(DDir) -> 
+       % List all reldiffs files
+       {ok, Reldiffs} = file:list_dir(DDir),
+       % Loop over list and pick up all removed functions, linked to 'From' 
+       _RMF = lists:map(fun(F) -> % Load file
+                              {ok, [R]} = file:consult(filename:join(DDir, F)),
+                              % Pick 'From' where last presence of function is
+                              {from, From} = lists:keyfind(from, 1, R),   
+                              From_s =  atom_to_list(From),                                                    
+                              % Pick 'functions' entry
+                              {functions, Fs} = lists:keyfind(functions, 1, R),
+                              % Pick 'removed' entry
+                              {removed, RF} = lists:keyfind(removed, 1, Fs),
+                              
+                              % Compose [{module, function, arity, release}, ...]
+                              lists:map(fun({Mm, FL}) -> 
+                                            lists:map(fun(Fa) -> 
+                                                          Fa_s = atom_to_list(Fa),
+                                                          % Extract function and arity
+                                                          [Ff, Aa] = string:tokens(Fa_s, "/"),
+                                                          {Int, _} = string:to_integer(Aa),
+                                                          [{Mm, list_to_atom(Ff), Int, From_s}] 
+                                                       end, FL)
+                                        end, RF)
+                    end, Reldiffs).
 
-get_removed_modules(DDir) -> % List all reldiffs files
-                             {ok, Reldiffs} = file:list_dir(DDir),
-                             % Loop over list and pick up all removed modules, linked to 'To' 
-                             _RMS = lists:map(fun(F) -> % Load file
-                                                      {ok, [R]} = file:consult(filename:join(DDir, F)),
-                                                      % Pick 'To'
-                                                      {to, To} = lists:keyfind(to, 1, R),                                                        
-                                                      % Pick 'modules' entry
-                                                      {modules, M} = lists:keyfind(modules, 1, R),
-                                                      % Pick 'removed' entry
-                                                      {removed, RM} = lists:keyfind(removed, 1, M),
-                                                      % Compose [{module, release}, ...]
-                                                      lists:map(fun(X) -> [{X, atom_to_list(To)}] end, RM)
-                                            end, Reldiffs) .
+%%-------------------------------------------------------------------------
+%% @doc Get all added functions from diff directory
+%%-------------------------------------------------------------------------
+-spec get_added_functions(list()) -> list(). 
 
+get_added_functions(DDir) ->   
+       % List all reldiffs files
+       {ok, Reldiffs} = file:list_dir(DDir),
+       % Loop over list and pick up all removed functions, linked to 'From' 
+       _AMF = lists:map(fun(F) -> % Load file
+                              {ok, [R]} = file:consult(filename:join(DDir, F)),
+                              % Pick 'From' where last presence of function is
+                              {from, From} = lists:keyfind(from, 1, R),   
+                              From_s =  atom_to_list(From),                                                    
+                              % Pick 'functions' entry
+                              {functions, Fs} = lists:keyfind(functions, 1, R),
+                              % Pick 'removed' entry
+                              {new, NF} = lists:keyfind(new, 1, Fs),
+                              
+                              % Compose [{module, function, arity, release}, ...]
+                              lists:map(fun({Mm, FL}) -> 
+                                            lists:map(fun(Fa) -> 
+                                                          Fa_s = atom_to_list(Fa),
+                                                          % Extract function and arity
+                                                          [Ff, Aa] = string:tokens(Fa_s, "/"),
+                                                          {Int, _} = string:to_integer(Aa),
+                                                          [{Mm, list_to_atom(Ff), Int, From_s}] 
+                                                       end, FL)
+                                        end, NF)
+                    end, Reldiffs).
 
+%%-------------------------------------------------------------------------
+%% @doc Get all removed modules from diff directory
+%%-------------------------------------------------------------------------
+-spec get_removed_modules(list()) -> list().
+
+get_removed_modules(DDir) -> 
+         % List all reldiffs files
+         {ok, Reldiffs} = file:list_dir(DDir),
+         % Loop over list and pick up all removed modules, linked to 'To' 
+         _RMS = lists:map(fun(F) -> % Load file
+                                  {ok, [R]} = file:consult(filename:join(DDir, F)),
+                                  % Pick 'To'
+                                  {to, To} = lists:keyfind(to, 1, R),                                                        
+                                  % Pick 'modules' entry
+                                  {modules, M} = lists:keyfind(modules, 1, R),
+                                  % Pick 'removed' entry
+                                  {removed, RM} = lists:keyfind(removed, 1, M),
+                                  % Compose [{module, release}, ...]
+                                  lists:map(fun(X) -> [{X, atom_to_list(To)}] end, RM)
+                        end, Reldiffs) .
+
+%%-------------------------------------------------------------------------
+%% @doc Geas database header
+%%-------------------------------------------------------------------------
 do_header(Io) ->  Header = ["%% File: geas_db.hrl"
                                ,"%% @author    Generated by geas_db module "
                                ,"%% @warning   DO NOT EDIT BY HAND OR YOUR CHANGE WILL BE LOST"
@@ -132,7 +161,9 @@ do_header(Io) ->  Header = ["%% File: geas_db.hrl"
                                ,"%% @end "
                                ],
                   io:put_chars(Io, erl_prettypr:format(erl_syntax:comment(Header))).
-
+%%-------------------------------------------------------------------------
+%% @doc defines in top of Geas database
+%%-------------------------------------------------------------------------
 do_defines(Io) ->  DefMin = erl_syntax:attribute(
                                     erl_syntax:atom('define'), 
                                     [erl_syntax:atom('GEAS_MIN_REL'),
