@@ -41,6 +41,9 @@ A new major feature is added to already existing exported functions: ``compat`` 
 - Modify your code in order to increase runnable release window
 - Know if application/module have to be fixed in order to run on the last official release  
 
+A new function is exported : ``geas:offending/1`` which tells you what are the offending functions that reduce the runnable VM versions. 
+Works only on a single beam file, i.e argument is the path to this file. Return ``{ok, {MinOffendingList, MaxOffendingList}}`` .
+
 ### Release 1.0.0 ###
 
 Only one function is exported : ``geas:info/1`` .
@@ -111,6 +114,10 @@ The purpose of this function is mainly to be used on ``.beam`` files in producti
      {compile,"5.0.3"},
      {erlang,{"17.4","17.4.1","18.0-rc1"}},
      {author,"Eric Pailleau <geas@crownedgrouse.com>"}]}
+
+4> geas:offending("test.beam").
+{ok,{[{"R16B01",[{application,ensure_all_started,1}]}],[]}}
+
 
 ```
 ## Quick Start ##

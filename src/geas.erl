@@ -25,7 +25,7 @@
 -module(geas).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([info/1, what/1]).
+-export([info/1, what/1, offending/1]).
 
 -include("geas_db.hrl").
 
@@ -824,7 +824,49 @@ versionize(V)  ->
                                  VV;
                      _   -> V
                  end.
+%%-------------------------------------------------------------------------
+%% @doc Give the offending modules/functions that reduce release window
+%%-------------------------------------------------------------------------
+offending(File) -> % check it is a file or exit
+                   case filelib:is_regular(File) of
+                        false -> {error, invalid_argument} ;
+                        true  -> % Apply geas:what on the beam, bring lowest and highest if necessary
+                                 {ok, L } = geas:what(File),
+                                 {compat, Compat} = lists:keyfind(compat, 1, L),
+                                 {A, B, C, D} = Compat,
+                                 MinOff = case A =/= B of
+                                                true -> get_min_offending(B, File) ;
+                                                false -> [] 
+                                          end, 
+                                 MaxOff = case C =/= D of
+                                                true -> get_max_offending(C, File) ;
+                                                false -> [] 
+                                          end, 
+                                 {ok, {MinOff, MaxOff}}
+                   end.
+%%-------------------------------------------------------------------------
+%% @doc Give the offending min modules/functions that reduce release window
+%%-------------------------------------------------------------------------
+get_min_offending(Rel, File) ->  {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
+                             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+                             % From list get the release of offendiing functions
+                             R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
+                             % Extract only the release we search
+                             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+                             %% Extract the function
+                             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] .
 
+%%-------------------------------------------------------------------------
+%% @doc Give the offending max modules/functions that reduce release window
+%%-------------------------------------------------------------------------
+get_max_offending(Rel, File) ->  {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
+                             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+                             % From list get the release of offendiing functions
+                             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
+                             % Extract only the release we search
+                             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+                             %% Extract the function
+                             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] .
   
 
 
