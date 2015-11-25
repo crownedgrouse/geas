@@ -21,6 +21,7 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - word ``[32 | 64]`` OS' Word length
    - compile module version string
    - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from compiler version
+   - compat (version >= 2.0) ``{MinDbRel, MinRel, MaxRel, MaxDbRel}`` Compatibility of code with official releases. First and last value of tuple are the lowest and highest reference of geas database. Second value is the lowest official Erlang release where the beam(s) can run, while third value is the highest release where the beam(s) can run. Note that if first and second values are the same, it may imply that beam(s) file could run, possibly, on older official release, or not. As well if third and fourth value are the same, be sure that your geas database is up to date with the last official release.
    - author (from beam content)
    - vcs information tuple 
    - maintainer (from vcs infos)
@@ -29,6 +30,16 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - driver  (boolean) Project need to compile C code for a driver or a port    
 
 ## API ##
+
+### Release >= 2.0 ###
+
+A new major feature is added to already existing exported functions: ``compat`` entry, which gives you the official Erlang release window where the beam file(s) can run on. For example : using ``application:ensure_all_started/1`` can only be used starting R16B01 or ``maps`` starting 17.0. As well ``pg`` module cannot be used after 17.5. This can help you to :   
+- Write your Travis CI (or equivalent) config file
+- Know if beam files can run with an Erlang VM
+- Verify that your dependencies can run on same Erlang release window than your project
+- Write clear statements in your README project files 
+- Modify your code in order to increase runnable release window
+- Know if application/module have to be fixed in order to run on the last official release  
 
 ### Release 1.0.0 ###
 
