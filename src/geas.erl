@@ -25,7 +25,7 @@
 -module(geas).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([info/1, what/1, offending/1]).
+-export([info/1, what/1, offending/1, display/1]).
 
 -include("geas_db.hrl").
 
@@ -229,24 +229,32 @@ get_app_type(AppFile, Ebindir) ->
         {ok,[{application, App, L}]} = file:consult(AppFile),
         case lists:keyfind(mod, 1, L) of
              {mod, {Callback, _}} -> 
-                     % start/2 and stop/1 ?
-                     {ok,{_,[{exports, L2}]}} = beam_lib:chunks(filename:join(Ebindir, Callback), [exports]),
-                     case (lists:member({start, 2}, L2) and 
-                           lists:member( {stop, 1}, L2)) of
-                            true  -> otp ;
-                            false -> lib   % Strange but... anyway.
+                     Beam = filename:join(Ebindir, Callback),
+                     case filelib:is_regular(Beam) of
+                          true -> % start/2 and stop/1 ?
+                                  {ok,{_,[{exports, L2}]}} = beam_lib:chunks(Beam, [exports]),
+                                  case (lists:member({start, 2}, L2) and 
+                                    lists:member( {stop, 1}, L2)) of
+                                        true  -> otp ;
+                                        false -> lib   % Strange but... anyway.
+                                  end;
+                          false -> mis
                      end;
              false -> % 'app' ?
-                      {ok,{_,[{exports, L3}]}} = beam_lib:chunks(filename:join(Ebindir, atom_to_list(App)), [exports]),
-                      case ((lists:member({start, 0}, L3) or lists:member({start, 1}, L3)) and
-                            (lists:member( {stop, 0}, L3) or lists:member( {stop, 1}, L3))) of
-                                  true  -> app ;
-                                  false -> % 'escript' ?
-                                           case lists:member({main, 1}, L3) of
-                                                true  -> esc ;
-                                                false -> lib 
-                                           end  
-                      end
+                      Beam = filename:join(Ebindir, atom_to_list(App)),
+                      case filelib:is_regular(Beam) of
+                          true -> {ok,{_,[{exports, L3}]}} = beam_lib:chunks(Beam, [exports]),
+                                  case ((lists:member({start, 0}, L3) or lists:member({start, 1}, L3)) and
+                                       (lists:member( {stop, 0}, L3) or lists:member( {stop, 1}, L3))) of
+                                            true  -> app ;
+                                            false -> % 'escript' ?
+                                                    case lists:member({main, 1}, L3) of
+                                                            true  -> esc ;
+                                                            false -> lib 
+                                                    end  
+                                  end;
+                          false -> mis
+                     end
         end.
 
 %%-------------------------------------------------------------------------
@@ -568,9 +576,12 @@ is_native(EbinDir) ->  Beams = filelib:wildcard("*.beam", EbinDir),
 -spec is_native_from_file(list()) -> boolean().
 
 is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
-                               {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                               {options, O} = lists:keyfind(options, 1, L),
-                               lists:member(native, O).
+                               case filelib:is_regular(Bn) of
+                                    true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                            {options, O} = lists:keyfind(options, 1, L),
+                                            lists:member(native, O);
+                                    false -> undefined
+                               end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get compile module version
@@ -579,9 +590,12 @@ is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
 -spec get_compile_version(list()) -> list().
 
 get_compile_version(File) ->   Bn = filename:rootname(File, ".beam"),
-                               {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                               {version, E} = lists:keyfind(version, 1, L),
-                               E.
+                               case filelib:is_regular(Bn) of
+                                    true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                            {version, E} = lists:keyfind(version, 1, L),
+                                            E;
+                                    false -> undefined 
+                               end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get application name, version, desc from .app file in ebin/ directory
@@ -608,9 +622,12 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
 -spec get_date(list()) -> list().
 
 get_date(File) ->  Bn = filename:rootname(File, ".beam"),
-                   {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                   {time, T} = lists:keyfind(time, 1, L),
-                   T.
+                   case filelib:is_regular(Bn) of
+                        true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                {time, T} = lists:keyfind(time, 1, L),
+                                T;
+                        false -> undefined
+                   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get application author
@@ -622,12 +639,15 @@ get_date(File) ->  Bn = filename:rootname(File, ".beam"),
 -spec get_author(list()) -> list() | undefined.
 
 get_author(File) -> Bn = filename:rootname(File, ".beam"),
-                    {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
-                    A = case lists:keyfind(author, 1, L) of
-                                {author, B} -> B ;
-                                _           -> undefined
-                        end,
-                    A.
+                   case filelib:is_regular(Bn) of
+                        true -> {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
+                                A = case lists:keyfind(author, 1, L) of
+                                            {author, B} -> B ;
+                                            _           -> undefined
+                                    end,
+                                A;
+                        false -> undefined
+                   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get {min, recommanded, max} Erlang version from erts version
@@ -696,8 +716,11 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
 -spec get_erlang_compat_beam(list()) -> {list(), list()}.
 
 get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
-                                {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
-                                X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+                                Abs1 = case beam_lib:chunks(File,[abstract_code]) of
+                                            {ok,{_,[{abstract_code,{_, Abs}}]}} -> Abs ;
+                                            _  -> []
+                                       end,                                
+                                X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
                                 %io:format("~p~n", [X)])
                                 % Get the min and max release for each MFA
                                 % Get the min release compatible
@@ -733,7 +756,8 @@ get_remote_call({_, _, _}) -> [] ;
 get_remote_call({_, _}) -> [] ;
 get_remote_call(_I) when is_integer(_I) -> [];
 get_remote_call(_A) when is_atom(_A) -> [];
-get_remote_call(_Z) -> io:format("Missed : ~p~n", [_Z]), [].
+get_remote_call(_Z) -> %io:format("Missed : ~p~n", [_Z]), 
+                       [].
 
 %%-------------------------------------------------------------------------
 %% @doc  Give the lowest version from a list of versions
@@ -868,5 +892,54 @@ get_max_offending(Rel, File) ->  {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:
                              %% Extract the function
                              [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] .
   
+%%-------------------------------------------------------------------------
+%% @doc Output on stdout, mainly for erlang.mk plugin
+%%-------------------------------------------------------------------------
+
+display(RootDir) -> % Get all .beam files recursively
+                    PP = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
+                            fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
+                                         case lists:member(P, Y) of
+                                              true  -> Y ;
+                                              false -> Y ++ [P]
+                                         end
+                            end, []),
+                    % Get all upper project
+                    Ps = lists:usort(PP),
+                    Global = Ps ++ [RootDir],
+                    % Display header
+                    io:format("   ~-10s   native   ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
+                    io:format("~80s~n",[string:copies("-",80)]),
+                    D = lists:flatmap(fun(X) ->  {ok, I} = info(X),
+                                             Compat = lists:keyfind(compat, 1, I),
+                                             {compat,{MinDb, Min, Max, MaxDb}} = Compat,
+                                             N = lists:keyfind(native, 1, I),
+                                             {native, Native} = N,
+                                             A = lists:keyfind(arch, 1, I),
+                                             {arch, Arch} = A,
+                                             ArchString = case Native  of
+                                                               true -> Arch ;
+                                                               false -> "" 
+                                                          end,
+                                             Left  = case (MinDb =:= Min) of
+                                                            true  -> "" ;
+                                                            false -> Min
+                                                     end,
+                                             Right = case (MaxDb =:= Max) of
+                                                            true  -> "" ;
+                                                            false -> Max
+                                                     end,
+                                             [{Left , ArchString, Right, filename:basename(X)}]
+                                       end, Global),
+                    lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
+                    io:format("~80s~n",[string:copies("-",80)]),
+                    % Get global info
+                    MinGlob = "TODO" ,
+                    ArchGlob = "TODO" ,
+                    MaxGlob = "TODO" ,
+                    io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
+                    ok.
+
+
 
 
