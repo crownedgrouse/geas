@@ -908,8 +908,8 @@ display(RootDir) -> % Get all .beam files recursively
                     Ps = lists:usort(PP),
                     Global = Ps ++ [RootDir],
                     % Display header
-                    io:format("   ~-10s   native   ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
-                    io:format("~80s~n",[string:copies("-",80)]),
+                    io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
+                    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
                     D = lists:flatmap(fun(X) ->  {ok, I} = info(X),
                                              Compat = lists:keyfind(compat, 1, I),
                                              {compat,{MinDb, Min, Max, MaxDb}} = Compat,
@@ -918,7 +918,7 @@ display(RootDir) -> % Get all .beam files recursively
                                              A = lists:keyfind(arch, 1, I),
                                              {arch, Arch} = A,
                                              ArchString = case Native  of
-                                                               true -> Arch ;
+                                                               true -> atom_to_list(Arch) ;
                                                                false -> "" 
                                                           end,
                                              Left  = case (MinDb =:= Min) of
@@ -934,9 +934,12 @@ display(RootDir) -> % Get all .beam files recursively
                     lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
                     io:format("~80s~n",[string:copies("-",80)]),
                     % Get global info
-                    MinGlob = "TODO" ,
-                    ArchGlob = "TODO" ,
-                    MaxGlob = "TODO" ,
+					MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
+                    MinGlob = highest_version(MinList) ,
+					ArchList = lists:usort(lists:flatmap(fun({_, X, _, _}) -> [X] end, D)),
+                    ArchGlob = tl(ArchList), % Assuming only one arch localy !
+					MaxList = lists:usort([?GEAS_MAX_REL] ++ lists:flatmap(fun({_, _, X, _}) -> [X] end, D)),
+                    MaxGlob = lowest_version(MaxList) ,
                     io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
                     ok.
 
