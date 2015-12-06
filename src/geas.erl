@@ -25,7 +25,7 @@
 -module(geas).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([info/1, what/1, offending/1, display/1]).
+-export([info/1, what/1, offending/1, compat/1, guilty/1]).
 
 -include("geas_db.hrl").
 
@@ -150,7 +150,11 @@ what_dir(Dir) ->
 -spec what_beam(list()) -> tuple().
 
 what_beam(File) ->         
-            {ok,{Name,[Version]}} = beam_lib:version(File),   
+			{Name, Version} = case beam_lib:version(File) of
+									{ok,{N,[V]}} -> {N, V} ;
+			    					_            -> {filename:basename(File, ".beam"), undefined}
+							  end,
+                
             AppType   = get_app_type_beam(File),
             Native    = is_native_from_file(File),
             Arch      = get_arch_from_file(File),
@@ -230,7 +234,7 @@ get_app_type(AppFile, Ebindir) ->
         case lists:keyfind(mod, 1, L) of
              {mod, {Callback, _}} -> 
                      Beam = filename:join(Ebindir, Callback),
-                     case filelib:is_regular(Beam) of
+                     case filelib:is_regular(Beam ++ ".beam") of
                           true -> % start/2 and stop/1 ?
                                   {ok,{_,[{exports, L2}]}} = beam_lib:chunks(Beam, [exports]),
                                   case (lists:member({start, 2}, L2) and 
@@ -242,7 +246,7 @@ get_app_type(AppFile, Ebindir) ->
                      end;
              false -> % 'app' ?
                       Beam = filename:join(Ebindir, atom_to_list(App)),
-                      case filelib:is_regular(Beam) of
+                      case filelib:is_regular(Beam ++ ".beam") of
                           true -> {ok,{_,[{exports, L3}]}} = beam_lib:chunks(Beam, [exports]),
                                   case ((lists:member({start, 0}, L3) or lists:member({start, 1}, L3)) and
                                        (lists:member( {stop, 0}, L3) or lists:member( {stop, 1}, L3))) of
@@ -576,7 +580,7 @@ is_native(EbinDir) ->  Beams = filelib:wildcard("*.beam", EbinDir),
 -spec is_native_from_file(list()) -> boolean().
 
 is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
-                               case filelib:is_regular(Bn) of
+                               case filelib:is_regular(File) of
                                     true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                             {options, O} = lists:keyfind(options, 1, L),
                                             lists:member(native, O);
@@ -590,7 +594,7 @@ is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
 -spec get_compile_version(list()) -> list().
 
 get_compile_version(File) ->   Bn = filename:rootname(File, ".beam"),
-                               case filelib:is_regular(Bn) of
+                               case filelib:is_regular(File) of
                                     true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                             {version, E} = lists:keyfind(version, 1, L),
                                             E;
@@ -622,7 +626,7 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
 -spec get_date(list()) -> list().
 
 get_date(File) ->  Bn = filename:rootname(File, ".beam"),
-                   case filelib:is_regular(Bn) of
+                   case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 {time, T} = lists:keyfind(time, 1, L),
                                 T;
@@ -639,7 +643,7 @@ get_date(File) ->  Bn = filename:rootname(File, ".beam"),
 -spec get_author(list()) -> list() | undefined.
 
 get_author(File) -> Bn = filename:rootname(File, ".beam"),
-                   case filelib:is_regular(Bn) of
+                   case filelib:is_regular(File) of
                         true -> {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
                                 A = case lists:keyfind(author, 1, L) of
                                             {author, B} -> B ;
@@ -871,32 +875,38 @@ offending(File) -> % check it is a file or exit
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
 %%-------------------------------------------------------------------------
-get_min_offending(Rel, File) ->  {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
-                             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-                             % From list get the release of offendiing functions
-                             R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
-                             % Extract only the release we search
-                             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-                             %% Extract the function
-                             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] .
+get_min_offending(Rel, File) -> case beam_lib:chunks(File,[abstract_code]) of
+								{ok,{_,[{abstract_code,{_, Abs}}]}} -> 
+											 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+											 % From list get the release of offendiing functions
+											 R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
+											 % Extract only the release we search
+											 R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+											 %% Extract the function
+											 [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] ;
+								{ok,{_,[{abstract_code,no_abstract_code}]}} -> []
+								end.
 
 %%-------------------------------------------------------------------------
 %% @doc Give the offending max modules/functions that reduce release window
 %%-------------------------------------------------------------------------
-get_max_offending(Rel, File) ->  {ok,{_,[{abstract_code,{_, Abs}}]}} = beam_lib:chunks(File,[abstract_code]),
-                             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-                             % From list get the release of offendiing functions
-                             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
-                             % Extract only the release we search
-                             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-                             %% Extract the function
-                             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] .
+get_max_offending(Rel, File) ->  case  beam_lib:chunks(File,[abstract_code]) of
+									{ok,{_,[{abstract_code,{_, Abs}}]}} ->
+								             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+								             % From list get the release of offendiing functions
+								             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
+								             % Extract only the release we search
+								             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+								             %% Extract the function
+								             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] ;
+								 	{ok,{_,[{abstract_code,no_abstract_code}]}} -> []
+								 end.
   
 %%-------------------------------------------------------------------------
-%% @doc Output on stdout, mainly for erlang.mk plugin
+%% @doc Compat output on stdout, mainly for erlang.mk plugin
 %%-------------------------------------------------------------------------
 
-display(RootDir) -> % Get all .beam files recursively
+compat(RootDir) -> % Get all .beam files recursively
                     PP = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
                                          case lists:member(P, Y) of
@@ -943,6 +953,49 @@ display(RootDir) -> % Get all .beam files recursively
                     io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
                     ok.
 
+%%-------------------------------------------------------------------------
+%% @doc Offending output on stdout, mainly for erlang.mk plugin
+%%-------------------------------------------------------------------------
 
+guilty(RootDir) -> Bs1 = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
+                            				fun(X, Y) -> Y ++ [X] end, []),
+				   Bs2 = filelib:fold_files(filename:join(RootDir,"ebin"), ".beam$", true, 
+                            				fun(X, Y) -> Y ++ [X] end, []),
+				   Bs = Bs1 ++ Bs2,
+				   % Check Offendings for each beam
+				   All = lists:flatmap(fun(X) -> Off = offending(X),
+										   case Off of
+												{ok, []}          -> [] ;
+												{ok, {[],[]}}     -> [] ;
+												{ok, {[{[],[]}],[]}} -> [] ;
+												{ok, {[],[{[],[]}]}} -> [] ;
+												{ok,{[{[],[]}],[{[],[]}]}} -> [] ;
+												{ok,{Left,Right}} -> [{X, Left, Right}] ;
+												_E                -> []
+										   end
+								       end, Bs),
+				   lists:foreach(fun({_F, L, R}) -> 
+								   io:format("~n~ts", [_F]) ,
+								   case L of
+										[{Min, MinList}] -> io:format("~n~-10ts", [Min]),
+															LL = lists:flatmap(fun({M, F, A}) -> 
+																				[atom_to_list(M) ++ ":" ++ 
+																				 atom_to_list(F) ++ "/" ++ 
+																				 integer_to_list(A)] end, MinList),
+															io:format("~ts~n", [string:join(LL, ", ")]) ;
+										_  -> ok
+								   end,
+								   case R of
+										[{Max, MaxList}] -> io:format("~n~-10ts", [Max]),
+															RR = lists:flatmap(fun({M, F, A}) -> 
+																				[atom_to_list(M) ++ ":" ++ 
+																				 atom_to_list(F) ++ "/" ++ 
+																				 integer_to_list(A)] end, MaxList),
+															io:format("~ts~n", [string:join(RR, ", ")]) ;
+										_  -> ok
+								   end
+														
+								 end, lists:usort(All)) .
+				   
 
 

@@ -7,12 +7,12 @@
 help::
 	@printf "%s\n" "" \
                 "Geas targets:"
-#	@printf "%s" "" \
-#		        "  geas           Apply all geas plugins below"
+	@printf "%s\n" "  geas           Apply all geas plugins below"
 
 
 THIS := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(THIS)/mk/geas_compat.mk
+include $(THIS)/mk/geas_guilty.mk
 
-geas: geas_compat
+geas: geas_compat geas_guilty
 
