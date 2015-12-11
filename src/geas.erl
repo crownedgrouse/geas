@@ -909,9 +909,12 @@ get_max_offending(Rel, File) ->  case  beam_lib:chunks(File,[abstract_code]) of
 compat(RootDir) -> % Get all .beam files recursively
                     PP = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
-                                         case lists:member(P, Y) of
-                                              true  -> Y ;
-                                              false -> Y ++ [P]
+										 case filename:basename(P) of
+											  "geas" -> Y ; % Exclude geas from results
+											  _      -> case lists:member(P, Y) of
+                                              				true  -> Y ;
+                                              				false -> Y ++ [P]
+														end
                                          end
                             end, []),
                     % Get all upper project
