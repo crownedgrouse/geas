@@ -34,6 +34,24 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
 ``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
 A plugin is available for `erlang.mk` and `rebar` .
 
+Example on a test project using cowboy :
+
+```
+   R15                   18.1       Geas database
+---Min--------Arch-------Max----------------------------------------------------
+   R15B01                           cowboy
+                                    cowlib
+                                    ranch
+                                    test
+--------------------------------------------------------------------------------
+   R15B01                18.1       Global project
+
+/home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
+R15B01    crypto:hash/2
+```
+
+The global project can run starting R15B01 up to higher reference in geas database, 18.1 in such case.
+
 ### erlang.mk ###
 
 Simply add to your Makefile that includes `erlang.mk` 
