@@ -8,7 +8,7 @@ Guess Erlang Application Scattering
 
 By extension, obligation or prohibition imposed by an Erlang application or module, which may modify its scattering.
 
-``geas`` give below informations on an Erlang repository content, even without source code, or from .beam files :
+``geas`` give below informations on an Erlang project repository content or from .beam files :
 
    - name
    - version
@@ -27,7 +27,54 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
    - maintainer (from vcs infos)
    - changelog  Changelog filename if any found
    - releasenotes Releasenotes filename if any found
-   - driver  (boolean) Project need to compile C code for a driver or a port    
+   - driver  (boolean) Project need to compile C code for a driver or a port   
+
+## Plugins ##
+
+``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
+A plugin is available for `erlang.mk` and `rebar` .
+
+### erlang.mk ###
+
+Simply add to your Makefile that includes `erlang.mk` 
+
+```
+BUILD_DEPS = geas
+DEP_PLUGINS = geas
+```
+
+then run 
+
+```
+$> make geas
+```
+
+See [erlang.mk's geas plugin](https://github.com/crownedgrouse/erlang.mk/blob/geas_plugin/doc/src/guide/geas.asciidoc) documentation for more details. 
+
+### rebar ###
+
+Simply add those entries in your `rebar.config` .
+
+```
+{plugins, [geas]}.
+
+{deps, [{geas, ".*",
+        {git, "git://github.com/crownedgrouse/geas.git"}}
+]}.
+```
+
+then run 
+
+```
+$> rebar get-deps
+$> rebar compile
+```
+
+Geas plugin is then available by typing 
+
+```
+$> rebar geas
+```
 
 ## API ##
 
@@ -44,6 +91,16 @@ A new major feature is added to already existing exported functions: ``compat`` 
 A new function is exported : ``geas:offending/1`` which tells you what are the offending functions that reduce the runnable VM versions. 
 Works only on a single beam file, i.e argument is the path to this file. Return ``{ok, {MinOffendingList, MaxOffendingList}}`` .
 
+### Release 1.1.0 ###
+
+Another function is added : ``geas:what/1``
+
+Argument is expected to be either a directory containing ``.beam`` files or a path to a single ``.beam`` file.
+
+Output is almost the same than ``geas:info/1`` but several tuple entries are removed instead of setting to ``undefined``.
+
+The purpose of this function is mainly to be used on ``.beam`` files in production environment.
+
 ### Release 1.0.0 ###
 
 Only one function is exported : ``geas:info/1`` .
@@ -55,16 +112,6 @@ Directories `ebin` and `src` must exist.
 ``geas:info/1`` won't work by passing a path to a ``.beam`` file.
 
 Informations may be set to ``undefined`` atom, in some cases, for example if no vcs infos are found.
-
-### Release 1.1.0 ###
-
-Another function is added : ``geas:what/1``
-
-Argument is expected to be either a directory containing ``.beam`` files or a path to a single ``.beam`` file.
-
-Output is almost the same than ``geas:info/1`` but several tuple entries are removed instead of setting to ``undefined``.
-
-The purpose of this function is mainly to be used on ``.beam`` files in production environment.
 
 ## Example ##
 ```

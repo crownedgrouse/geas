@@ -1,6 +1,6 @@
 #
 #  Geas guilty Erlang.mk plugin
-#  Licence : Licence : https://github.com/crownedgrouse/geas/blob/master/LICENCE
+#  Licence : https://github.com/crownedgrouse/geas/blob/master/LICENCE
 #  Author : Eric Pailleau <geas@crownegrouse.com> 
 
 
