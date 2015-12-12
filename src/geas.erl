@@ -27,6 +27,9 @@
 
 -export([info/1, what/1, offending/1, compat/1, guilty/1]).
 
+% rebar plugin
+-export([geas/2]).
+
 -include("geas_db.hrl").
 
 -define(COMMON_DIR(Dir),
@@ -1000,5 +1003,11 @@ guilty(RootDir) -> Bs1 = filelib:fold_files(filename:join(RootDir,"deps"), ".bea
 														
 								 end, lists:usort(All)) .
 				   
+%%-------------------------------------------------------------------------
+%% @doc rebar plugin call function
+%%-------------------------------------------------------------------------
 
+geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
+			   compat(Dir),
+			   guilty(Dir).
 
