@@ -49,7 +49,7 @@ $> make geas
 
 See [erlang.mk's geas plugin](https://github.com/crownedgrouse/erlang.mk/blob/geas_plugin/doc/src/guide/geas.asciidoc) documentation for more details. 
 
-### rebar ###
+### rebar 2.x ###
 
 Simply add those entries in your `rebar.config` .
 
