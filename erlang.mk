@@ -16,7 +16,7 @@
 
 ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 
-ERLANG_MK_VERSION = 2.0.0-pre.2-22-g171361e
+ERLANG_MK_VERSION = 2.0.0-pre.2-36-g649505c
 
 # Core configuration.
 
@@ -883,14 +883,6 @@ pkg_dh_date_fetch = git
 pkg_dh_date_repo = https://github.com/daleharvey/dh_date
 pkg_dh_date_commit = master
 
-PACKAGES += dhtcrawler
-pkg_dhtcrawler_name = dhtcrawler
-pkg_dhtcrawler_description = dhtcrawler is a DHT crawler written in erlang. It can join a DHT network and crawl many P2P torrents.
-pkg_dhtcrawler_homepage = https://github.com/kevinlynx/dhtcrawler
-pkg_dhtcrawler_fetch = git
-pkg_dhtcrawler_repo = https://github.com/kevinlynx/dhtcrawler
-pkg_dhtcrawler_commit = master
-
 PACKAGES += dirbusterl
 pkg_dirbusterl_name = dirbusterl
 pkg_dirbusterl_description = DirBuster successor in Erlang
@@ -1137,7 +1129,7 @@ pkg_elvis_description = Erlang Style Reviewer
 pkg_elvis_homepage = https://github.com/inaka/elvis
 pkg_elvis_fetch = git
 pkg_elvis_repo = https://github.com/inaka/elvis
-pkg_elvis_commit = 0.2.4
+pkg_elvis_commit = master
 
 PACKAGES += emagick
 pkg_emagick_name = emagick
@@ -1778,6 +1770,14 @@ pkg_geef_homepage = https://github.com/carlosmn/geef
 pkg_geef_fetch = git
 pkg_geef_repo = https://github.com/carlosmn/geef
 pkg_geef_commit = master
+
+PACKAGES += gen_coap
+pkg_gen_coap_name = gen_coap
+pkg_gen_coap_description = Generic Erlang CoAP Client/Server
+pkg_gen_coap_homepage = https://github.com/gotthardp/gen_coap
+pkg_gen_coap_fetch = git
+pkg_gen_coap_repo = https://github.com/gotthardp/gen_coap
+pkg_gen_coap_commit = master
 
 PACKAGES += gen_cycle
 pkg_gen_cycle_name = gen_cycle
@@ -2730,14 +2730,6 @@ pkg_oauth2_homepage = https://github.com/kivra/oauth2
 pkg_oauth2_fetch = git
 pkg_oauth2_repo = https://github.com/kivra/oauth2
 pkg_oauth2_commit = master
-
-PACKAGES += oauth2c
-pkg_oauth2c_name = oauth2c
-pkg_oauth2c_description = Erlang OAuth2 Client
-pkg_oauth2c_homepage = https://github.com/kivra/oauth2_client
-pkg_oauth2c_fetch = git
-pkg_oauth2c_repo = https://github.com/kivra/oauth2_client
-pkg_oauth2c_commit = master
 
 PACKAGES += octopus
 pkg_octopus_name = octopus
@@ -3905,7 +3897,7 @@ pkg_xref_runner_description = Erlang Xref Runner (inspired in rebar xref)
 pkg_xref_runner_homepage = https://github.com/inaka/xref_runner
 pkg_xref_runner_fetch = git
 pkg_xref_runner_repo = https://github.com/inaka/xref_runner
-pkg_xref_runner_commit = 0.2.0
+pkg_xref_runner_commit = master
 
 PACKAGES += yamerl
 pkg_yamerl_name = yamerl
@@ -4090,7 +4082,10 @@ endif
 # While Makefile file could be GNUmakefile or makefile,
 # in practice only Makefile is needed so far.
 define dep_autopatch
-	if [ -f $(DEPS_DIR)/$(1)/Makefile ]; then \
+	if [ -f $(DEPS_DIR)/$(1)/erlang.mk ]; then \
+		$(call erlang,$(call dep_autopatch_appsrc.erl,$(1))); \
+		$(call dep_autopatch_erlang_mk,$(1)); \
+	elif [ -f $(DEPS_DIR)/$(1)/Makefile ]; then \
 		if [ 0 != `grep -c "include ../\w*\.mk" $(DEPS_DIR)/$(1)/Makefile` ]; then \
 			$(call dep_autopatch2,$(1)); \
 		elif [ 0 != `grep -ci rebar $(DEPS_DIR)/$(1)/Makefile` ]; then \
@@ -4098,12 +4093,7 @@ define dep_autopatch
 		elif [ -n "`find $(DEPS_DIR)/$(1)/ -type f -name \*.mk -not -name erlang.mk -exec grep -i rebar '{}' \;`" ]; then \
 			$(call dep_autopatch2,$(1)); \
 		else \
-			if [ -f $(DEPS_DIR)/$(1)/erlang.mk ]; then \
-				$(call erlang,$(call dep_autopatch_appsrc.erl,$(1))); \
-				$(call dep_autopatch_erlang_mk,$(1)); \
-			else \
-				$(call erlang,$(call dep_autopatch_app.erl,$(1))); \
-			fi \
+			$(call erlang,$(call dep_autopatch_app.erl,$(1))); \
 		fi \
 	else \
 		if [ ! -d $(DEPS_DIR)/$(1)/src/ ]; then \
@@ -4257,57 +4247,6 @@ define dep_autopatch_rebar.erl
 				Write(io_lib:format("COMPILE_FIRST +=~s\n", [Names]))
 		end
 	end(),
-	FindFirst = fun(F, Fd) ->
-		case io:parse_erl_form(Fd, undefined) of
-			{ok, {attribute, _, compile, {parse_transform, PT}}, _} ->
-				[PT, F(F, Fd)];
-			{ok, {attribute, _, compile, CompileOpts}, _} when is_list(CompileOpts) ->
-				case proplists:get_value(parse_transform, CompileOpts) of
-					undefined -> [F(F, Fd)];
-					PT -> [PT, F(F, Fd)]
-				end;
-			{ok, {attribute, _, include, Hrl}, _} ->
-				case file:open("$(call core_native_path,$(DEPS_DIR)/$1/include/)" ++ Hrl, [read]) of
-					{ok, HrlFd} -> [F(F, HrlFd), F(F, Fd)];
-					_ ->
-						case file:open("$(call core_native_path,$(DEPS_DIR)/$1/src/)" ++ Hrl, [read]) of
-							{ok, HrlFd} -> [F(F, HrlFd), F(F, Fd)];
-							_ -> [F(F, Fd)]
-						end
-				end;
-			{ok, {attribute, _, include_lib, "$(1)/include/" ++ Hrl}, _} ->
-				{ok, HrlFd} = file:open("$(call core_native_path,$(DEPS_DIR)/$1/include/)" ++ Hrl, [read]),
-				[F(F, HrlFd), F(F, Fd)];
-			{ok, {attribute, _, include_lib, Hrl}, _} ->
-				case file:open("$(call core_native_path,$(DEPS_DIR)/$1/include/)" ++ Hrl, [read]) of
-					{ok, HrlFd} -> [F(F, HrlFd), F(F, Fd)];
-					_ -> [F(F, Fd)]
-				end;
-			{ok, {attribute, _, import, {Imp, _}}, _} ->
-				case file:open("$(call core_native_path,$(DEPS_DIR)/$1/src/)" ++ atom_to_list(Imp) ++ ".erl", [read]) of
-					{ok, ImpFd} -> [Imp, F(F, ImpFd), F(F, Fd)];
-					_ -> [F(F, Fd)]
-				end;
-			{eof, _} ->
-				file:close(Fd),
-				[];
-			_ ->
-				F(F, Fd)
-		end
-	end,
-	fun() ->
-		ErlFiles = filelib:wildcard("$(call core_native_path,$(DEPS_DIR)/$1/src/)*.erl"),
-		First0 = lists:usort(lists:flatten([begin
-			{ok, Fd} = file:open(F, [read]),
-			FindFirst(FindFirst, Fd)
-		end || F <- ErlFiles])),
-		First = lists:flatten([begin
-			{ok, Fd} = file:open("$(call core_native_path,$(DEPS_DIR)/$1/src/)" ++ atom_to_list(M) ++ ".erl", [read]),
-			FindFirst(FindFirst, Fd)
-		end || M <- First0, lists:member("$(call core_native_path,$(DEPS_DIR)/$1/src/)" ++ atom_to_list(M) ++ ".erl", ErlFiles)]) ++ First0,
-		Write(["COMPILE_FIRST +=", [[" ", atom_to_list(M)] || M <- First,
-			lists:member("$(call core_native_path,$(DEPS_DIR)/$1/src/)" ++ atom_to_list(M) ++ ".erl", ErlFiles)], "\n"])
-	end(),
 	Write("\n\nrebar_dep: preprocess pre-deps deps pre-app app\n"),
 	Write("\npreprocess::\n"),
 	Write("\npre-deps::\n"),
@@ -4420,9 +4359,10 @@ define dep_autopatch_rebar.erl
 					Output, ": $$\(foreach ext,.c .C .cc .cpp,",
 						"$$\(patsubst %$$\(ext),%.o,$$\(filter %$$\(ext),$$\(wildcard", Input, "))))\n",
 					"\t$$\(CC) -o $$\@ $$\? $$\(LDFLAGS) $$\(ERL_LDFLAGS) $$\(DRV_LDFLAGS) $$\(EXE_LDFLAGS)",
-					case filename:extension(Output) of
-						[] -> "\n";
-						_ -> " -shared\n"
+					case {filename:extension(Output), $(PLATFORM)} of
+					    {[], _} -> "\n";
+					    {_, darwin} -> "\n";
+					    _ -> " -shared\n"
 					end])
 			end,
 			[PortSpec(S) || S <- PortSpecs]
@@ -4586,10 +4526,11 @@ $(DEPS_DIR)/$(call dep_name,$1):
 		exit 17; \
 	fi
 	$(verbose) mkdir -p $(DEPS_DIR)
-	$(dep_verbose) $(call dep_fetch_$(strip $(call dep_fetch,$1)),$1)
-	$(verbose) if [ -f $(DEPS_DIR)/$(DEP_NAME)/configure.ac -o -f $(DEPS_DIR)/$(DEP_NAME)/configure.in ]; then \
-		echo " AUTO  " $(DEP_STR); \
-		cd $(DEPS_DIR)/$(DEP_NAME) && autoreconf -Wall -vif -I m4; \
+	$(dep_verbose) $(call dep_fetch_$(strip $(call dep_fetch,$(1))),$(1))
+	$(verbose) if [ -f $(DEPS_DIR)/$(1)/configure.ac -o -f $(DEPS_DIR)/$(1)/configure.in ] \
+			&& [ ! -f $(DEPS_DIR)/$(1)/configure ]; then \
+		echo " AUTO  " $(1); \
+		cd $(DEPS_DIR)/$(1) && autoreconf -Wall -vif -I m4; \
 	fi
 	- $(verbose) if [ -f $(DEPS_DIR)/$(DEP_NAME)/configure ]; then \
 		echo " CONF  " $(DEP_STR); \
@@ -4673,6 +4614,20 @@ dtl_verbose = $(dtl_verbose_$(V))
 
 # Core targets.
 
+DTL_FILES = $(sort $(call core_find,$(DTL_PATH),*.dtl))
+
+ifneq ($(DTL_FILES),)
+
+ifdef DTL_FULL_PATH
+BEAM_FILES += $(addprefix ebin/,$(patsubst %.dtl,%_dtl.beam,$(subst /,_,$(DTL_FILES:$(DTL_PATH)%=%))))
+else
+BEAM_FILES += $(addprefix ebin/,$(patsubst %.dtl,%_dtl.beam,$(notdir $(DTL_FILES))))
+endif
+
+# Rebuild templates when the Makefile changes.
+$(DTL_FILES): $(MAKEFILE_LIST)
+	@touch $@
+
 define erlydtl_compile.erl
 	[begin
 		Module0 = case "$(strip $(DTL_FULL_PATH))" of
@@ -4691,24 +4646,10 @@ define erlydtl_compile.erl
 	halt().
 endef
 
-ifneq ($(wildcard src/),)
-
-DTL_FILES = $(sort $(call core_find,$(DTL_PATH),*.dtl))
-
-ifdef DTL_FULL_PATH
-BEAM_FILES += $(addprefix ebin/,$(patsubst %.dtl,%_dtl.beam,$(subst /,_,$(DTL_FILES:$(DTL_PATH)%=%))))
-else
-BEAM_FILES += $(addprefix ebin/,$(patsubst %.dtl,%_dtl.beam,$(notdir $(DTL_FILES))))
-endif
-
-# Rebuild templates when the Makefile changes.
-$(DTL_FILES): $(MAKEFILE_LIST)
-	@touch $@
-
-ebin/$(PROJECT).app:: $(DTL_FILES)
-	$(gen_verbose) mkdir -p ebin/
+ebin/$(PROJECT).app:: $(DTL_FILES) | ebin/
 	$(if $(strip $?),\
-		$(dtl_verbose) $(call erlang,$(call erlydtl_compile.erl,$?,-pa ebin/ $(DEPS_DIR)/erlydtl/ebin/)))
+		$(dtl_verbose) $(call erlang,$(call erlydtl_compile.erl,$?),-pa ebin/ $(DEPS_DIR)/erlydtl/ebin/))
+
 endif
 
 # Copyright (c) 2015, Loïc Hoguin <essen@ninenines.eu>
@@ -4882,12 +4823,17 @@ $(PROJECT).d:: $(XRL_FILES) $(YRL_FILES)
 # Erlang and Core Erlang files.
 
 define makedep.erl
+	G = digraph:new([acyclic]),
 	ErlFiles = lists:usort(string:tokens("$(ERL_FILES)", " ")),
 	Modules = [{filename:basename(F, ".erl"), F} || F <- ErlFiles],
-	Add = fun (Dep, Acc) ->
+	Add = fun (Mod, Dep, Acc) ->
 		case lists:keyfind(atom_to_list(Dep), 1, Modules) of
-			{_, DepFile} -> [DepFile|Acc];
-			false -> Acc
+			false -> Acc;
+			{_, DepFile} ->
+				digraph:add_vertex(G, Mod),
+				digraph:add_vertex(G, Dep),
+				digraph:add_edge(G, Mod, Dep),
+				[DepFile|Acc]
 		end
 	end,
 	AddHd = fun (Dep, Acc) ->
@@ -4897,36 +4843,33 @@ define makedep.erl
 			_ -> Acc
 		end
 	end,
-	CompileFirst = fun (Deps) ->
-		First0 = [case filename:extension(D) of
-			".erl" -> filename:basename(D, ".erl");
-			_ -> []
-		end || D <- Deps],
-		case lists:usort(First0) of
-			[] -> [];
-			[[]] -> [];
-			First -> ["COMPILE_FIRST +=", [[" ", F] || F <- First], "\n"]
-		end
-	end,
 	Depend = [begin
+		Mod = list_to_atom(filename:basename(F, ".erl")),
 		case epp:parse_file(F, ["include/"], []) of
 			{ok, Forms} ->
 				Deps = lists:usort(lists:foldl(fun
-					({attribute, _, behavior, Dep}, Acc) -> Add(Dep, Acc);
-					({attribute, _, behaviour, Dep}, Acc) -> Add(Dep, Acc);
-					({attribute, _, compile, {parse_transform, Dep}}, Acc) -> Add(Dep, Acc);
+					({attribute, _, behavior, Dep}, Acc) -> Add(Mod, Dep, Acc);
+					({attribute, _, behaviour, Dep}, Acc) -> Add(Mod, Dep, Acc);
+					({attribute, _, compile, {parse_transform, Dep}}, Acc) -> Add(Mod, Dep, Acc);
+					({attribute, _, compile, CompileOpts}, Acc) when is_list(CompileOpts) ->
+						case proplists:get_value(parse_transform, CompileOpts) of
+							undefined -> Acc;
+							Dep -> Add(Mod, Dep, Acc)
+						end;
 					({attribute, _, file, {Dep, _}}, Acc) -> AddHd(Dep, Acc);
 					(_, Acc) -> Acc
 				end, [], Forms)),
 				case Deps of
 					[] -> "";
-					_ -> [F, "::", [[" ", D] || D <- Deps], "; @touch \$$@\n", CompileFirst(Deps)]
+					_ -> [F, "::", [[" ", D] || D <- Deps], "; @touch \$$@\n"]
 				end;
 			{error, enoent} ->
 				[]
 		end
 	end || F <- ErlFiles],
-	ok = file:write_file("$(1)", Depend),
+	CompileFirst = [X || X <- lists:reverse(digraph_utils:topsort(G)), [] =/= digraph:in_neighbours(G, X)],
+	ok = file:write_file("$(1)", [Depend, "\nCOMPILE_FIRST +=",
+		[[" ", atom_to_list(CF)] || CF <- CompileFirst], "\n"]),
 	halt()
 endef
 
@@ -5604,12 +5547,32 @@ list-templates:
 
 C_SRC_DIR ?= $(CURDIR)/c_src
 C_SRC_ENV ?= $(C_SRC_DIR)/env.mk
-C_SRC_OUTPUT ?= $(CURDIR)/priv/$(PROJECT).so
+C_SRC_OUTPUT ?= $(CURDIR)/priv/$(PROJECT)
 C_SRC_TYPE ?= shared
 
 # System type and C compiler/flags.
 
-ifeq ($(PLATFORM),darwin)
+ifeq ($(PLATFORM),msys2)
+	C_SRC_OUTPUT_EXECUTABLE_EXTENSION ?= .exe
+	C_SRC_OUTPUT_SHARED_EXTENSION ?= .dll
+else
+	C_SRC_OUTPUT_EXECUTABLE_EXTENSION ?=
+	C_SRC_OUTPUT_SHARED_EXTENSION ?= .so
+endif
+
+ifeq ($(C_SRC_TYPE),shared)
+	C_SRC_OUTPUT_FILE = $(C_SRC_OUTPUT)$(C_SRC_OUTPUT_SHARED_EXTENSION)
+else
+	C_SRC_OUTPUT_FILE = $(C_SRC_OUTPUT)$(C_SRC_OUTPUT_EXECUTABLE_EXTENSION)
+endif
+
+ifeq ($(PLATFORM),msys2)
+# We hardcode the compiler used on MSYS2. The default CC=cc does
+# not produce working code. The "gcc" MSYS2 package also doesn't.
+	CC = /mingw64/bin/gcc
+	CFLAGS ?= -O3 -std=c99 -finline-functions -Wall -Wmissing-prototypes
+	CXXFLAGS ?= -O3 -finline-functions -Wall
+else ifeq ($(PLATFORM),darwin)
 	CC ?= cc
 	CFLAGS ?= -O3 -std=c99 -arch x86_64 -finline-functions -Wall -Wmissing-prototypes
 	CXXFLAGS ?= -O3 -arch x86_64 -finline-functions -Wall
@@ -5624,10 +5587,15 @@ else ifeq ($(PLATFORM),linux)
 	CXXFLAGS ?= -O3 -finline-functions -Wall
 endif
 
-CFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR)
-CXXFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR)
+ifneq ($(PLATFORM),msys2)
+	CFLAGS += -fPIC
+	CXXFLAGS += -fPIC
+endif
 
-LDLIBS += -L $(ERL_INTERFACE_LIB_DIR) -lerl_interface -lei
+CFLAGS += -I"$(ERTS_INCLUDE_DIR)" -I"$(ERL_INTERFACE_INCLUDE_DIR)"
+CXXFLAGS += -I"$(ERTS_INCLUDE_DIR)" -I"$(ERL_INTERFACE_INCLUDE_DIR)"
+
+LDLIBS += -L"$(ERL_INTERFACE_LIB_DIR)" -lerl_interface -lei
 
 # Verbosity.
 
@@ -5664,15 +5632,15 @@ OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 COMPILE_C = $(c_verbose) $(CC) $(CFLAGS) $(CPPFLAGS) -c
 COMPILE_CPP = $(cpp_verbose) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
 
-app:: $(C_SRC_ENV) $(C_SRC_OUTPUT)
+app:: $(C_SRC_ENV) $(C_SRC_OUTPUT_FILE)
 
-test-build:: $(C_SRC_ENV) $(C_SRC_OUTPUT)
+test-build:: $(C_SRC_ENV) $(C_SRC_OUTPUT_FILE)
 
-$(C_SRC_OUTPUT): $(OBJECTS)
+$(C_SRC_OUTPUT_FILE): $(OBJECTS)
 	$(verbose) mkdir -p priv/
 	$(link_verbose) $(CC) $(OBJECTS) \
 		$(LDFLAGS) $(if $(filter $(C_SRC_TYPE),shared),-shared) $(LDLIBS) \
-		-o $(C_SRC_OUTPUT)
+		-o $(C_SRC_OUTPUT_FILE)
 
 %.o: %.c
 	$(COMPILE_C) $(OUTPUT_OPTION) $<
@@ -5689,13 +5657,13 @@ $(C_SRC_OUTPUT): $(OBJECTS)
 clean:: clean-c_src
 
 clean-c_src:
-	$(gen_verbose) rm -f $(C_SRC_OUTPUT) $(OBJECTS)
+	$(gen_verbose) rm -f $(C_SRC_OUTPUT_FILE) $(OBJECTS)
 
 endif
 
 ifneq ($(wildcard $(C_SRC_DIR)),)
 $(C_SRC_ENV):
-	$(verbose) $(ERL) -eval "file:write_file(\"$(C_SRC_ENV)\", \
+	$(verbose) $(ERL) -eval "file:write_file(\"$(call core_native_path,$(C_SRC_ENV))\", \
 		io_lib:format( \
 			\"ERTS_INCLUDE_DIR ?= ~s/erts-~s/include/~n\" \
 			\"ERL_INTERFACE_INCLUDE_DIR ?= ~s~n\" \

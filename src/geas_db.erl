@@ -171,7 +171,7 @@ do_defines(Io) ->  DefMin = erl_syntax:attribute(
                    DefMax = erl_syntax:attribute(
                                     erl_syntax:atom('define'), 
                                     [erl_syntax:atom('GEAS_MAX_REL'),
-                                     erl_syntax:string("18.1")]),
+                                     erl_syntax:string("18.2")]),
                    io:put_chars(Io, erl_prettypr:format(DefMin)),
                    io:nl(Io),
                    io:put_chars(Io, erl_prettypr:format(DefMax)),
