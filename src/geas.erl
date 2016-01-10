@@ -25,10 +25,11 @@
 -module(geas).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([info/1, what/1, offending/1, compat/1, guilty/1]).
-
-% rebar plugin
+% rebar2 plugin
 -export([geas/2]).
+
+% Other exported functions for non plugin use
+-export([info/1, what/1, offending/1, compat/1, guilty/1]).
 
 -include("geas_db.hrl").
 
@@ -46,8 +47,7 @@
             Os        = get_os(),
             %Erts      = get_erts_version(AppBeam),
             Comp      = get_compile_version(AppBeam),
-            Erlang    = get_erlang_version(Comp),
-            Compat    = get_erlang_compat(Dir)
+            Erlang    = get_erlang_version(Comp)
 ).
 
 %%-------------------------------------------------------------------------
@@ -67,6 +67,7 @@ info(Dir) when is_list(Dir) ->
             CsrcDir   = filename:join(Dir, "c_src"),
             Driver    = is_using_driver(CsrcDir),
             ?COMMON_DIR(EbinDir) ,
+            Compat    = get_erlang_compat(Dir),
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
 
@@ -131,6 +132,7 @@ what(Dir) when is_list(Dir) ->
 
 what_dir(Dir) ->           
             ?COMMON_DIR(Dir) ,
+            Compat    = get_erlang_compat(Dir),
             {ok,
                 [{name, AppName},
                  {version, Version}, 
@@ -208,13 +210,30 @@ is_valid_dir(Dir) ->
 %%-------------------------------------------------------------------------
 -spec is_valid_erlang_project(list()) -> atom().
 
-is_valid_erlang_project(Dir) -> 
-    {ok, L} = file:list_dir(Dir),
-    Src  = lists:any(fun(X) -> (X =:= "src") end, L),
-    Ebin = lists:any(fun(X) -> (X =:= "ebin") end, L),
+is_valid_erlang_project(Dir) ->
+    % Workaround for GEAS_USE_SRC : some projects have subdirectories under src/.
+    % example :  https://github.com/nitrogen/simple_bridge
+    % Bring upper directory in such case
+    Dir2 = case filename:basename(Dir) of
+			 "src" -> filename:dirname(Dir) ;
+			 _     -> Dir
+		   end,
+    {ok, L} = file:list_dir(Dir2),
+	% When using beam files, do not require src/ to be there
+	Src  = case os:getenv("GEAS_USE_SRC") of
+		   		false -> true ;
+		   		"0"   -> true ;
+		   		"1"   -> lists:any(fun(X) -> (X =:= "src") end, L)
+	       end,
+    % When using source files, do not require ebin/ to be there
+    Ebin = case os:getenv("GEAS_USE_SRC") of
+		   		false -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
+		   		"0"   -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
+		   		"1"   -> true
+	       end,
     case ((Src =:= true) and (Ebin =:= true)) of
         true  -> ok ;
-        false -> throw("Invalid Erlang project : "++Dir) , error
+        false -> throw("Invalid Erlang project : "++Dir2) , error
     end.
 
 %%-------------------------------------------------------------------------
@@ -293,11 +312,30 @@ get_app_type_beam(File) ->
 %%-------------------------------------------------------------------------
 -spec get_app_file(list()) -> list().
 
-get_app_file(Dir) -> case filelib:wildcard("*.app", Dir) of
-                        []    -> throw("Application Resource File (.app) not found. Aborting."),
-                                 "" ;
-                        [App] -> filename:join(Dir, App) ;
-                        _     -> throw("More than one .app file found in : "++ Dir), "" 
+get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
+							   false -> true ;
+							   "0"   -> true ;
+							   "1"   -> false
+				             end,
+                     case Check of
+						  true -> 
+					 				case filelib:wildcard("*.app", Dir) of
+                        				[]    -> throw("Application Resource File (.app) not found. Aborting."),
+                                 				 "" ;
+                        				[App] -> filename:join(Dir, App) ;
+                        				_     -> throw("More than one .app file found in : "++ Dir), "" 		
+									end;
+						  false ->  % Workaround for subdirectories in src/							
+									DirSrc = case filename:basename(Dir) of
+												  "src" -> Dir ;
+												  _     -> filename:join(filename:dirname(Dir),"src")
+											 end,					
+									case filelib:wildcard("*.app.src", DirSrc) of
+                        				[]    -> throw("Application Resource File (.app.src) not found. Aborting."),
+                                 				 "" ;
+                        				[App] -> filename:join(DirSrc, App) ;
+                        				_     -> throw("More than one .app.src file found in : "++ DirSrc), "" 		
+									end
                      end.
                         
 %%-------------------------------------------------------------------------
@@ -696,7 +734,12 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
 
-get_erlang_compat(Dir) -> Beams = filelib:wildcard("*.beam", Dir),
+get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
+							   			false -> "ebin/*.beam" ;
+							   			"0"   -> "ebin/*.beam" ;
+							   			"1"   -> "src/**/*.erl"
+				   		  		  end,
+						  Beams = filelib:wildcard(Joker, Dir),
                           X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
                           {MinList, MaxList} = lists:unzip(X),
                           % Get the highest version of Min releases of all beam
@@ -724,10 +767,7 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
 -spec get_erlang_compat_beam(list()) -> {list(), list()}.
 
 get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
-                                Abs1 = case beam_lib:chunks(File,[abstract_code]) of
-                                            {ok,{_,[{abstract_code,{_, Abs}}]}} -> Abs ;
-                                            _  -> []
-                                       end,                                
+                                Abs1 = get_abstract(File),                         
                                 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
                                 %io:format("~p~n", [X)])
                                 % Get the min and max release for each MFA
@@ -879,42 +919,41 @@ offending(File) -> % check it is a file or exit
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
 %%-------------------------------------------------------------------------
-get_min_offending(Rel, File) -> case beam_lib:chunks(File,[abstract_code]) of
-								{ok,{_,[{abstract_code,{_, Abs}}]}} -> 
-											 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-											 % From list get the release of offendiing functions
-											 R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
-											 % Extract only the release we search
-											 R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-											 %% Extract the function
-											 [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] ;
-								{ok,{_,[{abstract_code,no_abstract_code}]}} -> []
-								end.
+get_min_offending(Rel, File) -> Abs = get_abstract(File),
+								X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+							    % From list get the release of offending functions
+							    R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
+							    % Extract only the release we search
+							    R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+							    %% Extract the function
+							    [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}].
 
 %%-------------------------------------------------------------------------
 %% @doc Give the offending max modules/functions that reduce release window
 %%-------------------------------------------------------------------------
-get_max_offending(Rel, File) ->  case  beam_lib:chunks(File,[abstract_code]) of
-									{ok,{_,[{abstract_code,{_, Abs}}]}} ->
-								             X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-								             % From list get the release of offendiing functions
-								             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
-								             % Extract only the release we search
-								             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-								             %% Extract the function
-								             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}] ;
-								 	{ok,{_,[{abstract_code,no_abstract_code}]}} -> []
-								 end.
+get_max_offending(Rel, File) ->  Abs = get_abstract(File),
+								 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+					         	 % From list get the release of offending functions
+					             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
+					             % Extract only the release we search
+					             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+					             %% Extract the function
+					             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}]. 
   
 %%-------------------------------------------------------------------------
 %% @doc Compat output on stdout, mainly for erlang.mk plugin
 %%-------------------------------------------------------------------------
 
-compat(RootDir) -> % Get all .beam files recursively
-                    PP = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
+compat(RootDir) -> % Get all .beam (or .erl) files recursively
+					Ext = ext_to_search(),
+                    PP = filelib:fold_files(filename:join(RootDir,"deps"), Ext, true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
 										 case filename:basename(P) of
 											  "geas" -> Y ; % Exclude geas from results
+											  "src"  -> case lists:member(filename:dirname(P), Y) of
+                                              				true  -> Y ;
+                                              				false -> Y ++ [filename:dirname(P)]
+														end;
 											  _      -> case lists:member(P, Y) of
                                               				true  -> Y ;
                                               				false -> Y ++ [P]
@@ -927,7 +966,8 @@ compat(RootDir) -> % Get all .beam files recursively
                     % Display header
                     io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
                     io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
-                    D = lists:flatmap(fun(X) ->  {ok, I} = info(X),
+                    D = lists:flatmap(fun(X) -> 
+											 {ok, I} = info(X),
                                              Compat = lists:keyfind(compat, 1, I),
                                              {compat,{MinDb, Min, Max, MaxDb}} = Compat,
                                              N = lists:keyfind(native, 1, I),
@@ -964,9 +1004,11 @@ compat(RootDir) -> % Get all .beam files recursively
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
 %%-------------------------------------------------------------------------
 
-guilty(RootDir) -> Bs1 = filelib:fold_files(filename:join(RootDir,"deps"), ".beam$", true, 
+guilty(RootDir) -> Ext = ext_to_search(),
+				   DirS = dir_to_search(),
+				   Bs1 = filelib:fold_files(filename:join(RootDir, "deps"), Ext, true, 
                             				fun(X, Y) -> Y ++ [X] end, []),
-				   Bs2 = filelib:fold_files(filename:join(RootDir,"ebin"), ".beam$", true, 
+				   Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true, 
                             				fun(X, Y) -> Y ++ [X] end, []),
 				   Bs = Bs1 ++ Bs2,
 				   % Check Offendings for each beam
@@ -1003,7 +1045,80 @@ guilty(RootDir) -> Bs1 = filelib:fold_files(filename:join(RootDir,"deps"), ".bea
 								   end
 														
 								 end, lists:usort(All)) .
-				   
+
+%%-------------------------------------------------------------------------
+%% @doc Get abstract file either from beam or src file
+%%-------------------------------------------------------------------------
+get_abstract(File) -> 
+					  case filename:extension(File) of
+						  ".beam" -> get_abstract(File, beam) ;
+						  ".erl"  -> get_abstract(File, src) ;
+						  _       -> []
+					  end.
+
+get_abstract(File, beam) -> %io:format("beam ~p~n",[File]), 
+							case beam_lib:chunks(File,[abstract_code]) of
+								{ok,{_,[{abstract_code,{_, Abs}}]}} -> Abs;
+								{ok,{_,[{abstract_code,no_abstract_code}]}} -> 
+										% Try on source file as fallback
+									    SrcFile = get_src_from_beam(File),
+										case filelib:is_regular(SrcFile) of
+									    	 true  -> get_abstract(SrcFile, src) ;
+											 false -> []
+										end
+						     end;
+
+
+get_abstract(File, src) ->	%io:format("src  ~p~n",[File]), 
+							% IncDir = filename:join(filename:dirname(filename:dirname(File)),"include"),
+							% Add non conventional include dir for sub-directories in src/
+							IncDir = get_upper_dir(filename:dirname(File), "include"),
+							SrcDir = get_upper_dir(filename:dirname(File), "src"),
+							%io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
+							% DO NOT USE : epp:parse_file/2, because starting "R16B03-1" 
+							% Geas need to work on the maximal release window
+							{ok , Form} = epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []),
+							Form. 
+
+
+get_src_from_beam(File) -> 	UpperDir = filename:dirname(filename:dirname(File)),
+							SrcDir = filename:join(UpperDir, "src"),
+							Basename = filename:rootname(filename:basename(File)),
+							filename:join([SrcDir, Basename, ".erl"]).
+
+%%-------------------------------------------------------------------------
+%% @doc Get file extension to search depending option environment variable
+%%-------------------------------------------------------------------------
+
+ext_to_search() -> case os:getenv("GEAS_USE_SRC") of
+							   false -> ".beam$" ;
+							   "0"   -> ".beam$" ;
+							   "1"   -> ".erl$"
+				   end.
+
+%%-------------------------------------------------------------------------
+%% @doc Get directory to search depending mode
+%%-------------------------------------------------------------------------
+dir_to_search() -> case os:getenv("GEAS_USE_SRC") of
+							   false -> "ebin" ;
+							   "0"   -> "ebin" ;
+							   "1"   -> "src"
+				   end.
+
+%%-------------------------------------------------------------------------
+%% @doc Get upper/parallel directory matching a needle
+%%-------------------------------------------------------------------------
+get_upper_dir("/", _) -> "" ;
+get_upper_dir(Dir, Needle) -> case filename:basename(Dir) of
+									Needle -> Dir ;
+									_      -> case filelib:is_dir(filename:join(Dir, Needle)) of
+												false -> get_upper_dir(filename:dirname(Dir), Needle) ;
+												true  -> filename:join(Dir, Needle)
+											  end
+							  end.
+
+
+ 
 %%-------------------------------------------------------------------------
 %% @doc rebar plugin call function
 %%-------------------------------------------------------------------------
