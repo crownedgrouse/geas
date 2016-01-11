@@ -290,8 +290,11 @@ get_app_type(AppFile, Ebindir) ->
 -spec get_app_type_beam(list()) -> atom().
 
 get_app_type_beam(File) ->
+		case filename:extension(File) of
+			".erl" -> undefined ;
+			_      -> 
                  % start/2 and stop/1 ?
-                     {ok,{_,[{exports, L}]}} = beam_lib:chunks(File, [exports]),
+                 {ok,{_,[{exports, L}]}} = beam_lib:chunks(File, [exports]),
                      case (lists:member({start, 2}, L) and 
                            lists:member( {stop, 1}, L)) of
                             true  -> otp ;
@@ -302,9 +305,10 @@ get_app_type_beam(File) ->
                                                      case lists:member({main, 1}, L) of
                                                         true  -> esc ;
                                                         false -> lib 
-                                                    end  
-                                    end
-                     end .
+                                                     end  
+                                     end
+                     end
+	   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Find .app filename in ebin 
@@ -563,36 +567,40 @@ get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
 %%-------------------------------------------------------------------------
 -spec get_arch_from_file(list()) -> atom().
 
-get_arch_from_file(File) -> Bn = filename:rootname(File, ".beam"),
-                            [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
-                            Fun = fun({X, _, _}) -> case X of
-                                                "Atom" -> true ;
-                                                "Code" -> true ;
-                                                "StrT" -> true ;
-                                                "ImpT" -> true ;
-                                                "ExpT" -> true ;
-                                                "FunT" -> true ;
-                                                "LitT" -> true ;
-                                                "LocT" -> true ;
-                                                "Attr" -> true ;
-                                                "CInf" -> true ;
-                                                "Abst" -> true ;
-                                                "Line" -> true ;
-                                                _      -> false 
-                                            end end,
-                            case lists:dropwhile(Fun, C) of
-                                 [] ->  get_arch(false, File) ;
-                                 [{H, _, _}] -> case H of
-                                                    "HS8P" -> ultrasparc ;
-                                                    "HPPC" -> powerpc ;
-                                                    "HP64" -> ppc64 ;
-                                                    "HARM" -> arm ;
-                                                    "HX86" -> x86 ;
-                                                    "HA64" -> x86_64 ;
-                                                    "HSV9" -> ultrasparc ;
-                                                    "HW32" -> x86
-                                                end
-                            end.
+get_arch_from_file(File) -> 
+		  case filename:extension(File) of
+			  ".erl" -> undefined ;
+			  _      -> Bn = filename:rootname(File, ".beam"),
+		                [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
+		                Fun = fun({X, _, _}) -> case X of
+		                                    "Atom" -> true ;
+		                                    "Code" -> true ;
+		                                    "StrT" -> true ;
+		                                    "ImpT" -> true ;
+		                                    "ExpT" -> true ;
+		                                    "FunT" -> true ;
+		                                    "LitT" -> true ;
+		                                    "LocT" -> true ;
+		                                    "Attr" -> true ;
+		                                    "CInf" -> true ;
+		                                    "Abst" -> true ;
+		                                    "Line" -> true ;
+		                                    _      -> false 
+		                                end end,
+		                case lists:dropwhile(Fun, C) of
+		                     [] ->  get_arch(false, File) ;
+		                     [{H, _, _}] -> case H of
+		                                        "HS8P" -> ultrasparc ;
+		                                        "HPPC" -> powerpc ;
+		                                        "HP64" -> ppc64 ;
+		                                        "HARM" -> arm ;
+		                                        "HX86" -> x86 ;
+		                                        "HA64" -> x86_64 ;
+		                                        "HSV9" -> ultrasparc ;
+		                                        "HW32" -> x86
+		                                    end
+		                end
+			end.
 
 %%-------------------------------------------------------------------------
 %% @doc Map internal architecture atom to something else if needed
@@ -620,13 +628,17 @@ is_native(EbinDir) ->  Beams = filelib:wildcard("*.beam", EbinDir),
 %%-------------------------------------------------------------------------
 -spec is_native_from_file(list()) -> boolean().
 
-is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
-                               case filelib:is_regular(File) of
-                                    true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                                            {options, O} = lists:keyfind(options, 1, L),
-                                            lists:member(native, O);
-                                    false -> undefined
-                               end.
+is_native_from_file(File) ->   
+		case filename:extension(File) of
+			".erl" -> undefined ;
+			_      -> Bn = filename:rootname(File, ".beam"),
+                      case filelib:is_regular(File) of
+                            true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                    {options, O} = lists:keyfind(options, 1, L),
+                                    lists:member(native, O);
+                            false -> undefined
+                      end
+		end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get compile module version
@@ -634,13 +646,17 @@ is_native_from_file(File) ->   Bn = filename:rootname(File, ".beam"),
 %%-------------------------------------------------------------------------
 -spec get_compile_version(list()) -> list().
 
-get_compile_version(File) ->   Bn = filename:rootname(File, ".beam"),
-                               case filelib:is_regular(File) of
-                                    true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                                            {version, E} = lists:keyfind(version, 1, L),
-                                            E;
-                                    false -> undefined 
-                               end.
+get_compile_version(File) ->
+		case filename:extension(File) of
+			".erl" -> undefined ;
+			_      -> Bn = filename:rootname(File, ".beam"),
+                      case filelib:is_regular(File) of
+                            true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                    {version, E} = lists:keyfind(version, 1, L),
+                                    E;
+                            false -> undefined 
+                      end
+		end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get application name, version, desc from .app file in ebin/ directory
@@ -666,13 +682,17 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
 %%-------------------------------------------------------------------------
 -spec get_date(list()) -> list().
 
-get_date(File) ->  Bn = filename:rootname(File, ".beam"),
-                   case filelib:is_regular(File) of
+get_date(File) ->  
+		case filename:extension(File) of
+			".erl" -> undefined ;
+			_      -> Bn = filename:rootname(File, ".beam"),
+                   	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 {time, T} = lists:keyfind(time, 1, L),
                                 T;
                         false -> undefined
-                   end.
+                      end
+		end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get application author
@@ -683,8 +703,11 @@ get_date(File) ->  Bn = filename:rootname(File, ".beam"),
 %%-------------------------------------------------------------------------
 -spec get_author(list()) -> list() | undefined.
 
-get_author(File) -> Bn = filename:rootname(File, ".beam"),
-                   case filelib:is_regular(File) of
+get_author(File) ->   
+		case filename:extension(File) of
+			".erl" -> undefined ;
+			_      -> Bn = filename:rootname(File, ".beam"),
+                   	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
                                 A = case lists:keyfind(author, 1, L) of
                                             {author, B} -> B ;
@@ -692,7 +715,8 @@ get_author(File) -> Bn = filename:rootname(File, ".beam"),
                                     end,
                                 A;
                         false -> undefined
-                   end.
+                   	  end
+		end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get {min, recommanded, max} Erlang version from erts version
@@ -1011,7 +1035,7 @@ guilty(RootDir) -> Ext = ext_to_search(),
 				   Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true, 
                             				fun(X, Y) -> Y ++ [X] end, []),
 				   Bs = Bs1 ++ Bs2,
-				   % Check Offendings for each beam
+				   % Check Offendings for each beam / erl
 				   All = lists:flatmap(fun(X) -> Off = offending(X),
 										   case Off of
 												{ok, []}          -> [] ;
