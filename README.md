@@ -117,7 +117,10 @@ $> rebar geas
    - word ``[32 | 64]`` OS' Word length
    - compile module version string
    - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from compiler version
-   - compat (version >= 2.0) ``{MinDbRel, MinRel, MaxRel, MaxDbRel}`` Compatibility of code with official releases. First and last value of tuple are the lowest and highest reference of geas database. Second value is the lowest official Erlang release where the beam(s) can run, while third value is the highest release where the beam(s) can run. Note that if first and second values are the same, it may imply that beam(s) file could run, possibly, on older official release, or not. As well if third and fourth value are the same, be sure that your geas database is up to date with the last official release.
+   - compat (version >= 2.0) ``{MinDbRel, MinRel, MaxRel, MaxDbRel}`` Compatibility of code with official releases.    
+First and last value of tuple are the lowest and highest reference of geas database.   
+Second value is the lowest official Erlang release where the beam(s) can run, while third value is the highest release where the beam(s) can run.   
+Note that if first and second values are the same, it may imply that beam(s) file could run, possibly, on older official release, or not. As well if third and fourth value are the same, be sure that your geas database is up to date with the last official release.
    - author (from beam content)
    - vcs information tuple 
    - maintainer (from vcs infos)
