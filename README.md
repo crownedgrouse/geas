@@ -2,12 +2,30 @@
 
 Guess Erlang Application Scattering
 
-## Overview ##
+
+Overview ##
 
 ``Geas : (In Irish folklore) an obligation or prohibition magically imposed on a person.``
 
 By extension, obligation or prohibition imposed by an Erlang application or module, which may modify its scattering.
 
+Geas is a tool that will detect the runnable official Erlang release window for your project.
+
+Geas will tell you what are the offending functions in the beam/source files that reduce the available window.
+
+Geas will tell you if some beam files are compiled native.
+
+## How it works ? ##
+
+Geas extract all function calls in project’s beam files where abstract code is available and compare to its database. Geas keep only the modules existing in its database, assuming other are modules created by the project. Geas search the starting and optionnaly ending Erlang release exporting thoses modules and functions/arity. Geas gives you then the compatibility with the highest minimal Erlang release and the lowest maximal Erlang release, called the release window. Geas detect native compilation that can reduce your project scattering.
+
+Geas, by default, does not use source code for at least three reasons :
+
+- Source code is not always available
+- Source code may compile in different targets depending defines
+- Native compilation cannot be detected from source
+
+However, in order to be able to know what Erlang release(s) can compile a project, since version 2.0.3, `geas` can use source files. Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
 
 ## Plugins ##
 
