@@ -15,6 +15,13 @@ Geas will tell you what are the offending functions in the beam/source files tha
 
 Geas will tell you if some beam files are compiled native.
 
+## When using it ? ##
+
+- Each time you prepare a project release or update a dependancy.
+- When you plan to add a dependancy to your project
+- When writing your README, to inform your project's users on possible release window
+- To limit test of CI tools on only possible release window
+
 ## How it works ? ##
 
 Geas extract all function calls in project’s beam files where abstract code is available and compare to its database. Geas keep only the modules existing in its database, assuming other are modules created by the project. Geas search the starting and optionnaly ending Erlang release exporting thoses modules and functions/arity. Geas gives you then the compatibility with the highest minimal Erlang release and the lowest maximal Erlang release, called the release window. Geas detect native compilation that can reduce your project scattering.
@@ -30,13 +37,6 @@ However, since version 2.0.3, in order to be able to know what Erlang release(s)
 As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
 
 Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
-
-## When using it ? ##
-
-- Each time you prepare a project release or update a dependancy.
-- When you plan to add a dependancy to your project
-- When writing your README, to inform your project's users on possible release window
-- To limit test of CI tools on only possible release window
 
 ## Plugins ##
 
