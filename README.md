@@ -25,7 +25,11 @@ Geas, by default, does not use source code for at least three reasons :
 - Source code may compile in different targets depending defines
 - Native compilation cannot be detected from source
 
-However, in order to be able to know what Erlang release(s) can compile a project, since version 2.0.3, `geas` can use source files. Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
+However, since version 2.0.3, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
+
+As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
+
+Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
 
 ## When using it ? ##
 
