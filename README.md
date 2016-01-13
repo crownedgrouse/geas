@@ -27,6 +27,13 @@ Geas, by default, does not use source code for at least three reasons :
 
 However, in order to be able to know what Erlang release(s) can compile a project, since version 2.0.3, `geas` can use source files. Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
 
+## When using it ? ##
+
+- Each time you prepare a project release or update a dependancy.
+- When you plan to add a dependancy to your project
+- When writing your README, to inform your project's users on possible release window
+- To limit test of CI tools on only possible release window
+
 ## Plugins ##
 
 ``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
