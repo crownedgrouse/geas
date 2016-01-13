@@ -2,12 +2,11 @@
 
 Guess Erlang Application Scattering
 
-
-## Overview ##
-
 ``Geas : (In Irish folklore) an obligation or prohibition magically imposed on a person.``
 
 By extension, obligation or prohibition imposed by an Erlang application or module, which may modify its scattering.
+
+## Overview ##
 
 Geas is a tool that will detect the runnable official Erlang release window for your project.
 
