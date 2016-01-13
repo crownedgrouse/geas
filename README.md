@@ -72,7 +72,7 @@ then run
 $> make geas
 ```
 
-See [erlang.mk's geas plugin](https://github.com/crownedgrouse/erlang.mk/blob/geas_plugin/doc/src/guide/geas.asciidoc) documentation for more details. 
+See [erlang.mk's geas plugin](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) documentation for more details. 
 
 ### rebar 2.x ###
 
