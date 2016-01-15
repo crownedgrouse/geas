@@ -1016,7 +1016,11 @@ compat(RootDir, term) ->
                                                             true  -> "" ;
                                                             false -> Max
                                                      end,
-                                             [{Left , ArchString, Right, filename:basename(X)}]
+											 Name = case filename:basename(X) of
+														"." -> filename:basename(filename:dirname(X)) ;
+														NN  -> NN
+													end,
+                                             [{Left , ArchString, Right, Name}]
                                        end, Global),
                     % Get global info
 					MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
