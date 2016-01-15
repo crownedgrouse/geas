@@ -2,12 +2,40 @@
 
 Guess Erlang Application Scattering
 
-## Overview ##
-
 ``Geas : (In Irish folklore) an obligation or prohibition magically imposed on a person.``
 
 By extension, obligation or prohibition imposed by an Erlang application or module, which may modify its scattering.
 
+## Overview ##
+
+Geas is a tool that will detect the runnable official Erlang release window for your project.
+
+Geas will tell you what are the offending functions in the beam/source files that reduce the available window.
+
+Geas will tell you if some beam files are compiled native.
+
+## When using it ? ##
+
+- Each time you prepare a project release or update a dependancy.
+- When you plan to add a dependancy to your project
+- When writing your README, to inform your project's users on possible release window
+- To limit test of CI tools on only possible release window
+
+## How it works ? ##
+
+Geas extract all function calls in project’s beam files where abstract code is available and compare to its database. Geas keep only the modules existing in its database, assuming other are modules created by the project. Geas search the starting and optionnaly ending Erlang release exporting thoses modules and functions/arity. Geas gives you then the compatibility with the highest minimal Erlang release and the lowest maximal Erlang release, called the release window. Geas detect native compilation that can reduce your project scattering.
+
+Geas, by default, does not use source code for at least three reasons :
+
+- Source code is not always available
+- Source code may compile in different targets depending defines
+- Native compilation cannot be detected from source
+
+However, since version 2.0.3, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
+
+As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
+
+Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
 
 ## Plugins ##
 
@@ -47,7 +75,7 @@ then run
 $> make geas
 ```
 
-See [erlang.mk's geas plugin](https://github.com/crownedgrouse/erlang.mk/blob/geas_plugin/doc/src/guide/geas.asciidoc) documentation for more details. 
+See [erlang.mk's geas plugin](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) documentation for more details. 
 
 ### rebar 2.x ###
 
@@ -89,7 +117,10 @@ $> rebar geas
    - word ``[32 | 64]`` OS' Word length
    - compile module version string
    - erlang ``{Min, Recommanded, Max}`` Erlang version strings (Recommanded version is the highest non candidate version), guessed from compiler version
-   - compat (version >= 2.0) ``{MinDbRel, MinRel, MaxRel, MaxDbRel}`` Compatibility of code with official releases. First and last value of tuple are the lowest and highest reference of geas database. Second value is the lowest official Erlang release where the beam(s) can run, while third value is the highest release where the beam(s) can run. Note that if first and second values are the same, it may imply that beam(s) file could run, possibly, on older official release, or not. As well if third and fourth value are the same, be sure that your geas database is up to date with the last official release.
+   - compat (version >= 2.0) ``{MinDbRel, MinRel, MaxRel, MaxDbRel}`` Compatibility of code with official releases.    
+First and last value of tuple are the lowest and highest reference of geas database.   
+Second value is the lowest official Erlang release where the beam(s) can run, while third value is the highest release where the beam(s) can run.   
+Note that if first and second values are the same, it may imply that beam(s) file could run, possibly, on older official release, or not. As well if third and fourth value are the same, be sure that your geas database is up to date with the last official release.
    - author (from beam content)
    - vcs information tuple 
    - maintainer (from vcs infos)
