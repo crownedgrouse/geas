@@ -29,7 +29,7 @@
 -export([geas/2]).
 
 % Other exported functions for non plugin use
--export([info/1, what/1, offending/1, compat/1, guilty/1]).
+-export([info/1, what/1, offending/1, compat/1, compat/2, guilty/1]).
 
 -include("geas_db.hrl").
 
@@ -968,7 +968,16 @@ get_max_offending(Rel, File) ->  Abs = get_abstract(File),
 %% @doc Compat output on stdout, mainly for erlang.mk plugin
 %%-------------------------------------------------------------------------
 
-compat(RootDir) -> % Get all .beam (or .erl) files recursively
+compat(RootDir) -> compat(RootDir, print).
+
+compat(RootDir, deps) -> {_, _, Deps} = compat(RootDir, term),
+						 Deps;
+
+compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, term),
+						   {?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL};
+
+compat(RootDir, term) ->
+					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
                     PP = filelib:fold_files(filename:join(RootDir,"deps"), Ext, true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
@@ -987,9 +996,6 @@ compat(RootDir) -> % Get all .beam (or .erl) files recursively
                     % Get all upper project
                     Ps = lists:usort(PP),
                     Global = Ps ++ [RootDir],
-                    % Display header
-                    io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
-                    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
                     D = lists:flatmap(fun(X) -> 
 											 {ok, I} = info(X),
                                              Compat = lists:keyfind(compat, 1, I),
@@ -1012,8 +1018,6 @@ compat(RootDir) -> % Get all .beam (or .erl) files recursively
                                                      end,
                                              [{Left , ArchString, Right, filename:basename(X)}]
                                        end, Global),
-                    lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
-                    io:format("~80s~n",[string:copies("-",80)]),
                     % Get global info
 					MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
                     MinGlob = highest_version(MinList) ,
@@ -1021,6 +1025,15 @@ compat(RootDir) -> % Get all .beam (or .erl) files recursively
                     ArchGlob = tl(ArchList), % Assuming only one arch localy !
 					MaxList = lists:usort([?GEAS_MAX_REL] ++ lists:flatmap(fun({_, _, X, _}) -> [X] end, D)),
                     MaxGlob = lowest_version(MaxList) ,
+                    {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
+
+compat(RootDir, print) -> 
+					{{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
+                    % Display header
+                    io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
+                    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
+                    lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
+                    io:format("~80s~n",[string:copies("-",80)]),
                     io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
                     ok.
 
