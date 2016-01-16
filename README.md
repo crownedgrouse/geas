@@ -31,7 +31,7 @@ Geas, by default, does not use source code for at least three reasons :
 - Source code may compile in different targets depending defines
 - Native compilation cannot be detected from source
 
-However, since version 2.0.3, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
+However, since version 2.0.4, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
 
 As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
 
@@ -102,6 +102,35 @@ Geas plugin is then available by typing
 $> rebar geas
 ```
 
+## Limitations ##
+
+### Abstract code needed ###
+
+Geas ignore beam files where abstract code is not available. 
+This may imply to not detect a break in the computed release window. 
+However since version 2.0.4, geas extract abstract code from source file in such case, if available, as fallback.
+
+### Geas does not replace tests ###
+
+Geas does not guarantee that your project will run correctly on the whole release window.
+
+Some reasons :
+- Bugs may exists in older release, but fixed in newer
+- Returned values of some functions may have been changed, reduced or augmented in the release window
+
+It is assumed that project, as well dependencies, are compiling. Parse errors are not raised when using source files.
+
+### Runtime ###
+
+Module compilation and load at project runtime is not covered by `geas` analyze.
+
+### Raw analyze ###
+
+For now, no attempts are done to understand the code. 
+So even if a function call is protected by a `catch` to test existence and maybe use an alternative, `geas` won't care.
+This may change in futur versions.
+
+
 ## API ##
 
 ``geas`` give below informations on an Erlang project repository content or from .beam files :
@@ -128,7 +157,7 @@ Note that if first and second values are the same, it may imply that beam(s) fil
    - releasenotes Releasenotes filename if any found
    - driver  (boolean) Project need to compile C code for a driver or a port   
 
-### Release >= 2.0.3 ###
+### Release >= 2.0.4 ###
 
 Function compat/2 is added. First argument is root directory of a project, second an atom :
 - `print` : Same as compat/1. Print global compatibility and dependancies details, like plugins does.
