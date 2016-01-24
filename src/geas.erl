@@ -979,7 +979,11 @@ compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, te
 compat(RootDir, term) ->
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
-                    PP = filelib:fold_files(filename:absname(filename:join(RootDir,"{deps,_build}")), Ext, true, 
+                    Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
+							 true  -> "deps" ; 
+							 false -> "_build" 
+						  end,
+                    PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
 										 case filename:basename(P) of
 											  "geas" -> Y ; % Exclude geas from results
