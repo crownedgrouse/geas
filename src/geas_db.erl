@@ -28,6 +28,12 @@
 
 -export([generate/2]).
 
+% List of known releases
+-define(REL_LIST, ["R15B", "R15B01", "R15B02", "R15B03", "R15B03-1",
+                   "R16B", "R16B01", "R16B02", "R16B03", "R16B03-1",
+                   "17.0", "17.1", "17.3", "17.4", "17.5", 
+				   "18.0", "18.1", "18.2"]).
+
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
 
@@ -59,7 +65,7 @@ generate(IDir, DDir, Target) -> {ok, TargetIo} = file:open(Target, [write]),
                                 Data21 = lists:flatten(get_added_functions(DDir)),
                                 do_min_functions(TargetIo, Data21),
                                 % List the whole modules of oldest known release
-                                {ok, [R1]} = file:consult(filename:join(IDir, "R15")),
+                                {ok, [R1]} = file:consult(filename:join(IDir, hd(?REL_LIST))),
                                 {mfa, Data22} = lists:keyfind(mfa, 1, R1),
                                 do_min_modules(TargetIo, Data22),
                                 % Close file
@@ -167,11 +173,11 @@ do_header(Io) ->  Header = ["%% File: geas_db.hrl"
 do_defines(Io) ->  DefMin = erl_syntax:attribute(
                                     erl_syntax:atom('define'), 
                                     [erl_syntax:atom('GEAS_MIN_REL'),
-                                     erl_syntax:string("R15")]),
+                                     erl_syntax:string(hd(?REL_LIST))]),
                    DefMax = erl_syntax:attribute(
                                     erl_syntax:atom('define'), 
                                     [erl_syntax:atom('GEAS_MAX_REL'),
-                                     erl_syntax:string("18.2")]),
+                                     erl_syntax:string(tl(?REL_LIST))]),
                    io:put_chars(Io, erl_prettypr:format(DefMin)),
                    io:nl(Io),
                    io:put_chars(Io, erl_prettypr:format(DefMax)),
