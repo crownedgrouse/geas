@@ -231,7 +231,7 @@ is_valid_erlang_project(Dir) ->
 		   		"0"   -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
 		   		"1"   -> true
 	       end,
-    case ((Src =:= true) and (Ebin =:= true)) of
+    case ((Src =:= true) or (Ebin =:= true)) of
         true  -> ok ;
         false -> throw("Invalid Erlang project : "++Dir2) , error
     end.
