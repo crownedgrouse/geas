@@ -45,6 +45,7 @@ Starting version 2.0.5, environment variable `GEAS_MY_RELS` allow to specify onl
 It is a blank separated list of official Erlang release names. 
 
 If set, plugin will display the local releases that can compile and run the project.
+
 if set empty, i.e `GEAS_MY_RELS=""`, plugin will display the whole release list included in the computed release window.
 
 Tip : this variable can be automatically set from kerl output :

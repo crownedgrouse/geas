@@ -1048,7 +1048,8 @@ compat(RootDir, print) ->
                     io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
 			        case os:getenv("GEAS_MY_RELS") of
 							   false -> ok ;
-							   _ -> io:format("~nLocal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")])
+							   "" -> io:format("~nTotal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")]);
+							   _  -> io:format("~nLocal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")])
 					end,
                     ok.
 
