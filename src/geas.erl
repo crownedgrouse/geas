@@ -321,7 +321,7 @@ get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
 							   "0"   -> true ;
 							   "1"   -> false
 				             end,
-                     case Check of
+                     case ( Check and filelib:is_dir(filename:join(Dir, "ebin"))) of
 						  true -> 
 					 				case filelib:wildcard("*.app", Dir) of
                         				[]    -> throw("Application Resource File (.app) not found. Aborting."),
@@ -979,7 +979,7 @@ compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, te
 compat(RootDir, term) ->
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
-                    PP = filelib:fold_files(filename:absname(filename:join(RootDir,"deps")), Ext, true, 
+                    PP = filelib:fold_files(filename:absname(filename:join(RootDir,"{deps,_build}")), Ext, true, 
                             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
 										 case filename:basename(P) of
 											  "geas" -> Y ; % Exclude geas from results
