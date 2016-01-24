@@ -77,7 +77,8 @@ R15B01    crypto:hash/2
 ```
 
 The global project can run starting R15B01 up to higher reference in geas database, 18.2 in such case.
-Available local releases in the window can be proposed. 
+
+Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. 
 
 ### erlang.mk ###
 
