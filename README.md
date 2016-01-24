@@ -31,11 +31,26 @@ Geas, by default, does not use source code for at least three reasons :
 - Source code may compile in different targets depending defines
 - Native compilation cannot be detected from source
 
-However, since version 2.0.4, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
+### Using source code ###
+
+Since version 2.0.4, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
 
 As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
 
 Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
+
+### Listing possible releases ###
+
+Starting version 2.0.5, environment variable `GEAS_MY_RELS` allow to specify only local releases available. 
+It is a blank separated list of official Erlang release names. 
+
+If set, plugin will display the local releases that can compile and run the project.
+if set empty, i.e `GEAS_MY_RELS=""`, plugin will display the whole release list included in the computed release window.
+
+Tip : this variable can be automatically set from kerl output :
+```
+export GEAS_MY_RELS=`kerl list builds | cut -d ',' -f 2 | tr '\n' ' '`
+```
 
 ## Plugins ##
 
@@ -54,11 +69,14 @@ Example on a test project using cowboy :
 --------------------------------------------------------------------------------
    R15B01                18.2       Global project
 
+Local : R16B03 17.3 18.0
+
 /home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
 R15B01    crypto:hash/2
 ```
 
 The global project can run starting R15B01 up to higher reference in geas database, 18.2 in such case.
+Available local releases in the window can be proposed. 
 
 ### erlang.mk ###
 
@@ -101,6 +119,10 @@ Geas plugin is then available by typing
 ```
 $> rebar geas
 ```
+
+### rebar 3 ###
+
+Please see [geas_rebar3 plugin](https://github.com/crownedgrouse/geas_rebar3) repository.
 
 ## Limitations ##
 
@@ -157,47 +179,7 @@ Note that if first and second values are the same, it may imply that beam(s) fil
    - releasenotes Releasenotes filename if any found
    - driver  (boolean) Project need to compile C code for a driver or a port   
 
-### Release >= 2.0.4 ###
-
-Function compat/2 is added. First argument is root directory of a project, second an atom :
-- `print` : Same as compat/1. Print global compatibility and dependancies details, like plugins does.
-- `global` : Compatibility of code with official releases including dependancies, returned as usual `compat` tuple term ``{MinDbRel, MinRel, MaxRel, MaxDbRel}``.
-- `deps` : List of dependancies compatibility tuples.
-
-### Release >= 2.0 ###
-
-A new major feature is added to already existing exported functions: ``compat`` entry, which gives you the official Erlang release window where the beam file(s) can run on. For example : using ``application:ensure_all_started/1`` can only be used starting R16B01 or ``maps`` starting 17.0. As well ``pg`` module cannot be used after 17.5. This can help you to :   
-- Write your Travis CI (or equivalent) config file
-- Know if beam files can run with an Erlang VM
-- Verify that your dependencies can run on same Erlang release window than your project
-- Write clear statements in your README project files 
-- Modify your code in order to increase runnable release window
-- Know if application/module have to be fixed in order to run on the last official release  
-
-A new function is exported : ``geas:offending/1`` which tells you what are the offending functions that reduce the runnable VM versions. 
-Works only on a single beam file, i.e argument is the path to this file. Return ``{ok, {MinOffendingList, MaxOffendingList}}`` .
-
-### Release 1.1.0 ###
-
-Another function is added : ``geas:what/1``
-
-Argument is expected to be either a directory containing ``.beam`` files or a path to a single ``.beam`` file.
-
-Output is almost the same than ``geas:info/1`` but several tuple entries are removed instead of setting to ``undefined``.
-
-The purpose of this function is mainly to be used on ``.beam`` files in production environment.
-
-### Release 1.0.0 ###
-
-Only one function is exported : ``geas:info/1`` .
-
-Argument is expected to be a root project directory, and geas will look into ``ebin/`` and use vcs informations if available.
-Directories `ebin` and `src` must exist.
-
-``geas:info/1`` won't work on a simple directory containing ``.beam`` files. 
-``geas:info/1`` won't work by passing a path to a ``.beam`` file.
-
-Informations may be set to ``undefined`` atom, in some cases, for example if no vcs infos are found.
+See [API changelog](https://github.com/crownedgrouse/geas/wiki/API-changelog) for detailed informations on API evolution.
 
 ## Example ##
 ```
