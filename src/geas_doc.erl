@@ -258,3 +258,4 @@ reldiff_yaml(Rel1, Rel2, Dir) -> DirYaml = filename:join(Dir,"yaml"),
 
 content(X) ->  {ok, [Res]} = file:consult(X), Res.
 
+

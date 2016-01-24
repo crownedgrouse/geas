@@ -31,6 +31,9 @@
 % Other exported functions for non plugin use
 -export([info/1, what/1, offending/1, compat/1, compat/2, guilty/1]).
 
+% Helper functions
+-export([w2l/1]).
+
 -include("geas_db.hrl").
 
 -define(COMMON_DIR(Dir),
@@ -1043,6 +1046,10 @@ compat(RootDir, print) ->
                     lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
                     io:format("~80s~n",[string:copies("-",80)]),
                     io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
+			        case os:getenv("GEAS_MY_RELS") of
+							   false -> ok ;
+							   _ -> io:format("~nLocal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")])
+					end,
                     ok.
 
 %%-------------------------------------------------------------------------
@@ -1175,4 +1182,35 @@ get_upper_dir(Dir, Needle) -> case filename:basename(Dir) of
 geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
 			   compat(Dir),
 			   guilty(Dir).
+
+%%-------------------------------------------------------------------------
+%% @doc Translate compat window to list
+%%-------------------------------------------------------------------------
+
+w2l({_, MinRel, MaxRel, _}) -> 
+			   L = geas_db:get_rel_list(),
+			   Lower = lists:filter(fun(X) -> case (versionize(X) >= versionize(MinRel) ) of
+													  true  -> true ;
+													  false -> false 
+											   end
+                                       end, L),
+			   Res = lists:filter(fun(X) -> case ( versionize(X) =< versionize(MaxRel) ) of
+													  true  -> true ;
+													  false -> false 
+											   end
+                                       end, Lower),
+			   case os:getenv("GEAS_MY_RELS") of
+							   false -> Res ;
+							   ""    -> Res;
+							   MyRel -> MyRelList = string:tokens(MyRel, " "),
+										pickup_rel(MyRelList, Res)
+										
+			   end.
+
+%%-------------------------------------------------------------------------
+%% @doc Pick right elements existing in left
+%%-------------------------------------------------------------------------
+pickup_rel(Left, Right) -> {S, _} = lists:partition(fun(X) -> lists:member(X, Left) end, Right),
+                            S.
+
 

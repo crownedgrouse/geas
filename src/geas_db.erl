@@ -26,10 +26,10 @@
 -module(geas_db).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([generate/2]).
+-export([generate/2, get_rel_list/0]).
 
 % List of known releases
--define(REL_LIST, ["R15B", "R15B01", "R15B02", "R15B03", "R15B03-1",
+-define(REL_LIST, ["R15", "R15B", "R15B01", "R15B02", "R15B03", "R15B03-1",
                    "R16B", "R16B01", "R16B02", "R16B03", "R16B03-1",
                    "17.0", "17.1", "17.3", "17.4", "17.5", 
 				   "18.0", "18.1", "18.2"]).
@@ -208,4 +208,7 @@ do_min_functions(Io, Data) -> lists:foreach(fun({M, F, A, R}) -> io:format(Io,"r
 %%-------------------------------------------------------------------------
 do_max_functions(Io, Data) -> lists:foreach(fun({M, F, A, R}) -> io:format(Io,"rel_max({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]) end, Data). 
 
-
+%%-------------------------------------------------------------------------
+%% @doc Give release list
+%%-------------------------------------------------------------------------
+get_rel_list() -> ?REL_LIST.
