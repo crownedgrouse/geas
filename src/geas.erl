@@ -1050,8 +1050,12 @@ compat(RootDir, print) ->
 %%-------------------------------------------------------------------------
 
 guilty(RootDir) -> Ext = ext_to_search(),
+				   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
+							 true  -> "deps" ; 
+							 false -> "_build" 
+						  end,
 				   DirS = dir_to_search(),
-				   Bs1 = filelib:fold_files(filename:join(RootDir, "deps"), Ext, true, 
+				   Bs1 = filelib:fold_files(filename:join(RootDir, Dir), Ext, true, 
                             				fun(X, Y) -> Y ++ [X] end, []),
 				   Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true, 
                             				fun(X, Y) -> Y ++ [X] end, []),
