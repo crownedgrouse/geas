@@ -47,7 +47,7 @@ R15B01    crypto:hash/2
 
 The global project can run starting R15B01 up to higher reference in geas database, 18.2 in such case.
 
-Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. 
+Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. User can exclude release(s) with `GEAS_EXC_RELS` environment variable.
 
 See [erlang.mk's geas plugin](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) or [rebar's geas plugin](https://github.com/crownedgrouse/geas/wiki/Rebar-plugins) documentation for more details. 
 
