@@ -38,7 +38,8 @@ Example on a test project using cowboy :
 --------------------------------------------------------------------------------
    R15B01                18.2       Global project
 
-Local : R16B03 17.3 18.0
+Local : R16B03-1 17.3 18.0
+Excl. : R16B03
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
 R15B01    crypto:hash/2
@@ -48,51 +49,7 @@ The global project can run starting R15B01 up to higher reference in geas databa
 
 Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. 
 
-### erlang.mk ###
-
-Simply add to your Makefile that includes `erlang.mk` 
-
-```
-BUILD_DEPS = geas
-DEP_PLUGINS = geas
-```
-
-then run 
-
-```
-$> make geas
-```
-
-See [erlang.mk's geas plugin](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) documentation for more details. 
-
-### rebar 2.x ###
-
-Simply add those entries in your `rebar.config` .
-
-```
-{plugins, [geas]}.
-
-{deps, [{geas, ".*",
-        {git, "git://github.com/crownedgrouse/geas.git"}}
-]}.
-```
-
-then run 
-
-```
-$> rebar get-deps
-$> rebar compile
-```
-
-Geas plugin is then available by typing 
-
-```
-$> rebar geas
-```
-
-### rebar 3 ###
-
-Please see [geas_rebar3 plugin](https://github.com/crownedgrouse/geas_rebar3) repository.
+See [erlang.mk's geas plugin](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) or [rebar's geas plugin](https://github.com/crownedgrouse/geas/wiki/Rebar-plugins) documentation for more details. 
 
 ## How it works ? ##
 
