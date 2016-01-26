@@ -21,38 +21,6 @@ Geas will tell you if some beam files are compiled native.
 - When writing your README, to inform your project's users on possible release window
 - To limit test of CI tools on only possible release window
 
-## How it works ? ##
-
-Geas extract all function calls in project’s beam files where abstract code is available and compare to its database. Geas keep only the modules existing in its database, assuming other are modules created by the project. Geas search the starting and optionnaly ending Erlang release exporting thoses modules and functions/arity. Geas gives you then the compatibility with the highest minimal Erlang release and the lowest maximal Erlang release, called the release window. Geas detect native compilation that can reduce your project scattering.
-
-Geas, by default, does not use source code for at least three reasons :
-
-- Source code is not always available
-- Source code may compile in different targets depending defines
-- Native compilation cannot be detected from source
-
-### Using source code ###
-
-Since version 2.0.4, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
-
-As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
-
-Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
-
-### Listing possible releases ###
-
-Starting version 2.0.5, environment variable `GEAS_MY_RELS` allow to specify only local releases available. 
-It is a blank separated list of official Erlang release names. 
-
-If set, plugin will display the local releases that can compile and run the project.
-
-if set empty, i.e `GEAS_MY_RELS=""`, plugin will display the whole release list included in the computed release window.
-
-Tip : this variable can be automatically set from kerl output :
-```
-export GEAS_MY_RELS=`kerl list builds | cut -d ',' -f 2 | tr '\n' ' '`
-```
-
 ## Plugins ##
 
 ``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
@@ -126,6 +94,43 @@ $> rebar geas
 
 Please see [geas_rebar3 plugin](https://github.com/crownedgrouse/geas_rebar3) repository.
 
+## How it works ? ##
+
+Geas extract all function calls in project’s beam files where abstract code is available and compare to its database. Geas keep only the modules existing in its database, assuming other are modules created by the project. Geas search the starting and optionnaly ending Erlang release exporting thoses modules and functions/arity. Geas gives you then the compatibility with the highest minimal Erlang release and the lowest maximal Erlang release, called the release window. Geas detect native compilation that can reduce your project scattering.
+
+Geas, by default, does not use source code for at least three reasons :
+
+- Source code is not always available
+- Source code may compile in different targets depending defines
+- Native compilation cannot be detected from source
+
+### Using source code ###
+
+Since version 2.0.4, in order to be able to know what Erlang release(s) can compile a project, `geas` can use source files. 
+
+As well, starting this version, `geas` use source file, if available, as fallback when abstract code cannot be extracted from beam file.
+
+Simply set `GEAS_USE_SRC=1` as environment variable. (Unset or set `GEAS_USE_SRC=0` to come back to default).
+
+### Listing possible releases ###
+
+Starting version 2.0.5, environment variable `GEAS_MY_RELS` allow to specify only local releases available. 
+It is a blank separated list of official Erlang release names. 
+
+If set, plugin will display the local releases that can compile and run the project.
+
+if set empty, i.e `GEAS_MY_RELS=""`, plugin will display the whole release list included in the computed release window.
+
+Tip : this variable can be automatically set from kerl output :
+```
+export GEAS_MY_RELS=`kerl list builds | cut -d ',' -f 2 | tr '\n' ' '`
+```
+
+### Exclude some releases ###
+
+Alternatively, environment variable `GEAS_EXC_RELS` allow to exclude release(s) from computed release window.
+It is a blank separated list of official Erlang release names.
+
 ## Limitations ##
 
 ### Abstract code needed ###
@@ -153,7 +158,6 @@ Module compilation and load at project runtime is not covered by `geas` analyze.
 For now, no attempts are done to understand the code. 
 So even if a function call is protected by a `catch` to test existence and maybe use an alternative, `geas` won't care.
 This may change in futur versions.
-
 
 ## API ##
 

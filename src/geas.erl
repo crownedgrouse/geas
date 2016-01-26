@@ -1051,6 +1051,13 @@ compat(RootDir, print) ->
 							   "" -> io:format("~nTotal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")]);
 							   _  -> io:format("~nLocal : ~ts~n",[string:join(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL})," ")])
 					end,
+					case os:getenv("GEAS_EXC_RELS") of
+							   false -> ok ;
+							   Exc   -> case pickup_rel(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, false), string:tokens(Exc, " ")) of
+											[]       -> ok ;
+										    InWindow -> io:format("Excl. : ~ts~n",[string:join(InWindow," ")])
+										end
+					end,
                     ok.
 
 %%-------------------------------------------------------------------------
@@ -1188,7 +1195,9 @@ geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
 %% @doc Translate compat window to list
 %%-------------------------------------------------------------------------
 
-w2l({_, MinRel, MaxRel, _}) -> 
+w2l({A, MinRel, MaxRel, B}) -> w2l({A, MinRel, MaxRel, B}, true).
+
+w2l({_, MinRel, MaxRel, _}, Exc) -> 
 			   L = geas_db:get_rel_list(),
 			   Lower = lists:filter(fun(X) -> case (versionize(X) >= versionize(MinRel) ) of
 													  true  -> true ;
@@ -1200,11 +1209,18 @@ w2l({_, MinRel, MaxRel, _}) ->
 													  false -> false 
 											   end
                                        end, Lower),
+			   Exclude = case os:getenv("GEAS_EXC_RELS") of
+							   false -> [] ;
+							   Excs -> case Exc of
+											true -> string:tokens(Excs, " ") ;
+											_    -> []
+									   end
+					 end,  
 			   case os:getenv("GEAS_MY_RELS") of
-							   false -> Res ;
-							   ""    -> Res;
+							   false -> Res -- Exclude;
+							   ""    -> Res -- Exclude;
 							   MyRel -> MyRelList = string:tokens(MyRel, " "),
-										pickup_rel(MyRelList, Res)
+										pickup_rel(MyRelList, Res) -- Exclude
 										
 			   end.
 
