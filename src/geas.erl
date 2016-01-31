@@ -36,6 +36,16 @@
 
 -include("geas_db.hrl").
 
+% Discard or discourage usage of some release when some module or functions used
+-include("geas_disc.hrl").
+
+-define(STORE(X, Y),
+        case erlang:get(X) of
+			 undefined -> erlang:put(X, Y) ;
+			 _         -> erlang:put(X, lists:usort(erlang:get(X) ++ Y))
+		end
+).
+
 -define(COMMON_DIR(Dir),
             AppFile   = get_app_file(Dir),
             % Informations inventory
@@ -722,7 +732,7 @@ get_author(File) ->
 		end.
 
 %%-------------------------------------------------------------------------
-%% @doc Get {min, recommanded, max} Erlang version from erts version
+%% @doc Get {min, recommanded, max} Erlang version from compiler version
 %% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
@@ -768,11 +778,13 @@ get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
 				   		  		  end,
 						  Beams = filelib:wildcard(Joker, Dir),
                           X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
-                          {MinList, MaxList} = lists:unzip(X),
+                          {MinList, MaxList, DiscList} = lists:unzip3(X),
                           % Get the highest version of Min releases of all beam
                           MinR = highest_version(MinList),
                           % Get the lowest version of Max releases of all beam
                           MaxR = lowest_version(MaxList),
+					      % Keep memory of releases to discard
+						  ?STORE(geas_disc, DiscList),
                           {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------
@@ -781,11 +793,13 @@ get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
 -spec get_erlang_compat_file(list()) -> {list(), list(), list(), list()}.
 
 get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(F)] end, [File])),
-                                {MinList, MaxList} = lists:unzip(X),
+                                {MinList, MaxList, DiscList} = lists:unzip3(X),
                                 % Get the highest version of Min releases of all beam
                                 MinR = highest_version(MinList),
                                 % Get the lowest version of Max releases of all beam
                                 MaxR = lowest_version(MaxList),
+							    % Keep memory of releases to discard
+								?STORE(geas_disc, DiscList),
                                 {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------
@@ -806,7 +820,12 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
                                 Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
                                 {MaxRelss, _} = lists:unzip(Max),
                                 MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
-                                {lowest_version(MinRels), highest_version(MaxRels)}. 
+								% Get the releases to discard
+								DiscRels = lists:usort(lists:flatten(lists:flatmap(fun(A) -> case rel_disc(A) of
+																		ok -> [] ;
+																		D  -> [{A, D}]
+																   end end, X))),
+                                {lowest_version(MinRels), highest_version(MaxRels), {File, DiscRels}}. 
 
 %%-------------------------------------------------------------------------
 %% @doc Extract remote call of external functions in abstract code
@@ -980,6 +999,7 @@ compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, te
 						   {?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL};
 
 compat(RootDir, term) ->
+					put(geas_disc,[]), % reset at each run
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
                     Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
@@ -1057,6 +1077,19 @@ compat(RootDir, print) ->
 											[]       -> ok ;
 										    InWindow -> io:format("Excl. : ~ts~n",[string:join(InWindow," ")])
 										end
+					end,
+					% Display Discarded release due to known bugs
+				    case erlang:get(geas_disc) of
+						 undefined -> ok ;
+						 Disc      -> ShowDisc = case os:getenv("GEAS_DISC_RELS") of
+													false -> true ;
+													"1"   -> true ;
+													"0"   -> false
+               			  						 end,
+									  case ShowDisc of
+										 true -> io:format("Disc. : ~ts~n",[string:join(distinct_disc_rels(Disc)," ")]);
+										 false -> ok
+									  end
 					end,
                     ok.
 
@@ -1216,12 +1249,24 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
 											_    -> []
 									   end
 					 end,  
-			   case os:getenv("GEAS_MY_RELS") of
+			   Local = case os:getenv("GEAS_MY_RELS") of
 							   false -> Res -- Exclude;
 							   ""    -> Res -- Exclude;
 							   MyRel -> MyRelList = string:tokens(MyRel, " "),
 										pickup_rel(MyRelList, Res) -- Exclude
 										
+			   		   end,
+			   ShowDisc = case os:getenv("GEAS_DISC_RELS") of
+								false -> true ;
+								"1"   -> true ;
+								"0"   -> false
+               			  end,
+			   case erlang:get(geas_disc) of
+						 undefined -> Local ;
+						 Disc      -> case ShowDisc of
+										   true  -> Local -- distinct_disc_rels(Disc);
+										   false -> Local
+									  end
 			   end.
 
 %%-------------------------------------------------------------------------
@@ -1230,4 +1275,19 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
 pickup_rel(Left, Right) -> {S, _} = lists:partition(fun(X) -> lists:member(X, Left) end, Right),
                             S.
 
+%%-------------------------------------------------------------------------
+%% @doc Give distinct release to discard from usual discard tuple
+%% Input is a list of { Filename, ListOfDisc }
+%% ListOfDisc is a list of { DiscRels, OTP-issue, MFA}
+%%-------------------------------------------------------------------------
+distinct_disc_rels([])   -> [];
+distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}) -> [X] end, Disc)),
+							 AllDisc = lists:flatmap(fun({_, {X, _}}) -> sl_flatten(X) end, ListOfDisc),
+							 lists:usort(AllDisc).
+
+%%-------------------------------------------------------------------------
+%% @doc Flatten list of strings without concatenation
+%%-------------------------------------------------------------------------
+sl_flatten(SL) -> Tmp = lists:flatten(lists:flatmap(fun(X) -> [list_to_atom(X)] end, SL)),
+				  lists:flatmap(fun(X) -> [atom_to_list(X)] end, Tmp).
 
