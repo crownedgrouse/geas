@@ -799,7 +799,7 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
                                 % Get the lowest version of Max releases of all beam
                                 MaxR = lowest_version(MaxList),
 							    % Keep memory of releases to discard
-								?STORE(geas_disc, DiscList),
+						  		?STORE(geas_disc, DiscList),
                                 {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------

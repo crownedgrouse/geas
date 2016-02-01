@@ -13,7 +13,14 @@
 %%-------------------------------------------------------------------------
 -spec rel_disc({atom(), atom(), integer()}) -> {list(), atom()} | ok.
 
-rel_disc({syntax_tools, _, _}) -> {["R16B03"], 'OTP-11576'} ;
+% syntax_tool-1.6.12 buggy
+rel_disc({epp_dodger, _, _})     -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({erl_prettypr, _, _})   -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({erl_recomment, _, _})  -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({erl_syntax, _, _})     -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({erl_syntax_lib, _, _}) -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({erl_tidy, _, _})       -> {["R16B03"], 'OTP-11576'} ;
+rel_disc({igor, _, _})           -> {["R16B03"], 'OTP-11576'} ;
 % Last rule : accept all
 rel_disc({_, _, _}) -> ok.
 
