@@ -41,8 +41,10 @@
 
 -define(STORE(X, Y),
         case erlang:get(X) of
-			 undefined -> erlang:put(X, Y) ;
-			 _         -> erlang:put(X, lists:usort(erlang:get(X) ++ Y))
+			 undefined when is_list(Y)  -> erlang:put(X, Y) ;
+			 _         when is_list(Y)  -> erlang:put(X, lists:usort(erlang:get(X) ++ Y));
+			 undefined when is_tuple(Y) -> erlang:put(X, [Y]) ;
+			 _         when is_tuple(Y) -> erlang:put(X, lists:usort(erlang:get(X) ++ [Y]))
 		end
 ).
 
@@ -304,7 +306,8 @@ get_app_type(AppFile, Ebindir) ->
 
 get_app_type_beam(File) ->
 		case filename:extension(File) of
-			".erl" -> undefined ;
+			".erl" -> ?STORE(geas_logs, {notice, {undefined, app_type}, File}),
+					  undefined ;
 			_      -> 
                  % start/2 and stop/1 ?
                  {ok,{_,[{exports, L}]}} = beam_lib:chunks(File, [exports]),
@@ -582,7 +585,8 @@ get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
 
 get_arch_from_file(File) -> 
 		  case filename:extension(File) of
-			  ".erl" -> undefined ;
+			  ".erl" -> ?STORE(geas_logs, {notice, {undefined, arch}, File}),
+					  	undefined ;
 			  _      -> Bn = filename:rootname(File, ".beam"),
 		                [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
 		                Fun = fun({X, _, _}) -> case X of
@@ -643,13 +647,15 @@ is_native(EbinDir) ->  Beams = filelib:wildcard("*.beam", EbinDir),
 
 is_native_from_file(File) ->   
 		case filename:extension(File) of
-			".erl" -> undefined ;
+			".erl" -> ?STORE(geas_logs, {notice, {undefined, native}, File}),
+					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                       case filelib:is_regular(File) of
                             true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                     {options, O} = lists:keyfind(options, 1, L),
                                     lists:member(native, O);
-                            false -> undefined
+                            false -> ?STORE(geas_logs, {warning, {undefined, native}, File}),
+					  			     undefined
                       end
 		end.
 
@@ -661,13 +667,15 @@ is_native_from_file(File) ->
 
 get_compile_version(File) ->
 		case filename:extension(File) of
-			".erl" -> undefined ;
+			".erl" -> ?STORE(geas_logs, {notice, {undefined, compile_version}, File}),
+					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                       case filelib:is_regular(File) of
                             true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                     {version, E} = lists:keyfind(version, 1, L),
                                     E;
-                            false -> undefined 
+                            false -> ?STORE(geas_logs, {warning, {undefined, compile_version}, File}),
+					  			 	 undefined 
                       end
 		end.
 
@@ -680,11 +688,13 @@ get_compile_version(File) ->
 get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
                         VSN  = case lists:keyfind(vsn, 1, L) of
                                     {vsn, V} -> V ;
-                                    _        -> undefined
+                                    _        -> ?STORE(geas_logs, {warning, {undefined, vsn}, File}),
+					  			 				undefined
                                end,
                         Desc = case lists:keyfind(description, 1, L) of
                                     {description, D} -> D ;
-                                    _                -> undefined
+                                    _                -> ?STORE(geas_logs, {warning, {undefined, description}, File}),
+					  			 						undefined
                                end,
                         {App, VSN, Desc}.
 
@@ -697,13 +707,15 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
 
 get_date(File) ->  
 		case filename:extension(File) of
-			".erl" -> undefined ;
+			".erl" -> ?STORE(geas_logs, {warning, {undefined, 'date'}, File}),
+					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 {time, T} = lists:keyfind(time, 1, L),
                                 T;
-                        false -> undefined
+                        false -> ?STORE(geas_logs, {warning, {undefined, 'date'}, File}),
+					  			 undefined
                       end
 		end.
 
@@ -718,7 +730,8 @@ get_date(File) ->
 
 get_author(File) ->   
 		case filename:extension(File) of
-			".erl" -> undefined ;
+			".erl" -> ?STORE(geas_logs, {warning, {undefined, author}, File}),
+					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
@@ -727,7 +740,8 @@ get_author(File) ->
                                             _           -> undefined
                                     end,
                                 A;
-                        false -> undefined
+                        false -> ?STORE(geas_logs, {warning, {undefined, author}, File}),
+								 undefined
                    	  end
 		end.
 
@@ -851,6 +865,7 @@ get_remote_call({_, _}) -> [] ;
 get_remote_call(_I) when is_integer(_I) -> [];
 get_remote_call(_A) when is_atom(_A) -> [];
 get_remote_call(_Z) -> %io:format("Missed : ~p~n", [_Z]), 
+					   ?STORE(geas_logs,{debug, unhandled, _Z}),
                        [].
 
 %%-------------------------------------------------------------------------
@@ -1155,13 +1170,15 @@ get_abstract(File) ->
 
 get_abstract(File, beam) -> %io:format("beam ~p~n",[File]), 
 							case beam_lib:chunks(File,[abstract_code]) of
-								{ok,{_,[{abstract_code,{_, Abs}}]}} -> Abs;
-								{ok,{_,[{abstract_code,no_abstract_code}]}} -> 
+								{ok,{_,[{abstract_code, {_, Abs}}]}} -> Abs;
+								{ok,{_,[{abstract_code, no_abstract_code}]}} -> 
+										?STORE(geas_logs,{warning, no_abstract_code, File}),
 										% Try on source file as fallback
 									    SrcFile = get_src_from_beam(File),
 										case filelib:is_regular(SrcFile) of
 									    	 true  -> get_abstract(SrcFile, src) ;
-											 false -> []
+											 false -> ?STORE(geas_logs,{error, no_source_file, File}),
+													  []
 										end
 						     end;
 
@@ -1283,7 +1300,9 @@ pickup_rel(Left, Right) -> {S, _} = lists:partition(fun(X) -> lists:member(X, Le
 distinct_disc_rels([])   -> [];
 distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}) -> [X] end, Disc)),
 							 AllDisc = lists:flatmap(fun({_, {X, _}}) -> sl_flatten(X) end, ListOfDisc),
-							 lists:usort(AllDisc).
+							 UAllDisc = lists:usort(AllDisc),
+							 ?STORE(geas_logs, {warning, discarded, UAllDisc}),
+					  		 UAllDisc.
 
 %%-------------------------------------------------------------------------
 %% @doc Flatten list of strings without concatenation
