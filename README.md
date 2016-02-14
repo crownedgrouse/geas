@@ -88,6 +88,16 @@ export GEAS_MY_RELS=`kerl list builds | cut -d ',' -f 2 | tr '\n' ' '`
 Alternatively, environment variable `GEAS_EXC_RELS` allow to exclude release(s) from computed release window.
 It is a blank separated list of official Erlang release names.
 
+### Log informations ###
+
+Starting version 2.0.6, environment variable `GEAS_LOG` allow to display analyze logs.
+It is a blank separated list of log levels : `debug` `notice` `warning` `error` .
+
+If set, plugin will display logs matching log levels before compat result.
+
+if set empty, i.e `GEAS_LOG=""`, plugin will display all logs.
+
+
 ## Limitations ##
 
 ### Abstract code needed ###
