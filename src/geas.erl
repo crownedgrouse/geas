@@ -32,7 +32,7 @@
 -export([info/1, what/1, offending/1, compat/1, compat/2, guilty/1]).
 
 % Helper functions
--export([w2l/1]).
+-export([w2l/1, lowest_version/2, highest_version/2, log/0]).
 
 -include("geas_db.hrl").
 
@@ -45,6 +45,14 @@
 			 _         when is_list(Y)  -> erlang:put(X, lists:usort(erlang:get(X) ++ Y));
 			 undefined when is_tuple(Y) -> erlang:put(X, [Y]) ;
 			 _         when is_tuple(Y) -> erlang:put(X, lists:usort(erlang:get(X) ++ [Y]))
+		end
+).
+-define(LOG(X, Y),
+        case erlang:get(X) of
+			 undefined when is_list(Y)  -> erlang:put(X, Y) ;
+			 _         when is_list(Y)  -> erlang:put(X, erlang:get(X) ++ Y);
+			 undefined when is_tuple(Y) -> erlang:put(X, [Y]) ;
+			 _         when is_tuple(Y) -> erlang:put(X, erlang:get(X) ++ [Y])
 		end
 ).
 
@@ -306,7 +314,7 @@ get_app_type(AppFile, Ebindir) ->
 
 get_app_type_beam(File) ->
 		case filename:extension(File) of
-			".erl" -> ?STORE(geas_logs, {notice, {undefined, app_type}, File}),
+			".erl" -> ?LOG(geas_logs, {notice, {undefined, app_type}, File}),
 					  undefined ;
 			_      -> 
                  % start/2 and stop/1 ?
@@ -315,7 +323,7 @@ get_app_type_beam(File) ->
                            lists:member( {stop, 1}, L)) of
                             true  -> otp ;
                             false -> case ((lists:member({start, 0}, L) or lists:member({start, 1}, L)) and
-                                           (lists:member( {stop, 0}, L) or lists:member( {stop, 1}, L))) of
+                                           (lists:member( {stop, 0}, L) or lists:member({stop, 1}, L))) of
                                             true  -> app ;
                                             false -> % 'escript' ?
                                                      case lists:member({main, 1}, L) of
@@ -585,7 +593,7 @@ get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
 
 get_arch_from_file(File) -> 
 		  case filename:extension(File) of
-			  ".erl" -> ?STORE(geas_logs, {notice, {undefined, arch}, File}),
+			  ".erl" -> ?LOG(geas_logs, {notice, {undefined, arch}, File}),
 					  	undefined ;
 			  _      -> Bn = filename:rootname(File, ".beam"),
 		                [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
@@ -647,14 +655,14 @@ is_native(EbinDir) ->  Beams = filelib:wildcard("*.beam", EbinDir),
 
 is_native_from_file(File) ->   
 		case filename:extension(File) of
-			".erl" -> ?STORE(geas_logs, {notice, {undefined, native}, File}),
+			".erl" -> ?LOG(geas_logs, {notice, {undefined, native}, File}),
 					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                       case filelib:is_regular(File) of
                             true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                     {options, O} = lists:keyfind(options, 1, L),
                                     lists:member(native, O);
-                            false -> ?STORE(geas_logs, {warning, {undefined, native}, File}),
+                            false -> ?LOG(geas_logs, {warning, {undefined, native}, File}),
 					  			     undefined
                       end
 		end.
@@ -667,14 +675,14 @@ is_native_from_file(File) ->
 
 get_compile_version(File) ->
 		case filename:extension(File) of
-			".erl" -> ?STORE(geas_logs, {notice, {undefined, compile_version}, File}),
+			".erl" -> ?LOG(geas_logs, {notice, {undefined, compile_version}, File}),
 					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                       case filelib:is_regular(File) of
                             true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                     {version, E} = lists:keyfind(version, 1, L),
                                     E;
-                            false -> ?STORE(geas_logs, {warning, {undefined, compile_version}, File}),
+                            false -> ?LOG(geas_logs, {warning, {undefined, compile_version}, File}),
 					  			 	 undefined 
                       end
 		end.
@@ -688,12 +696,12 @@ get_compile_version(File) ->
 get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
                         VSN  = case lists:keyfind(vsn, 1, L) of
                                     {vsn, V} -> V ;
-                                    _        -> ?STORE(geas_logs, {warning, {undefined, vsn}, File}),
+                                    _        -> ?LOG(geas_logs, {warning, {undefined, vsn}, File}),
 					  			 				undefined
                                end,
                         Desc = case lists:keyfind(description, 1, L) of
                                     {description, D} -> D ;
-                                    _                -> ?STORE(geas_logs, {warning, {undefined, description}, File}),
+                                    _                -> ?LOG(geas_logs, {warning, {undefined, description}, File}),
 					  			 						undefined
                                end,
                         {App, VSN, Desc}.
@@ -707,14 +715,14 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
 
 get_date(File) ->  
 		case filename:extension(File) of
-			".erl" -> ?STORE(geas_logs, {warning, {undefined, 'date'}, File}),
+			".erl" -> ?LOG(geas_logs, {warning, {undefined, 'date'}, File}),
 					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 {time, T} = lists:keyfind(time, 1, L),
                                 T;
-                        false -> ?STORE(geas_logs, {warning, {undefined, 'date'}, File}),
+                        false -> ?LOG(geas_logs, {warning, {undefined, 'date'}, File}),
 					  			 undefined
                       end
 		end.
@@ -730,7 +738,7 @@ get_date(File) ->
 
 get_author(File) ->   
 		case filename:extension(File) of
-			".erl" -> ?STORE(geas_logs, {warning, {undefined, author}, File}),
+			".erl" -> ?LOG(geas_logs, {warning, {undefined, author}, File}),
 					  undefined ;
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
@@ -740,7 +748,7 @@ get_author(File) ->
                                             _           -> undefined
                                     end,
                                 A;
-                        false -> ?STORE(geas_logs, {warning, {undefined, author}, File}),
+                        false -> ?LOG(geas_logs, {warning, {undefined, author}, File}),
 								 undefined
                    	  end
 		end.
@@ -792,7 +800,8 @@ get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
 				   		  		  end,
 						  Beams = filelib:wildcard(Joker, Dir),
                           X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
-                          {MinList, MaxList, DiscList} = lists:unzip3(X),
+                          {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
+						  DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
                           % Get the highest version of Min releases of all beam
                           MinR = highest_version(MinList),
                           % Get the lowest version of Max releases of all beam
@@ -807,7 +816,8 @@ get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
 -spec get_erlang_compat_file(list()) -> {list(), list(), list(), list()}.
 
 get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(F)] end, [File])),
-                                {MinList, MaxList, DiscList} = lists:unzip3(X),
+                                {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
+						  		DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
                                 % Get the highest version of Min releases of all beam
                                 MinR = highest_version(MinList),
                                 % Get the lowest version of Max releases of all beam
@@ -824,14 +834,17 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
 get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
                                 Abs1 = get_abstract(File),                         
                                 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
+								?STORE(geas_calls, X),
                                 %io:format("~p~n", [X)])
                                 % Get the min and max release for each MFA
                                 % Get the min release compatible
                                 Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
+								?STORE(geas_minrels, Min),
                                 {MinRelss, _} = lists:unzip(Min),
                                 MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
                                 % Get the max release compatible
                                 Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
+								?STORE(geas_maxrels, Min),
                                 {MaxRelss, _} = lists:unzip(Max),
                                 MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
 								% Get the releases to discard
@@ -839,7 +852,7 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
 																		ok -> [] ;
 																		D  -> [{A, D}]
 																   end end, X))),
-                                {lowest_version(MinRels), highest_version(MaxRels), {File, DiscRels}}. 
+                                {highest_version(MinRels), lowest_version(MaxRels), {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
 %% @doc Extract remote call of external functions in abstract code
@@ -865,7 +878,7 @@ get_remote_call({_, _}) -> [] ;
 get_remote_call(_I) when is_integer(_I) -> [];
 get_remote_call(_A) when is_atom(_A) -> [];
 get_remote_call(_Z) -> %io:format("Missed : ~p~n", [_Z]), 
-					   ?STORE(geas_logs,{debug, unhandled, _Z}),
+					   ?LOG(geas_logs,{debug, unhandled, _Z}),
                        [].
 
 %%-------------------------------------------------------------------------
@@ -894,8 +907,12 @@ lowest_version([], B) -> B;
 lowest_version(A, []) -> A;
 lowest_version(A, B) when A =/= B  -> AA = versionize(A),
                                       BB = versionize(B),
-                                      [Vmin, _Vmax] = lists:usort([AA,BB]),
-                                      Vmin;
+                                      %[Vmin, _Vmax] = lists:usort([AA,BB]),
+                                      %Vmin
+									  case lists:usort([AA,BB]) of
+										   [AA, BB] -> A ;
+										   [BB, AA] -> B
+									  end;
 lowest_version(A, _B) -> A.
 
 %%-------------------------------------------------------------------------
@@ -924,8 +941,12 @@ highest_version([], B) -> B;
 highest_version(A, []) -> A;
 highest_version(A, B) when A =/= B -> AA = versionize(A),
                                       BB = versionize(B),
-                                      [_Vmin, Vmax] = lists:usort([AA,BB]),                                      
-                                      Vmax;
+                                      %[_Vmin, Vmax] = lists:usort([AA,BB]),                                      
+                                      %Vmax
+									  case lists:usort([AA,BB]) of
+										   [AA, BB] -> B ;
+										   [BB, AA] -> A
+									  end;
 highest_version(A, _B) -> A.
 
 %%-------------------------------------------------------------------------
@@ -1013,8 +1034,13 @@ compat(RootDir, deps) -> {_, _, Deps} = compat(RootDir, term),
 compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, term),
 						   {?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL};
 
-compat(RootDir, term) ->
-					put(geas_disc,[]), % reset at each run
+compat(RootDir, term) -> 
+					% reset at each run
+					put(geas_logs,[]),  
+					put(geas_calls,[]),  
+					put(geas_disc,[]),    
+					put(geas_minrels,[]), 
+					put(geas_maxrels,[]), 
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
                     Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
@@ -1075,6 +1101,8 @@ compat(RootDir, term) ->
 
 compat(RootDir, print) -> 
 					{{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
+					% Display log if needed
+				    geas:log(),
                     % Display header
                     io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
                     io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
@@ -1102,7 +1130,12 @@ compat(RootDir, print) ->
 													"0"   -> false
                			  						 end,
 									  case ShowDisc of
-										 true -> io:format("Disc. : ~ts~n",[string:join(distinct_disc_rels(Disc)," ")]);
+										 true -> % Do not display if outside of window
+												 DL = in_window(MinGlob, distinct_disc_rels(Disc), MaxGlob),
+												 case DL of
+													 [] -> ok ;
+												     DL -> io:format("Disc. : ~ts~n",[string:join(DL," ")])
+												 end;
 										 false -> ok
 									  end
 					end,
@@ -1159,6 +1192,33 @@ guilty(RootDir) -> Ext = ext_to_search(),
 								 end, lists:usort(All)) .
 
 %%-------------------------------------------------------------------------
+%% @doc Log infos on analyze
+%%-------------------------------------------------------------------------
+log() -> L = get(geas_logs),
+		 case is_list(L) of
+		 		true -> case os:getenv("GEAS_LOG") of
+								   false -> ok ;
+								   ""    -> log(L, ["debug", "notice", "warning", "error"]);
+								   LL    -> log(L, string:tokens(LL, " "))
+						end;
+				false -> ok
+		 end.
+
+log(L, LogLevels) -> lists:foreach(fun(X) -> {Level, Info, File} = X,
+									case lists:member(atom_to_list(Level), LogLevels) of
+										true  -> Tag = case Level of
+											   			notice  -> "(i)";
+											   			warning -> "/!\\" ;
+											   			error   -> "[!]";
+											   			_       -> " @ "
+										  			   end,
+												InfoS = lists:flatten(io_lib:format("~p",[Info])) ,
+												io:format("~s ~s ~s~n",[Tag, string:left(InfoS,30), File]);
+										false -> ok
+									end
+								end, L).
+
+%%-------------------------------------------------------------------------
 %% @doc Get abstract file either from beam or src file
 %%-------------------------------------------------------------------------
 get_abstract(File) -> 
@@ -1172,20 +1232,23 @@ get_abstract(File, beam) -> %io:format("beam ~p~n",[File]),
 							case beam_lib:chunks(File,[abstract_code]) of
 								{ok,{_,[{abstract_code, {_, Abs}}]}} -> Abs;
 								{ok,{_,[{abstract_code, no_abstract_code}]}} -> 
-										?STORE(geas_logs,{warning, no_abstract_code, File}),
+										?LOG(geas_logs,{warning, no_abstract_code, File}),
 										% Try on source file as fallback
 									    SrcFile = get_src_from_beam(File),
 										case filelib:is_regular(SrcFile) of
-									    	 true  -> get_abstract(SrcFile, src) ;
-											 false -> ?STORE(geas_logs,{error, no_source_file, File}),
+									    	 true  -> case filename:extension(SrcFile) of
+														 ".dtl" -> get_abstract(SrcFile, dtl) ;
+														 _      -> get_abstract(SrcFile, src) 
+													  end;
+											 false -> ?LOG(geas_logs, {error, no_source_file, SrcFile}),
 													  []
 										end
 						     end;
 
-
-get_abstract(File, src) ->	%io:format("src  ~p~n",[File]), 
-							% IncDir = filename:join(filename:dirname(filename:dirname(File)),"include"),
-							% Add non conventional include dir for sub-directories in src/
+get_abstract(File, dtl) ->	% Do not treat for the moment
+							?LOG(geas_logs, {notice, template_file, File}),
+							[];
+get_abstract(File, src) ->	% Add non conventional include dir for sub-directories in src/
 							IncDir = get_upper_dir(filename:dirname(File), "include"),
 							SrcDir = get_upper_dir(filename:dirname(File), "src"),
 							%io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
@@ -1194,11 +1257,18 @@ get_abstract(File, src) ->	%io:format("src  ~p~n",[File]),
 							{ok , Form} = epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []),
 							Form. 
 
-
+%%-------------------------------------------------------------------------
+%% @doc Get source (or dtl) file from beam file
+%%-------------------------------------------------------------------------
 get_src_from_beam(File) -> 	UpperDir = filename:dirname(filename:dirname(File)),
-							SrcDir = filename:join(UpperDir, "src"),
 							Basename = filename:rootname(filename:basename(File)),
-							filename:join([SrcDir, Basename, ".erl"]).
+							case string:substr(Basename, string:len(Basename) -3 ) of
+						         "_dtl" -> SrcDir = filename:join(UpperDir, "templates"),
+										   Dtl = string:substr(Basename, 1, string:len(Basename) -4 ),
+										   filename:join([SrcDir, Dtl ++ ".dtl"]);						    
+								 _      -> SrcDir = filename:join(UpperDir, "src"),
+										   filename:join([SrcDir, Basename, ".erl"])
+						    end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get file extension to search depending option environment variable
@@ -1301,7 +1371,7 @@ distinct_disc_rels([])   -> [];
 distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}) -> [X] end, Disc)),
 							 AllDisc = lists:flatmap(fun({_, {X, _}}) -> sl_flatten(X) end, ListOfDisc),
 							 UAllDisc = lists:usort(AllDisc),
-							 ?STORE(geas_logs, {warning, discarded, UAllDisc}),
+							 ?LOG(geas_logs, {warning, discarded, UAllDisc}),
 					  		 UAllDisc.
 
 %%-------------------------------------------------------------------------
@@ -1309,4 +1379,12 @@ distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}
 %%-------------------------------------------------------------------------
 sl_flatten(SL) -> Tmp = lists:flatten(lists:flatmap(fun(X) -> [list_to_atom(X)] end, SL)),
 				  lists:flatmap(fun(X) -> [atom_to_list(X)] end, Tmp).
+
+%%-------------------------------------------------------------------------
+%% @doc Extract releases inside window
+%%-------------------------------------------------------------------------
+in_window(MinGlob, L, MaxGlob) -> LMin = lists:filter(fun(X) -> X =:= highest_version(X, MinGlob) end, L),
+								  LMax = lists:filter(fun(X) -> X =:= lowest_version(X, MaxGlob) end, LMin),
+								  LMax.
+
 
