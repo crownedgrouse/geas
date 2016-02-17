@@ -90,6 +90,8 @@ export GEAS_MY_RELS=`kerl list builds | cut -d ',' -f 2 | tr '\n' ' '`
 Alternatively, environment variable `GEAS_EXC_RELS` allow to exclude release(s) from computed release window.
 It is a blank separated list of official Erlang release names.
 
+Starting version 2.0.6, Geas will automatically exclude some notoriously buggy Erlang releases if some module/function/arity are concerned. For now only ``R16B03`` with ``syntax_tools``. A big work is to be done to collect Bohrbugs in all Erlang release README (help would be appreciated !).
+
 ### Log informations ###
 
 Starting version 2.0.6, environment variable `GEAS_LOG` allow to display analyze logs.
@@ -210,6 +212,19 @@ See [API changelog](https://github.com/crownedgrouse/geas/wiki/API-changelog) fo
 
 4> geas:offending("test.beam").
 {ok,{[{"R16B01",[{application,ensure_all_started,1}]}],[]}}
+
+5> geas:compat(".", global).
+{"R15","R15B03-1","18.2","18.2"}
+
+6> geas:w2l(geas:compat(".", global)).
+["R15B03-1","R16B","R16B01","R16B02","R16B03-1","17.0",
+ "17.1","17.3","17.4","17.5","18.0","18.1","18.2"]
+
+7>geas:highest_version("R15B03","18.2.1").
+"18.2.1"
+
+8> geas:lowest_version("R15B03","18.2.1"). 
+"R15B03"
 
 
 ```
