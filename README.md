@@ -14,6 +14,8 @@ Geas will tell you what are the offending functions in the beam/source files tha
 
 Geas will tell you if some beam files are compiled native.
 
+For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B01`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5``.
+
 ## When using it ? ##
 
 - Each time you prepare a project release or update a dependancy.
