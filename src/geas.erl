@@ -32,7 +32,7 @@
 -export([info/1, what/1, offending/1, compat/1, compat/2, guilty/1]).
 
 % Helper functions
--export([w2l/1, lowest_version/2, highest_version/2, log/0]).
+-export([w2l/1, lowest_version/2, highest_version/2, log/0, in_window/3]).
 
 -include("geas_db.hrl").
 
@@ -75,6 +75,7 @@
 
 %%-------------------------------------------------------------------------
 %% @doc Return infos after application directory analysis
+%% @since 1.0.0
 %% @end
 %%-------------------------------------------------------------------------
 -spec info(list()) -> tuple().
@@ -129,6 +130,7 @@ info(Dir) when is_list(Dir) ->
 
 %%-------------------------------------------------------------------------
 %% @doc Return infos on .beam file(s) only
+%% @since 1.1.0
 %% @end
 %%-------------------------------------------------------------------------
 -spec what(list()) -> tuple().
@@ -733,6 +735,7 @@ get_date(File) ->
 %% beam_lib:chunks("/home/eric/git/swab/ebin/swab", [attributes]).
 %% {ok,{swab,[{attributes,[{author,"Eric Pailleau <swab@crownedgrouse.com>"},
 %%                         {vsn,[29884121306770099633619336282407733599]}]}]}}
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_author(list()) -> list() | undefined.
 
@@ -756,6 +759,7 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 %% @doc Get {min, recommanded, max} Erlang version from compiler version
 %% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
@@ -790,6 +794,7 @@ get_erlang_version(_)           -> undefined.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of all beam in directory
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
 
@@ -812,6 +817,7 @@ get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
 
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam from file
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat_file(list()) -> {list(), list(), list(), list()}.
 
@@ -828,6 +834,7 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
 
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam file
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat_beam(list()) -> {list(), list()}.
 
@@ -856,6 +863,7 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
 
 %%-------------------------------------------------------------------------
 %% @doc Extract remote call of external functions in abstract code
+%% @end
 %%-------------------------------------------------------------------------
 -spec get_remote_call(tuple()) -> list().
 
@@ -883,6 +891,7 @@ get_remote_call(_Z) -> %io:format("Missed : ~p~n", [_Z]),
 
 %%-------------------------------------------------------------------------
 %% @doc  Give the lowest version from a list of versions
+%% @end
 %%-------------------------------------------------------------------------
 -spec lowest_version(list()) -> list().
 
@@ -900,6 +909,7 @@ lowest_version(L) when is_list(L),
 
 %%-------------------------------------------------------------------------
 %% @doc Give the lowest version from two versions
+%% @end
 %%-------------------------------------------------------------------------
 -spec lowest_version(list(), list()) -> list().
 
@@ -917,6 +927,7 @@ lowest_version(A, _B) -> A.
 
 %%-------------------------------------------------------------------------
 %% @doc Give the highest version from a list of versions
+%% @end
 %%-------------------------------------------------------------------------
 -spec highest_version(list()) -> list().
 
@@ -934,6 +945,7 @@ highest_version(L) when is_list(L),
 
 %%-------------------------------------------------------------------------
 %% @doc Give the highest version from two versions
+%% @end
 %%-------------------------------------------------------------------------
 -spec highest_version(list(), list()) -> list().
 
@@ -952,6 +964,7 @@ highest_version(A, _B) -> A.
 %%-------------------------------------------------------------------------
 %% @doc Translate old release name into new name
 %%      Exemple R16B03 into 16.2.3
+%% @end
 %%-------------------------------------------------------------------------
 -spec versionize(list()) -> list().
 
@@ -980,6 +993,7 @@ versionize(V)  ->
                  end.
 %%-------------------------------------------------------------------------
 %% @doc Give the offending modules/functions that reduce release window
+%% @end
 %%-------------------------------------------------------------------------
 offending(File) -> % check it is a file or exit
                    case filelib:is_regular(File) of
@@ -1000,6 +1014,7 @@ offending(File) -> % check it is a file or exit
                    end.
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
+%% @end
 %%-------------------------------------------------------------------------
 get_min_offending(Rel, File) -> Abs = get_abstract(File),
 								X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
@@ -1012,6 +1027,7 @@ get_min_offending(Rel, File) -> Abs = get_abstract(File),
 
 %%-------------------------------------------------------------------------
 %% @doc Give the offending max modules/functions that reduce release window
+%% @end
 %%-------------------------------------------------------------------------
 get_max_offending(Rel, File) ->  Abs = get_abstract(File),
 								 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
@@ -1024,6 +1040,8 @@ get_max_offending(Rel, File) ->  Abs = get_abstract(File),
   
 %%-------------------------------------------------------------------------
 %% @doc Compat output on stdout, mainly for erlang.mk plugin
+%% @since 2.0.4
+%% @end
 %%-------------------------------------------------------------------------
 
 compat(RootDir) -> compat(RootDir, print).
@@ -1143,6 +1161,7 @@ compat(RootDir, print) ->
 
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
+%% @end
 %%-------------------------------------------------------------------------
 
 guilty(RootDir) -> Ext = ext_to_search(),
@@ -1193,6 +1212,8 @@ guilty(RootDir) -> Ext = ext_to_search(),
 
 %%-------------------------------------------------------------------------
 %% @doc Log infos on analyze
+%% @since 2.0.6
+%% @end
 %%-------------------------------------------------------------------------
 log() -> L = get(geas_logs),
 		 case is_list(L) of
@@ -1220,6 +1241,7 @@ log(L, LogLevels) -> lists:foreach(fun(X) -> {Level, Info, File} = X,
 
 %%-------------------------------------------------------------------------
 %% @doc Get abstract file either from beam or src file
+%% @end
 %%-------------------------------------------------------------------------
 get_abstract(File) -> 
 					  case filename:extension(File) of
@@ -1259,6 +1281,7 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
 
 %%-------------------------------------------------------------------------
 %% @doc Get source (or dtl) file from beam file
+%% @end
 %%-------------------------------------------------------------------------
 get_src_from_beam(File) -> 	UpperDir = filename:dirname(filename:dirname(File)),
 							Basename = filename:rootname(filename:basename(File)),
@@ -1272,6 +1295,7 @@ get_src_from_beam(File) -> 	UpperDir = filename:dirname(filename:dirname(File)),
 
 %%-------------------------------------------------------------------------
 %% @doc Get file extension to search depending option environment variable
+%% @end
 %%-------------------------------------------------------------------------
 
 ext_to_search() -> case os:getenv("GEAS_USE_SRC") of
@@ -1282,6 +1306,7 @@ ext_to_search() -> case os:getenv("GEAS_USE_SRC") of
 
 %%-------------------------------------------------------------------------
 %% @doc Get directory to search depending mode
+%% @end
 %%-------------------------------------------------------------------------
 dir_to_search() -> case os:getenv("GEAS_USE_SRC") of
 							   false -> "ebin" ;
@@ -1291,6 +1316,7 @@ dir_to_search() -> case os:getenv("GEAS_USE_SRC") of
 
 %%-------------------------------------------------------------------------
 %% @doc Get upper/parallel directory matching a needle
+%% @end
 %%-------------------------------------------------------------------------
 get_upper_dir("/", _) -> "" ;
 get_upper_dir(Dir, Needle) -> case filename:basename(Dir) of
@@ -1304,7 +1330,9 @@ get_upper_dir(Dir, Needle) -> case filename:basename(Dir) of
 
  
 %%-------------------------------------------------------------------------
-%% @doc rebar plugin call function
+%% @doc rebar plugin call function 
+%% @since 2.0.2
+%% @end
 %%-------------------------------------------------------------------------
 
 geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
@@ -1313,6 +1341,8 @@ geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
 
 %%-------------------------------------------------------------------------
 %% @doc Translate compat window to list
+%% @since 2.0.5
+%% @end
 %%-------------------------------------------------------------------------
 
 w2l({A, MinRel, MaxRel, B}) -> w2l({A, MinRel, MaxRel, B}, true).
@@ -1358,6 +1388,7 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
 
 %%-------------------------------------------------------------------------
 %% @doc Pick right elements existing in left
+%% @end
 %%-------------------------------------------------------------------------
 pickup_rel(Left, Right) -> {S, _} = lists:partition(fun(X) -> lists:member(X, Left) end, Right),
                             S.
@@ -1366,6 +1397,7 @@ pickup_rel(Left, Right) -> {S, _} = lists:partition(fun(X) -> lists:member(X, Le
 %% @doc Give distinct release to discard from usual discard tuple
 %% Input is a list of { Filename, ListOfDisc }
 %% ListOfDisc is a list of { DiscRels, OTP-issue, MFA}
+%% @end
 %%-------------------------------------------------------------------------
 distinct_disc_rels([])   -> [];
 distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}) -> [X] end, Disc)),
@@ -1376,12 +1408,14 @@ distinct_disc_rels(Disc) ->  ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}
 
 %%-------------------------------------------------------------------------
 %% @doc Flatten list of strings without concatenation
+%% @end
 %%-------------------------------------------------------------------------
 sl_flatten(SL) -> Tmp = lists:flatten(lists:flatmap(fun(X) -> [list_to_atom(X)] end, SL)),
 				  lists:flatmap(fun(X) -> [atom_to_list(X)] end, Tmp).
 
 %%-------------------------------------------------------------------------
 %% @doc Extract releases inside window
+%% @end
 %%-------------------------------------------------------------------------
 in_window(MinGlob, L, MaxGlob) -> LMin = lists:filter(fun(X) -> X =:= highest_version(X, MinGlob) end, L),
 								  LMax = lists:filter(fun(X) -> X =:= lowest_version(X, MaxGlob) end, LMin),
