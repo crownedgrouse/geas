@@ -32,6 +32,7 @@
 
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release version infos
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_infos(list()) -> list().
 
@@ -48,6 +49,7 @@ release_infos(Rel) -> R = [{release, list_to_atom(Rel)},
 
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release info
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_infos(list() | atom(), atom() | list()) -> ok | {'error',atom()}.
 
@@ -63,6 +65,7 @@ release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
 
 %%-------------------------------------------------------------------------
 %% @doc List module:function/arity of Erlang Release
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_fa() -> {mfa, list()}.
 
@@ -84,6 +87,7 @@ release_fa() ->    {ok, AppsVsn} = file:list_dir(code:lib_dir()),
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release infos files
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_diff_files(list(), list()) ->  list().
 
@@ -93,6 +97,7 @@ release_diff_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two files returned as YAML
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_diff_yaml_files(list(), list()) -> ok.
 
@@ -102,6 +107,7 @@ release_diff_yaml_files(F1, F2) ->   {ok, [AT]} = file:consult(F1),
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_diff(list(), list()) -> list().
 
@@ -118,6 +124,7 @@ release_diff(R1, R2) -> % List new/deleted modules
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations in YAML
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_diff_yaml(list(), list()) -> ok.
 
@@ -125,6 +132,7 @@ release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)).
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations in YAML file
+%% @end
 %%-------------------------------------------------------------------------
 -spec release_diffs(yaml | term, list(), list(), list()) -> ok.
 
@@ -133,12 +141,14 @@ release_diffs(yaml, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
                                           file:close(Io), ok;
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations in term file
+%% @end
 %%-------------------------------------------------------------------------
 release_diffs(term, Rel1, Rel2, File) ->  {ok, Io} = file:open(File, [write]),
                                           io:format(Io,"~p.~n",[release_diff(Rel1, Rel2)]),
                                           file:close(Io).
 %%-------------------------------------------------------------------------
 %% @doc List modules difference between two releases infos
+%% @end
 %%-------------------------------------------------------------------------
 -spec diff_modules(list(), list()) -> {list(), list()}.
 
@@ -150,6 +160,7 @@ diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
 
 %%-------------------------------------------------------------------------
 %% @doc List functions difference between two releases infos
+%% @end
 %%-------------------------------------------------------------------------
 -spec diff_funcs(list(), list()) -> {list(), list()}.
 
@@ -179,6 +190,7 @@ diff_funcs(R1, R2) ->
 
 %%-------------------------------------------------------------------------
 %% @doc YAMLize an Erlang Term
+%% @end
 %%-------------------------------------------------------------------------
 
 yamlize(X) -> yamlize(X, standard_io ).
@@ -207,6 +219,7 @@ yamlize([], _D, _Io) -> ok.
 
 %%-------------------------------------------------------------------------
 %% @doc Create relinfo files in doc directory
+%% @end
 %%-------------------------------------------------------------------------
 
 relinfo([Rel, Dir]) -> relinfo(Rel, Dir).
@@ -216,6 +229,7 @@ relinfo(Rel, Dir) -> relinfo_term(Rel, Dir),
 
 %%-------------------------------------------------------------------------
 %% @doc Create relinfo files in doc directory
+%% @end
 %%-------------------------------------------------------------------------
 
 relinfo_term(Rel, Dir) -> DirTerm = filename:join(Dir,"term"),
@@ -230,6 +244,7 @@ relinfo_yaml(Rel, Dir) -> DirYaml = filename:join(Dir,"yaml"),
 
 %%-------------------------------------------------------------------------
 %% @doc Create reldiff files in doc directory
+%% @end
 %%-------------------------------------------------------------------------
 
 reldiff([{Rel1, Rel2}, DirSource, Dir]) -> reldiff(content(filename:join(DirSource, Rel1)), content(filename:join(DirSource, Rel2)), Dir).
@@ -254,6 +269,7 @@ reldiff_yaml(Rel1, Rel2, Dir) -> DirYaml = filename:join(Dir,"yaml"),
                                  release_diffs(yaml, Rel1, Rel2, Target).
 %%-------------------------------------------------------------------------
 %% @doc Get content of a file
+%% @end
 %%-------------------------------------------------------------------------
 
 content(X) ->  {ok, [Res]} = file:consult(X), Res.
