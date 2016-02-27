@@ -272,7 +272,9 @@ is_valid_erlang_project(Dir) ->
 %% lib : library application (one or several modules).
 %% @end
 %%-------------------------------------------------------------------------
--spec get_app_type(list(), list()) -> otp | app | lib | esc .
+-spec get_app_type(list() | atom(), list()) -> otp | app | lib | esc .
+
+get_app_type(not_regular_project, _) -> lib ;
 
 get_app_type(AppFile, Ebindir) ->
         % 'otp' ?
@@ -340,7 +342,7 @@ get_app_type_beam(File) ->
 %% @doc Find .app filename in ebin 
 %% @end
 %%-------------------------------------------------------------------------
--spec get_app_file(list()) -> list().
+-spec get_app_file(list()) -> list() | atom().
 
 get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
 							   false -> true ;
@@ -361,8 +363,12 @@ get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
 												  _     -> filename:join(filename:dirname(Dir),"src")
 											 end,					
 									case filelib:wildcard("*.app.src", DirSrc) of
-                        				[]    -> throw("Application Resource File (.app.src) not found. Aborting."),
-                                 				 "" ;
+                        				[]    -> % Some Erlang repo does not come with .app.src
+												 % Check there is at least some .erl files !
+												 case filelib:wildcard("*.erl", DirSrc) of
+													  [] -> throw("Application Resource File (.app.src) not found, neither .erl files. Aborting.") ;
+													  _  -> not_regular_project
+												 end ;
                         				[App] -> filename:join(DirSrc, App) ;
                         				_     -> throw("More than one .app.src file found in : "++ DirSrc), "" 		
 									end
@@ -694,6 +700,8 @@ get_compile_version(File) ->
 %% @end
 %%-------------------------------------------------------------------------
 -spec get_app_infos(list()) -> tuple().
+
+get_app_infos(not_regular_project) -> {undefined, undefined, undefined};
 
 get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
                         VSN  = case lists:keyfind(vsn, 1, L) of
