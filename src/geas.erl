@@ -349,7 +349,9 @@ get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
 							   "0"   -> true ;
 							   "1"   -> false
 				             end,
-                     case ( Check and filelib:is_dir(filename:join(Dir, "ebin"))) of
+                     case ( Check 
+                            and filelib:is_dir(filename:join(Dir, "ebin")) 
+                            and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) ) of
 						  true -> 
 					 				case filelib:wildcard("*.app", Dir) of
                         				[]    -> throw("Application Resource File (.app) not found. Aborting."),
@@ -806,7 +808,9 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
 
-get_erlang_compat(Dir) -> Joker = case os:getenv("GEAS_USE_SRC") of
+get_erlang_compat(Dir) -> NbBeams =  length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))),
+						  Joker = case os:getenv("GEAS_USE_SRC") of
+										_ when (NbBeams == 0) -> "src/**/*.erl" ;
 							   			false -> "ebin/*.beam" ;
 							   			"0"   -> "ebin/*.beam" ;
 							   			"1"   -> "src/**/*.erl"
@@ -1252,7 +1256,7 @@ log(L, LogLevels) -> lists:foreach(fun(X) -> {Level, Info, File} = X,
 %% @doc Get abstract file either from beam or src file
 %% @end
 %%-------------------------------------------------------------------------
-get_abstract(File) -> 
+get_abstract(File) -> %io:format("~p~n",[File]),
 					  case filename:extension(File) of
 						  ".beam" -> get_abstract(File, beam) ;
 						  ".erl"  -> get_abstract(File, src) ;
