@@ -1066,7 +1066,8 @@ compat(RootDir, term) ->
 					put(geas_calls,[]),  
 					put(geas_disc,[]),    
 					put(geas_minrels,[]), 
-					put(geas_maxrels,[]), 
+					put(geas_maxrels,[]),
+					put(geas_exports,[]),  
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
                     Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
