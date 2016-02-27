@@ -1260,7 +1260,10 @@ get_abstract(File) ->
 
 get_abstract(File, beam) -> %io:format("beam ~p~n",[File]), 
 							case beam_lib:chunks(File,[abstract_code]) of
-								{ok,{_,[{abstract_code, {_, Abs}}]}} -> Abs;
+								{ok,{_,[{abstract_code, {_, Abs}}]}} -> % Extract also exported functions
+																		{ok, {M,[{exports, Exp}]}} = beam_lib:chunks(File,[exports]),
+																		?STORE(geas_exports, {M, Exp}),
+																		Abs;
 								{ok,{_,[{abstract_code, no_abstract_code}]}} -> 
 										?LOG(geas_logs,{warning, no_abstract_code, File}),
 										% Try on source file as fallback
@@ -1285,6 +1288,8 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
 							% DO NOT USE : epp:parse_file/2, because starting "R16B03-1" 
 							% Geas need to work on the maximal release window
 							{ok , Form} = epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []),
+							% Extract exported functions
+							store_exported(Form),
 							Form. 
 
 %%-------------------------------------------------------------------------
@@ -1327,6 +1332,7 @@ dir_to_search() -> case os:getenv("GEAS_USE_SRC") of
 %% @end
 %%-------------------------------------------------------------------------
 get_upper_dir("/", _) -> "" ;
+get_upper_dir(".", _) -> "" ;
 get_upper_dir(Dir, Needle) -> case filename:basename(Dir) of
 									Needle -> Dir ;
 									_      -> case filelib:is_dir(filename:join(Dir, Needle)) of
@@ -1428,5 +1434,19 @@ sl_flatten(SL) -> Tmp = lists:flatten(lists:flatmap(fun(X) -> [list_to_atom(X)] 
 in_window(MinGlob, L, MaxGlob) -> LMin = lists:filter(fun(X) -> X =:= highest_version(X, MinGlob) end, L),
 								  LMax = lists:filter(fun(X) -> X =:= lowest_version(X, MaxGlob) end, LMin),
 								  LMax.
+
+%%-------------------------------------------------------------------------
+%% @doc Extract exported function from abstract code
+%% @end
+%%-------------------------------------------------------------------------
+store_exported(Form) 
+	when is_list(Form) -> % Get module name
+						  {[{_, _, module, M}], _} = lists:partition(fun(Y) -> lists:keymember(module,3,[Y]) end, Form),
+                          % Get exported functions
+						  {E, _} = lists:partition(fun(Y) -> lists:keymember(export,3,[Y]) end, Form),
+						  Exps = lists:flatmap(fun({attribute, _, export, L}) -> [{M, L}]end, E),
+						  ?STORE(geas_exports, Exps);
+
+store_exported(_) -> [].
 
 
