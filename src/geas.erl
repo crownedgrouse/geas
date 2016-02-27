@@ -1293,9 +1293,22 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
 							% DO NOT USE : epp:parse_file/2, because starting "R16B03-1" 
 							% Geas need to work on the maximal release window
 							{ok , Form} = epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []),
-							% Extract exported functions
-							store_exported(Form),
-							Form. 
+							case is_valid_code(Form) of
+									true  -> % Extract exported functions
+											 store_exported(Form),
+											 Form;
+									false -> ?LOG(geas_logs, {error, parse_error, File}),
+											 []
+							end. 
+
+%%-------------------------------------------------------------------------
+%% @doc Check if source file can be compiled
+%% @end
+%%-------------------------------------------------------------------------
+is_valid_code(Form) -> case lists:keyfind(error, 1, Form) of
+							false -> true ;
+							_     -> false
+					   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get source (or dtl) file from beam file
