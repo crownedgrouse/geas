@@ -306,7 +306,17 @@ get_app_type(AppFile, Ebindir) ->
                                                             false -> lib 
                                                     end  
                                   end;
-                          false -> mis
+                          false -> SrcDir = filename:join(filename:dirname(Ebindir), "src"),
+								   SrcFile = filename:join(SrcDir, atom_to_list(App) ++ ".erl"),
+								   Form = get_abstract(SrcFile, src),
+								   store_exported(Form),
+								   case lists:keyfind(App, 1, get(geas_exports)) of
+										false   -> mis ;
+										{_, L4} -> case lists:member({main, 1}, L4) of
+                                                            true  -> esc ;
+                                                            false -> mis 
+                                                   end
+								   end
                      end
         end.
 
@@ -1267,7 +1277,7 @@ get_abstract(File, beam) -> %io:format("beam ~p~n",[File]),
 							case beam_lib:chunks(File,[abstract_code]) of
 								{ok,{_,[{abstract_code, {_, Abs}}]}} -> % Extract also exported functions
 																		{ok, {M,[{exports, Exp}]}} = beam_lib:chunks(File,[exports]),
-																		?STORE(geas_exports, {M, Exp}),
+																		lists:foreach(fun({F, A}) -> ?STORE(geas_exports, {M, F, A}) end, Exp),
 																		Abs;
 								{ok,{_,[{abstract_code, no_abstract_code}]}} -> 
 										?LOG(geas_logs,{warning, no_abstract_code, File}),
@@ -1292,14 +1302,17 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
 							%io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
 							% DO NOT USE : epp:parse_file/2, because starting "R16B03-1" 
 							% Geas need to work on the maximal release window
-							{ok , Form} = epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []),
-							case is_valid_code(Form) of
-									true  -> % Extract exported functions
-											 store_exported(Form),
-											 Form;
-									false -> ?LOG(geas_logs, {error, parse_error, File}),
-											 []
-							end. 
+                            case epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []) of
+								{ok , Form} -> case is_valid_code(Form) of
+													true  -> % Extract exported functions
+											 				store_exported(Form),
+											 				Form;
+													false -> ?LOG(geas_logs, {error, parse_error, File}),
+											 				 []
+												end;
+								Res         -> ?LOG(geas_logs, {error, Res, File}),
+											   []
+							end.
 
 %%-------------------------------------------------------------------------
 %% @doc Check if source file can be compiled
@@ -1458,12 +1471,17 @@ in_window(MinGlob, L, MaxGlob) -> LMin = lists:filter(fun(X) -> X =:= highest_ve
 %% @end
 %%-------------------------------------------------------------------------
 store_exported(Form) 
-	when is_list(Form) -> % Get module name
+	when is_list(Form),
+		 length(Form) > 0 -> % Get module name
 						  {[{_, _, module, M}], _} = lists:partition(fun(Y) -> lists:keymember(module,3,[Y]) end, Form),
                           % Get exported functions
 						  {E, _} = lists:partition(fun(Y) -> lists:keymember(export,3,[Y]) end, Form),
-						  Exps = lists:flatmap(fun({attribute, _, export, L}) -> [{M, L}]end, E),
-						  ?STORE(geas_exports, Exps);
+						  lists:flatmap(fun({attribute, _, export, L}) 
+										-> lists:foreach(fun({F, A}) 
+														 -> ?STORE(geas_exports, {M, F, A})
+														 end, L), []
+						   				end, E),
+						  [];
 
 store_exported(_) -> [].
 
