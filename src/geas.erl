@@ -891,6 +891,8 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
 
 get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args}) 
                 when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
+get_remote_call({call,_, {remote,_,{var,_,M},{atom,_,F}}, Args})
+                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
 get_remote_call({_, _, _, L1, L2, L3}) when is_list(L1),
                                             is_list(L2),
                                             is_list(L3) -> [lists:flatmap(fun(X) -> get_remote_call(X) end, L1),
@@ -898,6 +900,7 @@ get_remote_call({_, _, _, L1, L2, L3}) when is_list(L1),
                                                             lists:flatmap(fun(X) -> get_remote_call(X) end, L3)]
                                                                  ;
 get_remote_call({_, _, _, _, L}) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
+get_remote_call({'case', _, {call, A, B, C}, L}) -> [get_remote_call({call, A, B, C}), lists:flatmap(fun(X) -> get_remote_call(X) end, L)] ;
 get_remote_call({_, _, _, _, _}) -> [] ;
 get_remote_call({_, _, _, L})   when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
 get_remote_call({_, _, _, T})   when is_tuple(T) -> get_remote_call(T) ;
