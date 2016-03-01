@@ -376,7 +376,12 @@ get_app_file(Dir) -> Check = case os:getenv("GEAS_USE_SRC") of
 												 % Check there is at least some .erl files !
 												 case filelib:wildcard("*.erl", DirSrc) of
 													  [] -> throw("Application Resource File (.app.src) not found, neither .erl files. Aborting.") ;
-													  _  -> not_regular_project
+													  _  -> % Try directly in ebin
+														    case filelib:wildcard("*.app", Dir) of
+                        										 []    -> not_regular_project ;
+                        										 [App] -> filename:join(Dir, App) ;
+                        										 _     -> throw("More than one .app file found in : "++ Dir), "" 		
+														    end															
 												 end ;
                         				[App] -> filename:join(DirSrc, App) ;
                         				_     -> throw("More than one .app.src file found in : "++ DirSrc), "" 		
