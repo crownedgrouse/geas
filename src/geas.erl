@@ -312,7 +312,8 @@ get_app_type(AppFile, Ebindir) ->
 								   store_exported(Form),
 								   case lists:keyfind(App, 1, get(geas_exports)) of
 										false   -> mis ;
-										{_, main, 1} -> esc
+										{_, main, 1} -> esc ;
+										_        -> lib
 								   end
                      end
         end.
