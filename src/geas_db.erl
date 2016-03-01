@@ -117,12 +117,12 @@ get_added_functions(DDir) ->
        % Loop over list and pick up all removed functions, linked to 'From' 
        _AMF = lists:map(fun(F) -> % Load file
                               {ok, [R]} = file:consult(filename:join(DDir, F)),
-                              % Pick 'From' where last presence of function is
-                              {from, From} = lists:keyfind(from, 1, R),   
-                              From_s =  atom_to_list(From),                                                    
+                              % Pick 'To' where new presence of function is
+                              {to, To} = lists:keyfind(to, 1, R),   
+                              To_s =  atom_to_list(To),                                                    
                               % Pick 'functions' entry
                               {functions, Fs} = lists:keyfind(functions, 1, R),
-                              % Pick 'removed' entry
+                              % Pick 'added' entry
                               {new, NF} = lists:keyfind(new, 1, Fs),
                               
                               % Compose [{module, function, arity, release}, ...]
@@ -132,7 +132,7 @@ get_added_functions(DDir) ->
                                                           % Extract function and arity
                                                           [Ff, Aa] = string:tokens(Fa_s, "/"),
                                                           {Int, _} = string:to_integer(Aa),
-                                                          [{Mm, list_to_atom(Ff), Int, From_s}] 
+                                                          [{Mm, list_to_atom(Ff), Int, To_s}] 
                                                        end, FL)
                                         end, NF)
                     end, Reldiffs).
@@ -184,7 +184,7 @@ do_defines(Io) ->  DefMin = erl_syntax:attribute(
                    DefMax = erl_syntax:attribute(
                                     erl_syntax:atom('define'), 
                                     [erl_syntax:atom('GEAS_MAX_REL'),
-                                     erl_syntax:string(tl(?REL_LIST))]),
+                                     erl_syntax:string(hd(lists:reverse(?REL_LIST)))]),
                    io:put_chars(Io, erl_prettypr:format(DefMin)),
                    io:nl(Io),
                    io:put_chars(Io, erl_prettypr:format(DefMax)),
