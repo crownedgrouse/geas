@@ -769,6 +769,7 @@ get_author(File) ->
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{attributes, L}]}} = beam_lib:chunks(Bn, [attributes]),
+								?STORE(geas_attributes, L),
                                 A = case lists:keyfind(author, 1, L) of
                                             {author, B} -> B ;
                                             _           -> undefined
@@ -1087,7 +1088,8 @@ compat(RootDir, term) ->
 					put(geas_disc,[]),    
 					put(geas_minrels,[]), 
 					put(geas_maxrels,[]),
-					put(geas_exports,[]),  
+					put(geas_exports,[]), 
+					put(geas_attributes,[]),  
 					% Get all .beam (or .erl) files recursively
 					Ext = ext_to_search(),
                     Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
