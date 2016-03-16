@@ -787,6 +787,7 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
+get_erlang_version("6.0.3")     -> {"18.3", "18.3", "18.3"};
 get_erlang_version("6.0.2")     -> {"18.2", "18.2", "18.2"};
 get_erlang_version("6.0.1")     -> {"18.1", "18.1", "18.1"};
 get_erlang_version("6.0")       -> {"18.0-rc2", "18.0-rc2", "18.0-rc2"};
