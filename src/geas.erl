@@ -1115,7 +1115,8 @@ compat(RootDir, term) ->
                     Ps = lists:usort(PP),
                     Global = Ps ++ [filename:absname(RootDir)],
                     D = lists:flatmap(fun(X) -> 
-											 {ok, I} = info(X),
+                                         case catch info(X) of
+										 {ok, I} ->
                                              Compat = lists:keyfind(compat, 1, I),
                                              {compat,{MinDb, Min, Max, MaxDb}} = Compat,
                                              N = lists:keyfind(native, 1, I),
@@ -1138,7 +1139,9 @@ compat(RootDir, term) ->
 														"." -> filename:basename(filename:dirname(X)) ;
 														NN  -> NN
 													end,
-                                             [{Left , ArchString, Right, Name}]
+                                             [{Left , ArchString, Right, Name}] ;
+										 {error, Reason} -> throw({error, Reason})
+										 end
                                        end, Global),
                     % Get global info
 					MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
