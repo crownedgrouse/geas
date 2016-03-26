@@ -31,23 +31,23 @@ A plugin is available for `erlang.mk` and `rebar` .
 Example on a test project using cowboy :
 
 ```
-   R15                   18.2       Geas database
+   R15                   18.3       Geas database
 ---Min--------Arch-------Max----------------------------------------------------
-   R15B01                           cowboy
+   R15B02                           cowboy
                                     cowlib
                                     ranch
                                     test
 --------------------------------------------------------------------------------
-   R15B01                18.2       Global project
+   R15B02                18.3       Global project
 
 Local : R16B03-1 17.3 18.0
 Excl. : R16B03
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
-R15B01    crypto:hash/2
+R15B02    crypto:hash/2
 ```
 
-The global project can run starting R15B01 up to higher reference in geas database, 18.2 in such case.
+The global project can run starting R15B02 up to higher reference in geas database, 18.3 in such case.
 
 Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. User can exclude release(s) with `GEAS_EXC_RELS` environment variable.
 
