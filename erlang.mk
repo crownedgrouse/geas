@@ -4037,14 +4037,24 @@ define pkg_print
 
 endef
 
+ifdef tag
+TE=$(addprefix -e , $(tag))
+PACKAGESQ = $(shell grep $(TE) .erlang.mk/tags.index | cut -d ' ' -f 2- | tr " " "\n" | sort -u | tr " " "\n")
+else
+PACKAGESQ = $(PACKAGES)
+endif
+
 search:
 ifdef q
-	$(foreach p,$(PACKAGES), \
+	$(foreach p,$(PACKAGESQ), \
 		$(if $(findstring $(call core_lc,$(q)),$(call core_lc,$(pkg_$(p)_name) $(pkg_$(p)_description))), \
 			$(call pkg_print,$(p))))
 else
-	$(foreach p,$(PACKAGES),$(call pkg_print,$(p)))
+	$(foreach p,$(PACKAGESQ),$(call pkg_print,$(p)))
 endif
+
+tags:
+	$(verbose) printf "%s\n" $(shell cat .erlang.mk/tags.index | cut -d " " -f 1 )
 
 # Copyright (c) 2013-2015, Loïc Hoguin <essen@ninenines.eu>
 # This file is part of erlang.mk and subject to the terms of the ISC License.

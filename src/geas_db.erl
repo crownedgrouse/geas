@@ -87,7 +87,7 @@ get_removed_functions(DDir) ->
                               {ok, [R]} = file:consult(filename:join(DDir, F)),
                               % Pick 'From' where last presence of function is
                               {from, From} = lists:keyfind(from, 1, R),   
-                              From_s =  atom_to_list(From),                                                    
+                              From_s =  atom_to_list(From),                
                               % Pick 'functions' entry
                               {functions, Fs} = lists:keyfind(functions, 1, R),
                               % Pick 'removed' entry
@@ -149,14 +149,14 @@ get_removed_modules(DDir) ->
          % Loop over list and pick up all removed modules, linked to 'To' 
          _RMS = lists:map(fun(F) -> % Load file
                                   {ok, [R]} = file:consult(filename:join(DDir, F)),
-                                  % Pick 'To'
-                                  {to, To} = lists:keyfind(to, 1, R),                                                        
+                                  % Pick 'From'
+                              	  {from, From} = lists:keyfind(from, 1, R),                                               
                                   % Pick 'modules' entry
                                   {modules, M} = lists:keyfind(modules, 1, R),
                                   % Pick 'removed' entry
                                   {removed, RM} = lists:keyfind(removed, 1, M),
                                   % Compose [{module, release}, ...]
-                                  lists:map(fun(X) -> [{X, atom_to_list(To)}] end, RM)
+                                  lists:map(fun(X) -> [{X, atom_to_list(From)}] end, RM)
                         end, Reldiffs) .
 
 %%-------------------------------------------------------------------------
