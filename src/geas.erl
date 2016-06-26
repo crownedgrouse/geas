@@ -747,7 +747,7 @@ get_date(File) ->
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 T = case lists:keyfind(time, 1, L) of
 					{time, X} -> X ;
-					_         -> [] % not in beam starting 19.0
+					_         -> undefined % not in beam starting 19.0
                                     end,
 				T;
                         false -> ?LOG(geas_logs, {warning, {undefined, 'date'}, File}),
@@ -790,6 +790,7 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
+get_erlang_version("7.0")       -> {"19.0", "19.0", "19.0"};
 get_erlang_version("6.0.3")     -> {"18.3", "18.3", "18.3"};
 get_erlang_version("6.0.2")     -> {"18.2", "18.2", "18.2"};
 get_erlang_version("6.0.1")     -> {"18.1", "18.1", "18.1"};
