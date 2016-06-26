@@ -32,7 +32,8 @@
 -define(REL_LIST, ["R15", "R15B", "R15B01", "R15B02", "R15B03", "R15B03-1",
                    "R16B", "R16B01", "R16B02", "R16B03", "R16B03-1",
                    "17.0", "17.1", "17.3", "17.4", "17.5", 
-		   "18.0", "18.1", "18.2", "18.3"]).
+		   "18.0", "18.1", "18.2", "18.3",
+		   "19.0"]).
 
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
