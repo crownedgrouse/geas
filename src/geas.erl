@@ -745,8 +745,11 @@ get_date(File) ->
 			_      -> Bn = filename:rootname(File, ".beam"),
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                                {time, T} = lists:keyfind(time, 1, L),
-                                T;
+                                T = case lists:keyfind(time, 1, L) of
+					{time, X} -> X ;
+					_         -> [] % not in beam starting 19.0
+                                    end,
+				T;
                         false -> ?LOG(geas_logs, {warning, {undefined, 'date'}, File}),
 					  			 undefined
                       end
