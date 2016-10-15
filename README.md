@@ -31,34 +31,27 @@ A plugin is available for `erlang.mk` and `rebar` .
 Example on a test project using cowboy :
 
 ```
-   R15                   19.0       Geas database
+   R15                   19.1       Geas database       
 ---Min--------Arch-------Max----------------------------------------------------
-   17.1                             cowlib               
+   R15B02                           cowboy               
+                                    cowlib               
                                     ranch                
-   18.0                             cowboy 
-                                    test
+   R16B02                18.1       test                 
 --------------------------------------------------------------------------------
-   18.0                  19.0       Global project
+   R16B02                18.1       Global project       
 
-Total : 18.0 18.1 18.2 18.3 19.0
+Total : R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
-/home/eric/git/test/deps/cowlib/ebin/cow_hpack.beam
-17.1      maps:get/3
-
-/home/eric/git/test/deps/cowlib/ebin/cow_ws.beam
-17.1      maps:get/3
-
-/home/eric/git/test/ebin/cowboy.beam
-17.1      maps:get/3
-
-/home/eric/git/test/ebin/cowboy_tls.beam
-18.0      ssl:negotiated_protocol/1
-
-/home/eric/git/test/ebin/cowboy_websocket.beam
+/home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
 R15B02    crypto:hash/2
+
+/home/eric/git/test/ebin/test.beam
+R16B02    application:ensure_all_started/1
+
+18.1      ssh_message:encode_host_key/1
 ```
 
-The global project can run starting 18.0 up to higher reference in geas database, 19.0 in such case.
+The global project can run starting R16B02 up to 18.1 in such case, due to use of a function introduced in R16B02 and another one removed in 18.2.
 
 Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. User can exclude release(s) with `GEAS_EXC_RELS` environment variable.
 
