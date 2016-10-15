@@ -12,11 +12,11 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-.PHONY: all app deps search rel docs install-docs check tests clean distclean help erlang-mk
+.PHONY: all app apps deps search rel docs install-docs check tests clean distclean help erlang-mk
 
 ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 
-ERLANG_MK_VERSION = 2.0.0-pre.2-81-gbb6b947
+ERLANG_MK_VERSION = 2.0.0-pre.2-147-gc849da3
 
 # Core configuration.
 
@@ -24,6 +24,7 @@ PROJECT ?= $(notdir $(CURDIR))
 PROJECT := $(strip $(PROJECT))
 
 PROJECT_VERSION ?= rolling
+PROJECT_MOD ?= $(PROJECT)_app
 
 # Verbosity.
 
@@ -281,7 +282,7 @@ pkg_apns_description = Apple Push Notification Server for Erlang
 pkg_apns_homepage = http://inaka.github.com/apns4erl
 pkg_apns_fetch = git
 pkg_apns_repo = https://github.com/inaka/apns4erl
-pkg_apns_commit = 1.0.4
+pkg_apns_commit = master
 
 PACKAGES += azdht
 pkg_azdht_name = azdht
@@ -385,7 +386,7 @@ pkg_bitcask_description = because you need another a key/value storage engine
 pkg_bitcask_homepage = https://github.com/basho/bitcask
 pkg_bitcask_fetch = git
 pkg_bitcask_repo = https://github.com/basho/bitcask
-pkg_bitcask_commit = master
+pkg_bitcask_commit = develop
 
 PACKAGES += bitstore
 pkg_bitstore_name = bitstore
@@ -457,7 +458,7 @@ pkg_cake_description = Really simple terminal colorization
 pkg_cake_homepage = https://github.com/darach/cake-erl
 pkg_cake_fetch = git
 pkg_cake_repo = https://github.com/darach/cake-erl
-pkg_cake_commit = v0.1.2
+pkg_cake_commit = master
 
 PACKAGES += carotene
 pkg_carotene_name = carotene
@@ -514,6 +515,14 @@ pkg_chronos_homepage = https://github.com/lehoff/chronos
 pkg_chronos_fetch = git
 pkg_chronos_repo = https://github.com/lehoff/chronos
 pkg_chronos_commit = master
+
+PACKAGES += chumak
+pkg_chumak_name = chumak
+pkg_chumak_description = Pure Erlang implementation of ZeroMQ Message Transport Protocol.
+pkg_chumak_homepage = http://choven.ca
+pkg_chumak_fetch = git
+pkg_chumak_repo = https://github.com/chovencorp/chumak
+pkg_chumak_commit = master
 
 PACKAGES += cl
 pkg_cl_name = cl
@@ -793,7 +802,7 @@ pkg_cowboy_description = Small, fast and modular HTTP server.
 pkg_cowboy_homepage = http://ninenines.eu
 pkg_cowboy_fetch = git
 pkg_cowboy_repo = https://github.com/ninenines/cowboy
-pkg_cowboy_commit = 1.0.1
+pkg_cowboy_commit = 1.0.4
 
 PACKAGES += cowdb
 pkg_cowdb_name = cowdb
@@ -809,7 +818,7 @@ pkg_cowlib_description = Support library for manipulating Web protocols.
 pkg_cowlib_homepage = http://ninenines.eu
 pkg_cowlib_fetch = git
 pkg_cowlib_repo = https://github.com/ninenines/cowlib
-pkg_cowlib_commit = 1.0.1
+pkg_cowlib_commit = 1.0.2
 
 PACKAGES += cpg
 pkg_cpg_name = cpg
@@ -1051,14 +1060,6 @@ pkg_efene_fetch = git
 pkg_efene_repo = https://github.com/efene/efene
 pkg_efene_commit = master
 
-PACKAGES += eganglia
-pkg_eganglia_name = eganglia
-pkg_eganglia_description = Erlang library to interact with Ganglia
-pkg_eganglia_homepage = https://github.com/inaka/eganglia
-pkg_eganglia_fetch = git
-pkg_eganglia_repo = https://github.com/inaka/eganglia
-pkg_eganglia_commit = v0.9.1
-
 PACKAGES += egeoip
 pkg_egeoip_name = egeoip
 pkg_egeoip_description = Erlang IP Geolocation module, currently supporting the MaxMind GeoLite City Database.
@@ -1073,7 +1074,7 @@ pkg_ehsa_description = Erlang HTTP server basic and digest authentication module
 pkg_ehsa_homepage = https://bitbucket.org/a12n/ehsa
 pkg_ehsa_fetch = hg
 pkg_ehsa_repo = https://bitbucket.org/a12n/ehsa
-pkg_ehsa_commit = 2.0.4
+pkg_ehsa_commit = default
 
 PACKAGES += ej
 pkg_ej_name = ej
@@ -1513,7 +1514,7 @@ pkg_erwa_description = A WAMP router and client written in Erlang.
 pkg_erwa_homepage = https://github.com/bwegh/erwa
 pkg_erwa_fetch = git
 pkg_erwa_repo = https://github.com/bwegh/erwa
-pkg_erwa_commit = 0.1.1
+pkg_erwa_commit = master
 
 PACKAGES += espec
 pkg_espec_name = espec
@@ -1617,7 +1618,7 @@ pkg_exometer_description = Basic measurement objects and probe behavior
 pkg_exometer_homepage = https://github.com/Feuerlabs/exometer
 pkg_exometer_fetch = git
 pkg_exometer_repo = https://github.com/Feuerlabs/exometer
-pkg_exometer_commit = 1.2
+pkg_exometer_commit = master
 
 PACKAGES += exs1024
 pkg_exs1024_name = exs1024
@@ -1681,7 +1682,15 @@ pkg_feeder_description = Stream parse RSS and Atom formatted XML feeds.
 pkg_feeder_homepage = https://github.com/michaelnisi/feeder
 pkg_feeder_fetch = git
 pkg_feeder_repo = https://github.com/michaelnisi/feeder
-pkg_feeder_commit = v1.4.6
+pkg_feeder_commit = master
+
+PACKAGES += find_crate
+pkg_find_crate_name = find_crate
+pkg_find_crate_description = Find Rust libs and exes in Erlang application priv directory
+pkg_find_crate_homepage = https://github.com/goertzenator/find_crate
+pkg_find_crate_fetch = git
+pkg_find_crate_repo = https://github.com/goertzenator/find_crate
+pkg_find_crate_commit = master
 
 PACKAGES += fix
 pkg_fix_name = fix
@@ -1843,6 +1852,14 @@ pkg_gen_unix_fetch = git
 pkg_gen_unix_repo = https://github.com/msantos/gen_unix
 pkg_gen_unix_commit = master
 
+PACKAGES += geode
+pkg_geode_name = geode
+pkg_geode_description = geohash/proximity lookup in pure, uncut erlang.
+pkg_geode_homepage = https://github.com/bradfordw/geode
+pkg_geode_fetch = git
+pkg_geode_repo = https://github.com/bradfordw/geode
+pkg_geode_commit = master
+
 PACKAGES += getopt
 pkg_getopt_name = getopt
 pkg_getopt_description = Module to parse command line arguments using the GNU getopt syntax
@@ -2001,7 +2018,7 @@ pkg_ibrowse_description = Erlang HTTP client
 pkg_ibrowse_homepage = https://github.com/cmullaparthi/ibrowse
 pkg_ibrowse_fetch = git
 pkg_ibrowse_repo = https://github.com/cmullaparthi/ibrowse
-pkg_ibrowse_commit = v4.1.1
+pkg_ibrowse_commit = master
 
 PACKAGES += ierlang
 pkg_ierlang_name = ierlang
@@ -2057,7 +2074,7 @@ pkg_jamdb_sybase_description = Erlang driver for SAP Sybase ASE
 pkg_jamdb_sybase_homepage = https://github.com/erlangbureau/jamdb_sybase
 pkg_jamdb_sybase_fetch = git
 pkg_jamdb_sybase_repo = https://github.com/erlangbureau/jamdb_sybase
-pkg_jamdb_sybase_commit = 0.6.0
+pkg_jamdb_sybase_commit = master
 
 PACKAGES += jerg
 pkg_jerg_name = jerg
@@ -2089,7 +2106,7 @@ pkg_jiffy_v_description = JSON validation utility
 pkg_jiffy_v_homepage = https://github.com/shizzard/jiffy-v
 pkg_jiffy_v_fetch = git
 pkg_jiffy_v_repo = https://github.com/shizzard/jiffy-v
-pkg_jiffy_v_commit = 0.3.3
+pkg_jiffy_v_commit = master
 
 PACKAGES += jobs
 pkg_jobs_name = jobs
@@ -2097,7 +2114,7 @@ pkg_jobs_description = a Job scheduler for load regulation
 pkg_jobs_homepage = https://github.com/esl/jobs
 pkg_jobs_fetch = git
 pkg_jobs_repo = https://github.com/esl/jobs
-pkg_jobs_commit = 0.3
+pkg_jobs_commit = master
 
 PACKAGES += joxa
 pkg_joxa_name = joxa
@@ -2170,6 +2187,14 @@ pkg_kafka_homepage = https://github.com/wooga/kafka-erlang
 pkg_kafka_fetch = git
 pkg_kafka_repo = https://github.com/wooga/kafka-erlang
 pkg_kafka_commit = master
+
+PACKAGES += kafka_protocol
+pkg_kafka_protocol_name = kafka_protocol
+pkg_kafka_protocol_description = Kafka protocol Erlang library
+pkg_kafka_protocol_homepage = https://github.com/klarna/kafka_protocol
+pkg_kafka_protocol_fetch = git
+pkg_kafka_protocol_repo = https://github.com/klarna/kafka_protocol.git
+pkg_kafka_protocol_commit = master
 
 PACKAGES += kai
 pkg_kai_name = kai
@@ -2313,7 +2338,7 @@ pkg_lasse_description = SSE handler for Cowboy
 pkg_lasse_homepage = https://github.com/inaka/lasse
 pkg_lasse_fetch = git
 pkg_lasse_repo = https://github.com/inaka/lasse
-pkg_lasse_commit = 0.1.0
+pkg_lasse_commit = master
 
 PACKAGES += ldap
 pkg_ldap_name = ldap
@@ -2769,7 +2794,7 @@ pkg_octopus_description = Small and flexible pool manager written in Erlang
 pkg_octopus_homepage = https://github.com/erlangbureau/octopus
 pkg_octopus_fetch = git
 pkg_octopus_repo = https://github.com/erlangbureau/octopus
-pkg_octopus_commit = 1.0.0
+pkg_octopus_commit = master
 
 PACKAGES += of_protocol
 pkg_of_protocol_name = of_protocol
@@ -2841,7 +2866,7 @@ pkg_pegjs_description = An implementation of PEG.js grammar for Erlang.
 pkg_pegjs_homepage = https://github.com/dmitriid/pegjs
 pkg_pegjs_fetch = git
 pkg_pegjs_repo = https://github.com/dmitriid/pegjs
-pkg_pegjs_commit = 0.3
+pkg_pegjs_commit = master
 
 PACKAGES += percept2
 pkg_percept2_name = percept2
@@ -3009,7 +3034,7 @@ pkg_qdate_description = Date, time, and timezone parsing, formatting, and conver
 pkg_qdate_homepage = https://github.com/choptastic/qdate
 pkg_qdate_fetch = git
 pkg_qdate_repo = https://github.com/choptastic/qdate
-pkg_qdate_commit = 0.4.0
+pkg_qdate_commit = master
 
 PACKAGES += qrcode
 pkg_qrcode_name = qrcode
@@ -3081,7 +3106,7 @@ pkg_ranch_description = Socket acceptor pool for TCP protocols.
 pkg_ranch_homepage = http://ninenines.eu
 pkg_ranch_fetch = git
 pkg_ranch_repo = https://github.com/ninenines/ranch
-pkg_ranch_commit = 1.1.0
+pkg_ranch_commit = 1.2.1
 
 PACKAGES += rbeacon
 pkg_rbeacon_name = rbeacon
@@ -3121,7 +3146,7 @@ pkg_recon_description = Collection of functions and scripts to debug Erlang in p
 pkg_recon_homepage = https://github.com/ferd/recon
 pkg_recon_fetch = git
 pkg_recon_repo = https://github.com/ferd/recon
-pkg_recon_commit = 2.2.1
+pkg_recon_commit = master
 
 PACKAGES += record_info
 pkg_record_info_name = record_info
@@ -3315,6 +3340,14 @@ pkg_rlimit_fetch = git
 pkg_rlimit_repo = https://github.com/jlouis/rlimit
 pkg_rlimit_commit = master
 
+PACKAGES += rust_mk
+pkg_rust_mk_name = rust_mk
+pkg_rust_mk_description = Build Rust crates in an Erlang application
+pkg_rust_mk_homepage = https://github.com/goertzenator/rust.mk
+pkg_rust_mk_fetch = git
+pkg_rust_mk_repo = https://github.com/goertzenator/rust.mk
+pkg_rust_mk_commit = master
+
 PACKAGES += safetyvalve
 pkg_safetyvalve_name = safetyvalve
 pkg_safetyvalve_description = A safety valve for your erlang node
@@ -3385,7 +3418,7 @@ pkg_shotgun_description = better than just a gun
 pkg_shotgun_homepage = https://github.com/inaka/shotgun
 pkg_shotgun_fetch = git
 pkg_shotgun_repo = https://github.com/inaka/shotgun
-pkg_shotgun_commit = 0.1.0
+pkg_shotgun_commit = master
 
 PACKAGES += sidejob
 pkg_sidejob_name = sidejob
@@ -3449,7 +3482,7 @@ pkg_slack_description = Minimal slack notification OTP library.
 pkg_slack_homepage = https://github.com/DonBranson/slack
 pkg_slack_fetch = git
 pkg_slack_repo = https://github.com/DonBranson/slack.git
-pkg_slack_commit = 1.0.0
+pkg_slack_commit = master
 
 PACKAGES += smother
 pkg_smother_name = smother
@@ -3458,6 +3491,14 @@ pkg_smother_homepage = https://ramsay-t.github.io/Smother/
 pkg_smother_fetch = git
 pkg_smother_repo = https://github.com/ramsay-t/Smother
 pkg_smother_commit = master
+
+PACKAGES += snappyer
+pkg_snappyer_name = snappyer
+pkg_snappyer_description = Snappy as nif for Erlang
+pkg_snappyer_homepage = https://github.com/zmstone/snappyer
+pkg_snappyer_fetch = git
+pkg_snappyer_repo = https://github.com/zmstone/snappyer.git
+pkg_snappyer_commit = master
 
 PACKAGES += social
 pkg_social_name = social
@@ -3605,7 +3646,7 @@ pkg_switchboard_commit = master
 
 PACKAGES += syn
 pkg_syn_name = syn
-pkg_syn_description = A global process registry for Erlang.
+pkg_syn_description = A global Process Registry and Process Group manager for Erlang.
 pkg_syn_homepage = https://github.com/ostinelli/syn
 pkg_syn_fetch = git
 pkg_syn_repo = https://github.com/ostinelli/syn
@@ -3777,7 +3818,7 @@ pkg_unicorn_description = Generic configuration server
 pkg_unicorn_homepage = https://github.com/shizzard/unicorn
 pkg_unicorn_fetch = git
 pkg_unicorn_repo = https://github.com/shizzard/unicorn
-pkg_unicorn_commit = 0.3.0
+pkg_unicorn_commit = master
 
 PACKAGES += unsplit
 pkg_unsplit_name = unsplit
@@ -3793,7 +3834,7 @@ pkg_uuid_description = Erlang UUID Implementation
 pkg_uuid_homepage = https://github.com/okeuday/uuid
 pkg_uuid_fetch = git
 pkg_uuid_repo = https://github.com/okeuday/uuid
-pkg_uuid_commit = v1.4.0
+pkg_uuid_commit = master
 
 PACKAGES += ux
 pkg_ux_name = ux
@@ -3913,7 +3954,7 @@ pkg_worker_pool_description = a simple erlang worker pool
 pkg_worker_pool_homepage = https://github.com/inaka/worker_pool
 pkg_worker_pool_fetch = git
 pkg_worker_pool_repo = https://github.com/inaka/worker_pool
-pkg_worker_pool_commit = 1.0.3
+pkg_worker_pool_commit = master
 
 PACKAGES += wrangler
 pkg_wrangler_name = wrangler
@@ -3945,7 +3986,7 @@ pkg_xref_runner_description = Erlang Xref Runner (inspired in rebar xref)
 pkg_xref_runner_homepage = https://github.com/inaka/xref_runner
 pkg_xref_runner_fetch = git
 pkg_xref_runner_repo = https://github.com/inaka/xref_runner
-pkg_xref_runner_commit = 0.2.3
+pkg_xref_runner_commit = master
 
 PACKAGES += yamerl
 pkg_yamerl_name = yamerl
@@ -3979,13 +4020,21 @@ pkg_zab_engine_fetch = git
 pkg_zab_engine_repo = https://github.com/xinmingyao/zab_engine
 pkg_zab_engine_commit = master
 
+PACKAGES += zabbix_sender
+pkg_zabbix_sender_name = zabbix_sender
+pkg_zabbix_sender_description = Zabbix trapper for sending data to Zabbix in pure Erlang
+pkg_zabbix_sender_homepage = https://github.com/stalkermn/zabbix_sender
+pkg_zabbix_sender_fetch = git
+pkg_zabbix_sender_repo = https://github.com/stalkermn/zabbix_sender.git
+pkg_zabbix_sender_commit = master
+
 PACKAGES += zeta
 pkg_zeta_name = zeta
 pkg_zeta_description = HTTP access log parser in Erlang
 pkg_zeta_homepage = https://github.com/s1n4/zeta
 pkg_zeta_fetch = git
 pkg_zeta_repo = https://github.com/s1n4/zeta
-pkg_zeta_commit =  
+pkg_zeta_commit = master
 
 PACKAGES += zippers
 pkg_zippers_name = zippers
@@ -4037,24 +4086,14 @@ define pkg_print
 
 endef
 
-ifdef tag
-TE=$(addprefix -e , $(tag))
-PACKAGESQ = $(shell grep $(TE) .erlang.mk/tags.index | cut -d ' ' -f 2- | tr " " "\n" | sort -u | tr " " "\n")
-else
-PACKAGESQ = $(PACKAGES)
-endif
-
 search:
 ifdef q
-	$(foreach p,$(PACKAGESQ), \
+	$(foreach p,$(PACKAGES), \
 		$(if $(findstring $(call core_lc,$(q)),$(call core_lc,$(pkg_$(p)_name) $(pkg_$(p)_description))), \
 			$(call pkg_print,$(p))))
 else
-	$(foreach p,$(PACKAGESQ),$(call pkg_print,$(p)))
+	$(foreach p,$(PACKAGES),$(call pkg_print,$(p)))
 endif
-
-tags:
-	$(verbose) printf "%s\n" $(shell cat .erlang.mk/tags.index | cut -d " " -f 1 )
 
 # Copyright (c) 2013-2015, Loïc Hoguin <essen@ninenines.eu>
 # This file is part of erlang.mk and subject to the terms of the ISC License.
@@ -4106,16 +4145,35 @@ dep_verbose = $(dep_verbose_$(V))
 
 # Core targets.
 
+ifdef IS_APP
+apps::
+else
+apps:: $(ALL_APPS_DIRS)
+ifeq ($(IS_APP)$(IS_DEP),)
+	$(verbose) rm -f $(ERLANG_MK_TMP)/apps.log
+endif
+	$(verbose) mkdir -p $(ERLANG_MK_TMP)
+# Create ebin directory for all apps to make sure Erlang recognizes them
+# as proper OTP applications when using -include_lib. This is a temporary
+# fix, a proper fix would be to compile apps/* in the right order.
+	$(verbose) for dep in $(ALL_APPS_DIRS) ; do \
+		mkdir -p $$dep/ebin || exit $$?; \
+	done
+	$(verbose) for dep in $(ALL_APPS_DIRS) ; do \
+		if grep -qs ^$$dep$$ $(ERLANG_MK_TMP)/apps.log; then \
+			:; \
+		else \
+			echo $$dep >> $(ERLANG_MK_TMP)/apps.log; \
+			$(MAKE) -C $$dep IS_APP=1 || exit $$?; \
+		fi \
+	done
+endif
+
 ifneq ($(SKIP_DEPS),)
 deps::
 else
-deps:: $(ALL_DEPS_DIRS)
-ifndef IS_APP
-	$(verbose) for dep in $(ALL_APPS_DIRS) ; do \
-		$(MAKE) -C $$dep IS_APP=1 || exit $$?; \
-	done
-endif
-ifneq ($(IS_DEP),1)
+deps:: $(ALL_DEPS_DIRS) apps
+ifeq ($(IS_APP)$(IS_DEP),)
 	$(verbose) rm -f $(ERLANG_MK_TMP)/deps.log
 endif
 	$(verbose) mkdir -p $(ERLANG_MK_TMP)
@@ -4202,7 +4260,7 @@ define dep_autopatch_fetch_rebar
 	if [ ! -d $(ERLANG_MK_TMP)/rebar ]; then \
 		git clone -q -n -- https://github.com/rebar/rebar $(ERLANG_MK_TMP)/rebar; \
 		cd $(ERLANG_MK_TMP)/rebar; \
-		git checkout -q 791db716b5a3a7671e0b351f95ddf24b848ee173; \
+		git checkout -q 576e12171ab8d69b048b827b92aa65d067deea01; \
 		$(MAKE); \
 		cd -; \
 	fi
@@ -4219,6 +4277,7 @@ endef
 define dep_autopatch_rebar.erl
 	application:load(rebar),
 	application:set_env(rebar, log_level, debug),
+	rmemo:start(),
 	Conf1 = case file:consult("$(call core_native_path,$(DEPS_DIR)/$1/rebar.config)") of
 		{ok, Conf0} -> Conf0;
 		_ -> []
@@ -4372,9 +4431,9 @@ define dep_autopatch_rebar.erl
 		[] -> ok;
 		_ ->
 			Write("\npre-app::\n\t$$\(MAKE) -f c_src/Makefile.erlang.mk\n"),
-			PortSpecWrite(io_lib:format("ERL_CFLAGS = -finline-functions -Wall -fPIC -I \\"~s/erts-~s/include\\" -I \\"~s\\"\n",
+			PortSpecWrite(io_lib:format("ERL_CFLAGS ?= -finline-functions -Wall -fPIC -I \\"~s/erts-~s/include\\" -I \\"~s\\"\n",
 				[code:root_dir(), erlang:system_info(version), code:lib_dir(erl_interface, include)])),
-			PortSpecWrite(io_lib:format("ERL_LDFLAGS = -L \\"~s\\" -lerl_interface -lei\n",
+			PortSpecWrite(io_lib:format("ERL_LDFLAGS ?= -L \\"~s\\" -lerl_interface -lei\n",
 				[code:lib_dir(erl_interface, lib)])),
 			[PortSpecWrite(["\n", E, "\n"]) || E <- OsEnv],
 			FilterEnv = fun(Env) ->
@@ -4664,6 +4723,7 @@ $(foreach p,$(DEP_PLUGINS),\
 DTL_FULL_PATH ?=
 DTL_PATH ?= templates/
 DTL_SUFFIX ?= _dtl
+DTL_OPTS ?=
 
 # Verbosity.
 
@@ -4696,7 +4756,7 @@ define erlydtl_compile.erl
 				re:replace(F2, "/",  "_",  [{return, list}, global])
 		end,
 		Module = list_to_atom(string:to_lower(Module0) ++ "$(DTL_SUFFIX)"),
-		case erlydtl:compile(F, Module, [{out_dir, "ebin/"}, return_errors, {doc_root, "templates"}]) of
+		case erlydtl:compile(F, Module, [$(DTL_OPTS)] ++ [{out_dir, "ebin/"}, return_errors, {doc_root, "templates"}]) of
 			ok -> ok;
 			{ok, _} -> ok
 		end
@@ -4803,7 +4863,7 @@ app:: clean deps $(PROJECT).d
 	$(verbose) $(MAKE) --no-print-directory app-build
 endif
 
-ifeq ($(wildcard src/$(PROJECT)_app.erl),)
+ifeq ($(wildcard src/$(PROJECT_MOD).erl),)
 define app_file
 {application, $(PROJECT), [
 	{description, "$(PROJECT_DESCRIPTION)"},
@@ -4823,7 +4883,7 @@ define app_file
 	{modules, [$(call comma_list,$(2))]},
 	{registered, [$(call comma_list,$(PROJECT)_sup $(PROJECT_REGISTERED))]},
 	{applications, [$(call comma_list,kernel stdlib $(OTP_DEPS) $(LOCAL_DEPS) $(DEPS))]},
-	{mod, {$(PROJECT)_app, []}}
+	{mod, {$(PROJECT_MOD), []}}
 ]}.
 endef
 endif
@@ -4988,13 +5048,13 @@ ifeq ($(wildcard src/$(PROJECT).app.src),)
 	$(app_verbose) printf "$(subst $(newline),\n,$(subst ",\",$(call app_file,$(GITDESCRIBE),$(MODULES))))" \
 		> ebin/$(PROJECT).app
 else
-	$(verbose) if [ -z "$$(grep -E '^[^%]*{\s*modules\s*,' src/$(PROJECT).app.src)" ]; then \
+	$(verbose) if [ -z "$$(grep -e '^[^%]*{\s*modules\s*,' src/$(PROJECT).app.src)" ]; then \
 		echo "Empty modules entry not found in $(PROJECT).app.src. Please consult the erlang.mk README for instructions." >&2; \
 		exit 1; \
 	fi
 	$(appsrc_verbose) cat src/$(PROJECT).app.src \
 		| sed "s/{[[:space:]]*modules[[:space:]]*,[[:space:]]*\[\]}/{modules, \[$(call comma_list,$(MODULES))\]}/" \
-		| sed "s/{id,[[:space:]]*\"git\"}/{id, \"$(GITDESCRIBE)\"}/" \
+		| sed "s/{id,[[:space:]]*\"git\"}/{id, \"$(subst /,\/,$(GITDESCRIBE))\"}/" \
 		> ebin/$(PROJECT).app
 endif
 
@@ -5112,7 +5172,7 @@ endif
 # We strip out -Werror because we don't want to fail due to
 # warnings when used as a dependency.
 
-compat_prepare_erlc_opts = $(shell echo "$1" | sed 's/, */,/')
+compat_prepare_erlc_opts = $(shell echo "$1" | sed 's/, */,/g')
 
 define compat_convert_erlc_opts
 $(if $(filter-out -Werror,$1),\
@@ -5125,8 +5185,12 @@ define compat_erlc_opts_to_list
 endef
 
 define compat_rebar_config
-{deps, [$(call comma_list,$(foreach d,$(DEPS),\
-	{$(call dep_name,$d),".*",{git,"$(call dep_repo,$d)","$(call dep_commit,$d)"}}))]}.
+{deps, [
+$(call comma_list,$(foreach d,$(DEPS),\
+	$(if $(filter hex,$(call dep_fetch,$d)),\
+		{$(call dep_name,$d)$(comma)"$(call dep_repo,$d)"},\
+		{$(call dep_name,$d)$(comma)".*"$(comma){git,"$(call dep_repo,$d)"$(comma)"$(call dep_commit,$d)"}})))
+]}.
 {erl_opts, $(call compat_erlc_opts_to_list,$(ERLC_OPTS))}.
 endef
 
@@ -5196,8 +5260,8 @@ help::
 		"  bootstrap          Generate a skeleton of an OTP application" \
 		"  bootstrap-lib      Generate a skeleton of an OTP library" \
 		"  bootstrap-rel      Generate the files needed to build a release" \
-		"  new-app n=NAME     Create a new local OTP application NAME" \
-		"  new-lib n=NAME     Create a new local OTP library NAME" \
+		"  new-app in=NAME    Create a new local OTP application NAME" \
+		"  new-lib in=NAME    Create a new local OTP library NAME" \
 		"  new t=TPL n=NAME   Generate a module NAME based on the template TPL" \
 		"  new t=T n=N in=APP Generate a module NAME based on the template TPL in APP" \
 		"  list-templates     List available templates"
@@ -5355,6 +5419,11 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
 	{ok, State}.
+endef
+
+define tpl_module
+-module($(n)).
+-export([]).
 endef
 
 define tpl_cowboy_http
@@ -5903,11 +5972,12 @@ ci_verbose = $(ci_verbose_$(V))
 
 define ci_target
 ci-$(1): $(CI_INSTALL_DIR)/$(1)
+	$(verbose) $(MAKE) --no-print-directory clean;
 	$(ci_verbose) \
 		PATH="$(CI_INSTALL_DIR)/$(1)/bin:$(PATH)" \
 		CI_OTP_RELEASE="$(1)" \
 		CT_OPTS="-label $(1)" \
-		$(MAKE) clean ci-setup tests
+		$(MAKE) ci-setup tests
 endef
 
 $(foreach otp,$(CI_OTP),$(eval $(call ci_target,$(otp))))
@@ -5973,7 +6043,7 @@ help::
 CT_RUN = ct_run \
 	-no_auto_compile \
 	-noinput \
-	-pa $(CURDIR)/ebin $(DEPS_DIR)/*/ebin $(TEST_DIR) \
+	-pa $(CURDIR)/ebin $(DEPS_DIR)/*/ebin $(APPS_DIR)/*/ebin $(TEST_DIR) \
 	-dir $(TEST_DIR) \
 	-logdir $(CURDIR)/logs
 
@@ -5993,7 +6063,7 @@ endef
 
 $(foreach app,$(ALL_APPS_DIRS),$(eval $(call ct_app_target,$(app))))
 
-apps-ct: $(addprefix apps-ct-,$(ALL_APPS_DIRS))
+apps-ct: test-build $(addprefix apps-ct-,$(ALL_APPS_DIRS))
 endif
 
 ifndef t
@@ -6047,14 +6117,17 @@ help::
 # Plugin-specific targets.
 
 define filter_opts.erl
-	Opts = binary:split(<<"$1">>, <<"-">>, [global]),
-	Filtered = lists:reverse(lists:foldl(fun
-		(O = <<"pa ", _/bits>>, Acc) -> [O|Acc];
-		(O = <<"D ", _/bits>>, Acc) -> [O|Acc];
-		(O = <<"I ", _/bits>>, Acc) -> [O|Acc];
-		(_, Acc) -> Acc
-	end, [], Opts)),
-	io:format("~s~n", [[["-", O] || O <- Filtered]]),
+	Opts = init:get_plain_arguments(),
+	{Filtered, _} = lists:foldl(fun
+		(O,                         {Os, true}) -> {[O|Os], false};
+		(O = "-D",                  {Os, _})    -> {[O|Os], true};
+		(O = [\\$$-, \\$$D, _ | _], {Os, _})    -> {[O|Os], false};
+		(O = "-I",                  {Os, _})    -> {[O|Os], true};
+		(O = [\\$$-, \\$$I, _ | _], {Os, _})    -> {[O|Os], false};
+		(O = "-pa",                 {Os, _})    -> {[O|Os], true};
+		(_,                         Acc)        -> Acc
+	end, {[], false}, Opts),
+	io:format("~s~n", [string:join(lists:reverse(Filtered), " ")]),
 	halt().
 endef
 
@@ -6071,7 +6144,7 @@ dialyze:
 else
 dialyze: $(DIALYZER_PLT)
 endif
-	$(verbose) dialyzer --no_native `$(call erlang,$(call filter_opts.erl,$(ERLC_OPTS)))` $(DIALYZER_DIRS) $(DIALYZER_OPTS)
+	$(verbose) dialyzer --no_native `$(ERL) -eval "$(subst $(newline),,$(subst ",\",$(call filter_opts.erl)))" -extra $(ERLC_OPTS)` $(DIALYZER_DIRS) $(DIALYZER_OPTS)
 
 # Copyright (c) 2013-2015, Loïc Hoguin <essen@ninenines.eu>
 # This file is part of erlang.mk and subject to the terms of the ISC License.
@@ -6106,6 +6179,8 @@ distclean-edoc:
 # Configuration.
 
 ESCRIPT_NAME ?= $(PROJECT)
+ESCRIPT_FILE ?= $(ESCRIPT_NAME)
+
 ESCRIPT_COMMENT ?= This is an -*- erlang -*- file
 
 ESCRIPT_BEAMS ?= "ebin/*", "deps/*/ebin/*"
@@ -6151,7 +6226,7 @@ define ESCRIPT_RAW
 '  ]),'\
 '  file:change_mode(Escript, 8#755)'\
 'end,'\
-'Ez("$(ESCRIPT_NAME)"),'\
+'Ez("$(ESCRIPT_FILE)"),'\
 'halt().'
 endef
 
@@ -6206,7 +6281,7 @@ define eunit.erl
 	halt()
 endef
 
-EUNIT_ERL_OPTS += -pa $(TEST_DIR) $(DEPS_DIR)/*/ebin $(APPS_DIR)/*/ebin ebin
+EUNIT_ERL_OPTS += -pa $(TEST_DIR) $(DEPS_DIR)/*/ebin $(APPS_DIR)/*/ebin $(CURDIR)/ebin
 
 ifdef t
 ifeq (,$(findstring :,$(t)))
@@ -6242,7 +6317,7 @@ endif
 RELX ?= $(CURDIR)/relx
 RELX_CONFIG ?= $(CURDIR)/relx.config
 
-RELX_URL ?= https://github.com/erlware/relx/releases/download/v3.5.0/relx
+RELX_URL ?= https://github.com/erlware/relx/releases/download/v3.19.0/relx
 RELX_OPTS ?=
 RELX_OUTPUT_DIR ?= _rel
 
@@ -6344,7 +6419,7 @@ ifeq ($(filter triq,$(DEPS) $(TEST_DEPS)),triq)
 tests:: triq
 
 define triq_check.erl
-	code:add_pathsa(["$(CURDIR)/ebin", "$(DEPS_DIR)/*/ebin"]),
+	code:add_pathsa(["$(call core_native_path,$(CURDIR)/ebin)", "$(call core_native_path,$(DEPS_DIR)/*/ebin)"]),
 	try
 		case $(1) of
 			all -> [true] =:= lists:usort([triq:check(M) || M <- [$(call comma_list,$(3))]]);
@@ -6384,9 +6459,9 @@ endif
 # Configuration.
 
 ifeq ($(XREF_CONFIG),)
-	XREF_ARGS :=
+	XREFR_ARGS :=
 else
-	XREF_ARGS := -c $(XREF_CONFIG)
+	XREFR_ARGS := -c $(XREF_CONFIG)
 endif
 
 XREFR ?= $(CURDIR)/xrefr
@@ -6510,7 +6585,8 @@ define cover_report.erl
 		true -> N - 1; false -> N end}} || {M, {Y, N}} <- Report],
 	TotalY = lists:sum([Y || {_, {Y, _}} <- Report1]),
 	TotalN = lists:sum([N || {_, {_, N}} <- Report1]),
-	TotalPerc = round(100 * TotalY / (TotalY + TotalN)),
+	Perc = fun(Y, N) -> case Y + N of 0 -> 100; S -> round(100 * Y / S) end end,
+	TotalPerc = Perc(TotalY, TotalN),
 	{ok, F} = file:open("$(COVER_REPORT_DIR)/index.html", [write]),
 	io:format(F, "<!DOCTYPE html><html>~n"
 		"<head><meta charset=\"UTF-8\">~n"
@@ -6520,7 +6596,7 @@ define cover_report.erl
 	io:format(F, "<table><tr><th>Module</th><th>Coverage</th></tr>~n", []),
 	[io:format(F, "<tr><td><a href=\"~p.COVER.html\">~p</a></td>"
 		"<td>~p%</td></tr>~n",
-		[M, M, round(100 * Y / (Y + N))]) || {M, {Y, N}} <- Report1],
+		[M, M, Perc(Y, N)]) || {M, {Y, N}} <- Report1],
 	How = "$(subst $(space),$(comma)$(space),$(basename $(COVERDATA)))",
 	Date = "$(shell date -u "+%Y-%m-%dT%H:%M:%SZ")",
 	io:format(F, "</table>~n"
