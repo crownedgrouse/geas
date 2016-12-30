@@ -26,12 +26,13 @@ For example , if a dependency is using ``application:ensure_all_started/1`` your
 ## Plugins ##
 
 ``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
+
 A plugin is available for `erlang.mk` and `rebar` .
 
 Example on a test project using cowboy :
 
 ```
-   R15                   19.1       Geas database       
+   R15                   19.2       Geas database       
 ---Min--------Arch-------Max----------------------------------------------------
    R15B02                           cowboy               
                                     cowlib               
