@@ -1345,15 +1345,21 @@ is_valid_code(Form) -> case lists:keyfind(error, 1, Form) of
 %% @doc Get source (or dtl) file from beam file
 %% @end
 %%-------------------------------------------------------------------------
-get_src_from_beam(File) -> 	UpperDir = filename:dirname(filename:dirname(File)),
-							Basename = filename:rootname(filename:basename(File)),
-							case string:substr(Basename, string:len(Basename) -3 ) of
-						         "_dtl" -> SrcDir = filename:join(UpperDir, "templates"),
-										   Dtl = string:substr(Basename, 1, string:len(Basename) -4 ),
-										   filename:join([SrcDir, Dtl ++ ".dtl"]);						    
-								 _      -> SrcDir = filename:join(UpperDir, "src"),
-										   filename:join([SrcDir, Basename, ".erl"])
-						    end.
+get_src_from_beam(File) -> 
+         UpperDir = filename:dirname(filename:dirname(File)),
+			Basename = filename:rootname(filename:basename(File)),
+         case ( string:len(Basename) > 3 ) of
+               true -> 
+                     case string:substr(Basename, string:len(Basename) -3 ) of
+                           "_dtl" -> SrcDir = filename:join(UpperDir, "templates"),
+			                        Dtl = string:substr(Basename, 1, string:len(Basename) -4 ),
+			                        filename:join([SrcDir, Dtl ++ ".dtl"]);						    
+	                      _      -> SrcDir = filename:join(UpperDir, "src"),
+			                        filename:join([SrcDir, Basename, ".erl"])
+                      end;
+               false -> SrcDir = filename:join(UpperDir, "src"),
+			                        filename:join([SrcDir, Basename, ".erl"])
+         end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get file extension to search depending option environment variable
