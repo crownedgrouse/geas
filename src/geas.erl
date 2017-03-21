@@ -901,6 +901,8 @@ get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
 %%-------------------------------------------------------------------------
 -spec get_remote_call(tuple()) -> list().
 
+get_remote_call({call,_,{atom,_, F}, Args})
+                when is_list(Args)-> [{erlang, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
 get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args}) 
                 when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
 get_remote_call({call,_, {remote,_,{var,_,M},{atom,_,F}}, Args})
