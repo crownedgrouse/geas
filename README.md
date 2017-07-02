@@ -32,7 +32,7 @@ A plugin is available for `erlang.mk` and `rebar` .
 Example on a test project using cowboy :
 
 ```
-   R15                   19.3       Geas database       
+   R15                   20.0       Geas database       
 ---Min--------Arch-------Max----------------------------------------------------
    R15B02                           cowboy               
                                     cowlib               
@@ -181,7 +181,7 @@ See [API changelog](https://github.com/crownedgrouse/geas/wiki/API-changelog) fo
      {author,"Eric Pailleau <geas@crownedgrouse.com>"},
      {vcs,{git,"52f7ea4b3c29aa16e337cfd632f786a39d7ecada",
                "https://github.com/crownedgrouse/geas.git"}},
-     {maintainer,"crownedgrouse  <eric.pailleau@wanadoo.fr>"},
+     {maintainer,"crownedgrouse  <hidden@hidden>"},
      {changelog,undefined},
      {releasenotes,undefined},
      {driver,false}]}
