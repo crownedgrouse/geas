@@ -622,6 +622,7 @@ get_arch_from_file(File) ->
 		                [{file,_}, {module,_}, {chunks,C}] = beam_lib:info(Bn),
 		                Fun = fun({X, _, _}) -> case X of
 		                                    "Atom" -> true ;
+		                                    "AtU8" -> true ;
 		                                    "Code" -> true ;
 		                                    "StrT" -> true ;
 		                                    "ImpT" -> true ;
@@ -632,6 +633,7 @@ get_arch_from_file(File) ->
 		                                    "Attr" -> true ;
 		                                    "CInf" -> true ;
 		                                    "Abst" -> true ;
+		                                    "Dbgi" -> true ;
 		                                    "Line" -> true ;
 		                                    _      -> false 
 		                                end end,
