@@ -34,20 +34,32 @@ Example on a test project using cowboy :
 ```
    R15                   20.0       Geas database       
 ---Min--------Arch-------Max----------------------------------------------------
-   R15B02                           cowboy               
-                                    cowlib               
+   R16B                             cowboy               
+                         19.3       cowlib               
                                     ranch                
-   R16B02                18.1       test                 
+   R16B                  18.1       test                 
 --------------------------------------------------------------------------------
-   R16B02                18.1       Global project       
+   R16B                  18.1       Global project       
 
-Total : R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
+Total : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
+
+/home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
+R16B      erlang:integer_to_binary/1
+
+/home/eric/git/test/deps/cowboy/ebin/cowboy_req.beam
+R16B      erlang:integer_to_binary/1
+
+/home/eric/git/test/deps/cowboy/ebin/cowboy_static.beam
+R16B      erlang:integer_to_binary/1
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
 R15B02    crypto:hash/2
 
+/home/eric/git/test/deps/cowlib/ebin/cow_multipart.beam
+19.3      crypto:rand_bytes/1
+
 /home/eric/git/test/ebin/test.beam
-R16B02    application:ensure_all_started/1
+R16B      erlang:binary_to_integer/1
 
 18.1      ssh_message:encode_host_key/1
 ```
