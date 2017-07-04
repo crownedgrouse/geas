@@ -64,7 +64,7 @@ R16B      erlang:binary_to_integer/1
 18.1      ssh_message:encode_host_key/1
 ```
 
-The global project can run starting R16B02 up to 18.1 in such case, due to use of a function introduced in R16B02 and another one removed in 18.2.
+The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
 
 Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. User can exclude release(s) with `GEAS_EXC_RELS` environment variable.
 
