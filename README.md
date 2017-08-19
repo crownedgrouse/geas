@@ -243,6 +243,10 @@ See [API changelog](https://github.com/crownedgrouse/geas/wiki/API-changelog) fo
 8> geas:lowest_version("R15B03","18.2.1"). 
 "R15B03"
 
+9> geas:git_tag("R16B03").
+"OTP_R16B03"
+10> geas:git_tag("19.3").  
+"OTP-19.3"
 
 ```
 ## Quick Start ##
