@@ -792,6 +792,7 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
+get_erlang_version("7.1.4")     -> {"20.2", "20.2", "20.2"};
 get_erlang_version("7.1.2")     -> {"20.1", "20.1", "20.1"};
 get_erlang_version("7.1")       -> {"20.0", "20.0", "20.0"};
 get_erlang_version("7.0.4")     -> {"19.3", "19.3", "19.3"};
