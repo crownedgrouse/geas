@@ -32,7 +32,7 @@ A plugin is available for `erlang.mk` and `rebar` .
 Example on a test project using cowboy :
 
 ```
-   R15                   20.1       Geas database
+   R15                   20.2       Geas database
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy
                          19.3       cowlib
