@@ -37,7 +37,7 @@ Example on a test project using cowboy :
    R16B                             cowboy
                          19.3       cowlib
                                     ranch
-              x86        18.1       test
+   R16B       x86        18.1       test
 --------------------------------------------------------------------------------
    R16B       x86        18.1       Global project
 
