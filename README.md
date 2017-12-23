@@ -37,9 +37,9 @@ Example on a test project using cowboy :
    R16B                             cowboy
                          19.3       cowlib
                                     ranch
-   R16B                  18.1       test
+              x86                   test
 --------------------------------------------------------------------------------
-   R16B                  18.1       Global project
+   R16B       x86        19.3       Global project
 
 Total : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
@@ -65,6 +65,7 @@ R16B      erlang:binary_to_integer/1
 ```
 
 The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
+Native x86 compilation was detected on test module.
 
 Available local releases in the release window is proposed if `GEAS_MY_RELS` is set. User can exclude release(s) with `GEAS_EXC_RELS` environment variable.
 
