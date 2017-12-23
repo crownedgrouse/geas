@@ -605,7 +605,7 @@ get_word() -> N = erlang:system_info({wordsize, internal}) +
 get_arch(false, _) -> map_arch(erlang:system_info(hipe_architecture));
 
 get_arch(true, EbinDir)  -> Beams = filelib:wildcard("*.beam", EbinDir),
-                            [C] = lists:flatmap(fun(F) -> [get_arch_from_file(filename:join(EbinDir, F))] end, Beams),
+                            C = hd(lists:usort(lists:flatmap(fun(F) -> [get_arch_from_file(filename:join(EbinDir, F))] end, Beams))),
                             C.
 
 %%-------------------------------------------------------------------------
