@@ -74,7 +74,7 @@ mod_app_list() -> T = filename:join(code:priv_dir(geas),"mod2app.term"),
                   M2A = lists:foldl(fun({A, M}, Acc) ->
                                        Acc ++ lists:foldl(fun(Z, Acc1) -> Acc1 ++ [{Z, A}] end, [], M)
                                     end , [], X),
-                  Term = erlang:term_to_binary(lists:flatten(M2A)),
+                  Term = erlang:term_to_binary(lists:flatten(M2A), [compressed]),
                   ok = file:write_file(T, Term).
 
 
