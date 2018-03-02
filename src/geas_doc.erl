@@ -2,9 +2,9 @@
 %%% File:      geas_doc.erl
 %%% @author    Eric Pailleau <geas@crownedgrouse.com>
 %%% @copyright 2015 crownedgrouse.com
-%%% @doc  
+%%% @doc
 %%% Geas' Erlang releases inventory generator
-%%% @end  
+%%% @end
 %%%
 %%% Permission to use, copy, modify, and/or distribute this software
 %%% for any purpose with or without fee is hereby granted, provided
@@ -28,7 +28,7 @@
 -export([release_infos/1, release_infos/2]).
 -export([release_diff/2, release_diff_yaml/2, release_diff_files/2, release_diff_yaml_files/2]).
 
--export([relinfo/1, relinfo/2, reldiff/4, relinfo_term/2]).
+-export([relinfo/1, relinfo/2, reldiff/4, relinfo_term/2, mod_app_list/0]).
 
 %%-------------------------------------------------------------------------
 %% @doc Return Erlang Release version infos
@@ -37,13 +37,14 @@
 -spec release_infos(list()) -> list().
 
 release_infos(Rel) -> R = [{release, list_to_atom(Rel)},
-                           {otp_release, list_to_atom(erlang:system_info(otp_release))}, 
+                           {otp_release, list_to_atom(erlang:system_info(otp_release))},
                            {version, list_to_atom(erlang:system_info(version))},
                            {driver_version, list_to_atom(erlang:system_info(driver_version))},
                            {nif_version, list_to_atom(case catch erlang:system_info(nif_version) of
                                                            {'EXIT', _} -> "undefined";
                                                            V           -> V
                                                       end)}],
+                      mod_app_list(),
                       MF = release_fa(),
                       lists:flatten([R, MF]) .
 
@@ -63,25 +64,47 @@ release_infos(term, File) ->  {ok, Io} = file:open(File, [write]),
                               io:format(Io,"~p.~n",[release_infos(filename:basename(File))]),
                               file:close(Io).
 
+ %%-------------------------------------------------------------------------
+%% @doc Create list of modules and their associated application
+%% @end
+%%-------------------------------------------------------------------------
+mod_app_list() -> T = filename:join(code:priv_dir(geas),"mod2app.term"),
+                  filelib:ensure_dir(T),
+                  X = load_all(),
+                  M2A = lists:foldl(fun({A, M}, Acc) ->
+                                       Acc ++ lists:foldl(fun(Z, Acc1) -> Acc1 ++ [{Z, A}] end, [], M)
+                                    end , [], X),
+                  Term = erlang:term_to_binary(lists:flatten(M2A)),
+                  ok = file:write_file(T, Term).
+
+
+%%-------------------------------------------------------------------------
+%% @doc Load all application
+%%      And return associated modules per application
+%% @end
+%%-------------------------------------------------------------------------
+load_all() ->
+      {ok, AppsVsn} = file:list_dir(code:lib_dir()),
+      Apps = lists:map(fun(A) -> [H | _] = string:tokens(A,[$-]), list_to_atom(H) end, AppsVsn),
+      lists:foldl(fun(A, Acc) -> application:load(A),
+                                 L = case application:get_key(A,modules) of
+                                       {ok, List} -> lists:foreach(fun(X) -> catch X:module_info() end, List), List ;
+                                       undefined  -> []
+                                     end,
+                                 lists:flatten(Acc ++ [{A, L}])
+                     end, [], Apps).
+
 %%-------------------------------------------------------------------------
 %% @doc List module:function/arity of Erlang Release
 %% @end
 %%-------------------------------------------------------------------------
 -spec release_fa() -> {mfa, list()}.
 
-release_fa() ->    {ok, AppsVsn} = file:list_dir(code:lib_dir()),
-                   Apps = lists:map(fun(A) -> [H | _] = string:tokens(A,[$-]), list_to_atom(H) end, AppsVsn),
-                   lists:foreach(fun(A) -> application:load(A),
-                                           case application:get_key(A,modules) of
-                                                {ok, List} -> lists:foreach(fun(X) -> catch X:module_info() end, List) ;
-                                                undefined  -> ok
-                                           end
-                                 end, Apps),
-                   M = lists:sort(lists:delete(?MODULE,erlang:loaded())),
+release_fa() ->    M = lists:sort(lists:delete(?MODULE,erlang:loaded())),
                    % For each module get the functions and arity
-                   MF = lists:map(fun(X) ->  {X, lists:map(fun({F, A}) -> 
-                                                            list_to_atom(atom_to_list(F)++"/"++integer_to_list(A)) 
-                                                           end, lists:sort(X:module_info(exports)))} 
+                   MF = lists:map(fun(X) ->  {X, lists:map(fun({F, A}) ->
+                                                            list_to_atom(atom_to_list(F)++"/"++integer_to_list(A))
+                                                           end, lists:sort(X:module_info(exports)))}
                                   end, M),
                    {mfa, MF}.
 
@@ -128,7 +151,7 @@ release_diff(R1, R2) -> % List new/deleted modules
 %%-------------------------------------------------------------------------
 -spec release_diff_yaml(list(), list()) -> ok.
 
-release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)). 
+release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)).
 
 %%-------------------------------------------------------------------------
 %% @doc Release difference from two Release informations in YAML file
@@ -164,7 +187,7 @@ diff_modules(R1, R2) ->  {mfa, M1} = lists:keyfind(mfa, 1, R1),
 %%-------------------------------------------------------------------------
 -spec diff_funcs(list(), list()) -> {list(), list()}.
 
-diff_funcs(R1, R2) -> 
+diff_funcs(R1, R2) ->
                         {mfa, M1} = lists:keyfind(mfa, 1, R1),
                         {mfa, M2} = lists:keyfind(mfa, 1, R2),
 
@@ -199,16 +222,16 @@ yamlize(X, Io) -> io:format(Io, "%YAML 1.2~n---~n", []),
                   yamlize(X, -1, Io),
                   io:format(Io, "...~n", []) .
 
-yamlize(A, D, Io) when is_atom(A) 
+yamlize(A, D, Io) when is_atom(A)
                   -> io:format(Io,"~s- ~s~n",[string:copies("   ", D), A]);
 
-yamlize({A, B}, D, Io) when is_list(B) 
+yamlize({A, B}, D, Io) when is_list(B)
                        -> io:format(Io,"~s~s:~n",[string:copies("   ", D), A]),
                           yamlize(B, D, Io);
 
 yamlize({A, B}, D, Io) -> io:format(Io,"~s~s: ~s~n",[string:copies("   ", D ) , A, B]);
 
-yamlize([H | T], D, Io) when is_atom(H) 
+yamlize([H | T], D, Io) when is_atom(H)
                         -> yamlize(H, D, Io),
                            yamlize(T, D, Io);
 
