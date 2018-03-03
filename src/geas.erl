@@ -1536,3 +1536,25 @@ git_tag(X) -> case string:substr(X, 1, 1) of
                               _   -> "OTP-" ++ X
               end.
 
+%%-------------------------------------------------------------------------
+%% @doc Parse otp_versions.table
+%% @end
+%%-------------------------------------------------------------------------
+parse_otp_table() ->
+   S = filename:join(code:priv_dir(geas), "otp_versions.table"),
+   {ok, B} = file:read_file(S),
+   Raw = binary:split(B, <<"\n">>, [trim_all, global]),
+   Net = lists:foldl(fun(X, Acc) -> [N | _] = binary:split(X, <<"#">>,[trim_all, global]),
+                                    [L, R] = binary:split(N, <<":">>, [trim_all, global]),
+                                    [_, V] = binary:split(L, <<"-">>, [trim_all, global]),
+                                    P_ = binary:split(R, <<" ">>, [trim_all, global]),
+                                    P  = lists:flatmap(fun(Z) -> [erlang:binary_to_list(Z)] end, P_),
+                                    Acc ++ [{erlang:binary_to_list(V), P}]
+                     end, [], Raw),
+   Net.
+
+%%-------------------------------------------------------------------------
+%% @doc Get application rep name
+%% @end
+%%-------------------------------------------------------------------------
+get_rep_name(App) -> filename:basename(code:lib_dir(App)).
