@@ -1207,6 +1207,15 @@ compat(RootDir, print) ->
 										 false -> ok
 									  end
 					end,
+					% Display Current and Recommanded Erlang release
+					case os:getenv("GEAS_TIPS_RELS") of
+                  false -> ok ;
+                  "0"   -> ok ;
+                  "1"   -> application:load(compiler),
+                           {ok, Cvsn} = application:get_key(compiler, vsn),
+                           {_, Current, _} = get_erlang_version(Cvsn),
+                           io:format("Curr. : ~ts~n",[Current])
+					end,
                ok.
 
 %%-------------------------------------------------------------------------
