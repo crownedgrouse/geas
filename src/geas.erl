@@ -1179,14 +1179,14 @@ compat(RootDir, print) ->
                Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
                case os:getenv("GEAS_MY_RELS") of
 							   false -> ok ;
-							   "" -> io:format("~nTotal : ~ts~n",[string:join(Rels, " ")]);
-							   _  -> io:format("~nLocal : ~ts~n",[string:join(Rels, " ")])
+							   "" -> io:format("~nT : ~ts~n",[string:join(Rels, " ")]);
+							   _  -> io:format("~nL : ~ts~n",[string:join(Rels, " ")])
 					end,
 					case os:getenv("GEAS_EXC_RELS") of
 							   false -> ok ;
 							   Exc   -> case pickup_rel(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, false), string:tokens(Exc, " ")) of
                                     []       -> ok ;
-                                    InWindow -> io:format("Excl. : ~ts~n",[string:join(InWindow," ")])
+                                    InWindow -> io:format("E : ~ts~n",[string:join(InWindow," ")])
 										   end
 					end,
 					% Display Discarded release due to known bugs
@@ -1202,7 +1202,7 @@ compat(RootDir, print) ->
 												 DL = in_window(MinGlob, distinct_disc_rels(Disc), MaxGlob),
 												 case DL of
 													 [] -> ok ;
-												     DL -> io:format("Disc. : ~ts~n",[string:join(DL," ")])
+												     DL -> io:format("D : ~ts~n",[string:join(DL," ")])
 												 end;
 										 false -> ok
 									  end
@@ -1214,7 +1214,12 @@ compat(RootDir, print) ->
                   "1"   -> application:load(compiler),
                            {ok, Cvsn} = application:get_key(compiler, vsn),
                            {_, Current, _} = get_erlang_version(Cvsn),
-                           io:format("Curr. : ~ts~n",[Current])
+                           io:format("C : ~ts~n",[Current]),
+                           Patches = list_installed_patches(Current),
+                           case Patches of
+                              [] -> ok ;
+                              _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
+                           end
 					end,
                ok.
 
@@ -1537,6 +1542,39 @@ git_tag(X) -> case string:substr(X, 1, 1) of
               end.
 
 %%-------------------------------------------------------------------------
+%% @doc List currently installed patches
+%% @end
+%%-------------------------------------------------------------------------
+list_installed_patches(Current) ->
+   P = list_potential_patches(Current),
+   % For each potential patch, see if all updated application are found in lib_dir
+   A =lists:foldl(fun({L, R}, Acc) ->
+                   case lists:all(fun(X)-> [Nameb, _] = binary:split(list_to_binary(X), <<"-">>, [trim_all, global]),
+                                            Name = list_to_atom(binary_to_list(Nameb)),
+                                           code:lib_dir(Name) == filename:join(code:lib_dir(), X)
+                                  end , R) of
+                     false -> Acc ;
+                     true  -> lists:flatten(Acc ++ [list_to_atom(L)])
+                   end
+               end, [], P),
+   lists:flatmap(fun(X) -> [atom_to_list(X)] end, A).
+
+%%-------------------------------------------------------------------------
+%% @doc List possible patches for current release
+%% @end
+%%-------------------------------------------------------------------------
+list_potential_patches(Current) ->
+   O = parse_otp_table(),
+   {Poss, _} = lists:partition(fun({L, _R}) -> % Keep L when not current release
+                                        case L of
+                                             Current -> false ;
+                                             _ -> % Keep L when a patche of current release
+                                                  lists:prefix(Current, L)
+                                        end
+                                end, O),
+   Poss.
+
+%%-------------------------------------------------------------------------
 %% @doc Parse otp_versions.table
 %% @end
 %%-------------------------------------------------------------------------
@@ -1549,7 +1587,7 @@ parse_otp_table() ->
                                     [_, V] = binary:split(L, <<"-">>, [trim_all, global]),
                                     P_ = binary:split(R, <<" ">>, [trim_all, global]),
                                     P  = lists:flatmap(fun(Z) -> [erlang:binary_to_list(Z)] end, P_),
-                                    Acc ++ [{erlang:binary_to_list(V), P}]
+                                    Acc ++ [{string:strip(erlang:binary_to_list(V)), P}]
                      end, [], Raw),
    Net.
 
@@ -1557,4 +1595,4 @@ parse_otp_table() ->
 %% @doc Get application rep name
 %% @end
 %%-------------------------------------------------------------------------
-get_rep_name(App) -> filename:basename(code:lib_dir(App)).
+%get_rep_name(App) -> filename:basename(code:lib_dir(App)).
