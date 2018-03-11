@@ -43,6 +43,8 @@ Example on a test project using cowboy :
 --------------------------------------------------------------------------------
    R16B       x86        18.1       Global project
 
+C : 20.2
+P : 20.2.3 20.2.2 20.2.1
 T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
@@ -66,6 +68,7 @@ R16B      erlang:binary_to_integer/1
 18.1      ssh_message:encode_host_key/1
 ```
 
+Current (C) Erlang release found is `20.2` and some patches (P) was detected.
 The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
 Native x86 compilation was detected on test module.
 
