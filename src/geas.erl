@@ -1177,10 +1177,11 @@ compat(RootDir, print) ->
                io:format("~80s~n",[string:copies("-",80)]),
                io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
                Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
+               io:format("~n",[]),
                case os:getenv("GEAS_MY_RELS") of
 							   false -> ok ;
-							   "" -> io:format("~nT : ~ts~n",[string:join(Rels, " ")]);
-							   _  -> io:format("~nL : ~ts~n",[string:join(Rels, " ")])
+							   "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
+							   _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
 					end,
 					case os:getenv("GEAS_EXC_RELS") of
 							   false -> ok ;
@@ -1207,19 +1208,21 @@ compat(RootDir, print) ->
 										 false -> ok
 									  end
 					end,
-					% Display Current and Recommanded Erlang release
+					% Always display current version detected and patches found
+					application:load(compiler),
+               {ok, Cvsn} = application:get_key(compiler, vsn),
+               {_, Current, _} = get_erlang_version(Cvsn),
+               io:format("C : ~ts~n",[Current]),
+               Patches = list_installed_patches(Current),
+               case Patches of
+                  [] -> ok ;
+                  _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
+               end,
+					% Display Recommanded Erlang release if requested
 					case os:getenv("GEAS_TIPS_RELS") of
                   false -> ok ;
                   "0"   -> ok ;
-                  "1"   -> application:load(compiler),
-                           {ok, Cvsn} = application:get_key(compiler, vsn),
-                           {_, Current, _} = get_erlang_version(Cvsn),
-                           io:format("C : ~ts~n",[Current]),
-                           Patches = list_installed_patches(Current),
-                           case Patches of
-                              [] -> ok ;
-                              _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
-                           end
+                  "1"   -> todo
 					end,
                ok.
 
