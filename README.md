@@ -25,7 +25,7 @@ For example , if a dependency is using ``application:ensure_all_started/1`` your
 
 ## Plugins ##
 
-``geas`` is available as a module, but you will probably prefere to use geas plugins with your usual build tool.
+``geas`` is available as a [module](https://github.com/crownedgrouse/geas/wiki/Module-API), but you will probably prefere to use geas plugins with your usual build tool.
 
 Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) and [`rebar`](https://github.com/crownedgrouse/geas/wiki/Rebar-plugins) .
 
