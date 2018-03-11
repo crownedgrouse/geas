@@ -81,7 +81,7 @@ Environment variables cheatsheet :
 `GEAS_MY_RELS`   | `string`       | Erlang release list   | Listing possible releases             | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#listing-possible-releases)
 `GEAS_EXC_RELS`  | `string`       | Erlang release list   | Exclude some releases                 | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#exclude-some-releases)
 `GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations)
-`GEAS_TIPS_RELS` | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [WIP]
+`GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [WIP]
 
 
 ## Quick Start ##

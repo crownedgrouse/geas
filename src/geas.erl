@@ -1219,7 +1219,7 @@ compat(RootDir, print) ->
                   _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
                end,
 					% Display Recommanded Erlang release if requested
-					case os:getenv("GEAS_TIPS_RELS") of
+					case os:getenv("GEAS_TIPS") of
                   false -> ok ;
                   "0"   -> ok ;
                   "1"   -> todo
