@@ -89,9 +89,16 @@ info(Dir) when is_list(Dir) ->
             % Variables
             EbinDir   = filename:join(Dir, "ebin"),
             CsrcDir   = filename:join(Dir, "c_src"),
+            SrcDir   = filename:join(Dir, "src"),
             Driver    = is_using_driver(CsrcDir),
             ?COMMON_DIR(EbinDir) ,
-            Compat    = get_erlang_compat(Dir),
+            InfoDir = case os:getenv("GEAS_USE_SRC") of
+                        false -> EbinDir ;
+                        "0"   -> EbinDir ;
+                        "1"   -> SrcDir;
+                        _     -> EbinDir
+                     end,
+            Compat    = get_erlang_compat(InfoDir),
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
 
@@ -102,6 +109,9 @@ info(Dir) when is_list(Dir) ->
             Maint     = get_maintainer(VCS),
             CL        = get_changelog(),
             RN        = get_releasenotes(),
+
+            {_, Current, _} = Erlang,
+            Patches   = list_installed_patches(Current),
 
             {ok,
             [{name, AppName},
@@ -121,7 +131,8 @@ info(Dir) when is_list(Dir) ->
              {maintainer, Maint},
              {changelog, CL},
              {releasenotes, RN},
-             {driver, Driver}]}
+             {driver, Driver},
+             {patches, Patches}]}
        catch
            throw:Reason -> {error, Reason}
        after
@@ -158,6 +169,9 @@ what(Dir) when is_list(Dir) ->
 what_dir(Dir) ->
             ?COMMON_DIR(Dir) ,
             Compat    = get_erlang_compat(Dir),
+            {_, Current, _} = Erlang,
+            Patches   = list_installed_patches(Current),
+
             {ok,
                 [{name, AppName},
                  {version, Version},
@@ -171,7 +185,8 @@ what_dir(Dir) ->
                  {compile, Comp},
                  {erlang, Erlang},
                  {compat, Compat},
-                 {author, Author}]}.
+                 {author, Author},
+                 {patches, Patches}]}.
 
 %%-------------------------------------------------------------------------
 %% @doc what/1 on a single beam file
@@ -196,6 +211,8 @@ what_beam(File) ->
             Comp      = get_compile_version(File),
             Erlang    = get_erlang_version(Comp),
             Compat    = get_erlang_compat_file(File),
+            {_, Current, _} = Erlang,
+            Patches   = list_installed_patches(Current),
 
             {ok,
                 [{name, Name},
@@ -209,7 +226,8 @@ what_beam(File) ->
                  {compile, Comp},
                  {erlang, Erlang},
                  {compat, Compat},
-                 {author, Author}]}.
+                 {author, Author},
+                 {patches, Patches}]}.
 
 %%-------------------------------------------------------------------------
 %% @doc Is the directory existing and readable ?
@@ -792,6 +810,7 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
+get_erlang_version("7.1.5")     -> {"20.3", "20.3", "20.3"};
 get_erlang_version("7.1.4")     -> {"20.2", "20.2", "20.2"};
 get_erlang_version("7.1.2")     -> {"20.1", "20.1", "20.1"};
 get_erlang_version("7.1")       -> {"20.0", "20.0", "20.0"};
@@ -835,24 +854,25 @@ get_erlang_version(_)           -> undefined.
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
 
-get_erlang_compat(Dir) -> NbBeams =  length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))),
-						  Joker = case os:getenv("GEAS_USE_SRC") of
-										_ when (NbBeams == 0) -> "src/**/*.erl" ;
-							   			false -> "ebin/*.beam" ;
-							   			"0"   -> "ebin/*.beam" ;
-							   			"1"   -> "src/**/*.erl"
-				   		  		  end,
-						  Beams = filelib:wildcard(Joker, Dir),
-                          X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
-                          {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
-						  DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
-                          % Get the highest version of Min releases of all beam
-                          MinR = highest_version(MinList),
-                          % Get the lowest version of Max releases of all beam
-                          MaxR = lowest_version(MaxList),
-					      % Keep memory of releases to discard
-						  ?STORE(geas_disc, DiscList),
-                          {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
+get_erlang_compat(Dir) ->
+   NbBeams =  length(filelib:wildcard("*.beam", Dir)),
+   Joker = case os:getenv("GEAS_USE_SRC") of
+                  _ when (NbBeams == 0) -> "**/*.erl" ;
+                  false -> "*.beam" ;
+                  "0"   -> "*.beam" ;
+                  "1"   -> "**/*.erl"
+           end,
+   Beams = filelib:wildcard(Joker, Dir),
+   X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
+                  {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
+   DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
+   % Get the highest version of Min releases of all beam
+   MinR = highest_version(MinList),
+   % Get the lowest version of Max releases of all beam
+   MaxR = lowest_version(MaxList),
+   % Keep memory of releases to discard
+   ?STORE(geas_disc, DiscList),
+   {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam from file
@@ -860,16 +880,17 @@ get_erlang_compat(Dir) -> NbBeams =  length(filelib:wildcard("*.beam", filename:
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat_file(list()) -> {list(), list(), list(), list()}.
 
-get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(F)] end, [File])),
-                                {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
-						  		DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
-                                % Get the highest version of Min releases of all beam
-                                MinR = highest_version(MinList),
-                                % Get the lowest version of Max releases of all beam
-                                MaxR = lowest_version(MaxList),
-							    % Keep memory of releases to discard
-						  		?STORE(geas_disc, DiscList),
-                                {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
+get_erlang_compat_file(File) ->
+   X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(F)] end, [File])),
+   {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
+   DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
+   % Get the highest version of Min releases of all beam
+   MinR = highest_version(MinList),
+   % Get the lowest version of Max releases of all beam
+   MaxR = lowest_version(MaxList),
+   % Keep memory of releases to discard
+   ?STORE(geas_disc, DiscList),
+   {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam file
@@ -877,28 +898,29 @@ get_erlang_compat_file(File) -> X = lists:usort(lists:flatmap(fun(F) -> [get_erl
 %%-------------------------------------------------------------------------
 -spec get_erlang_compat_beam(list()) -> {list(), list()}.
 
-get_erlang_compat_beam(File) -> % Extract all Erlang MFA in Abstract code
-                                Abs1 = get_abstract(File),
-                                X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
-								?STORE(geas_calls, X),
-                                %io:format("~p~n", [X)])
-                                % Get the min and max release for each MFA
-                                % Get the min release compatible
-                                Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
-								?STORE(geas_minrels, Min),
-                                {MinRelss, _} = lists:unzip(Min),
-                                MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
-                                % Get the max release compatible
-                                Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
-								?STORE(geas_maxrels, Min),
-                                {MaxRelss, _} = lists:unzip(Max),
-                                MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
-								% Get the releases to discard
-								DiscRels = lists:usort(lists:flatten(lists:flatmap(fun(A) -> case rel_disc(A) of
-																		ok -> [] ;
-																		D  -> [{A, D}]
-																   end end, X))),
-                                {highest_version(MinRels), lowest_version(MaxRels), {File, DiscRels}}.
+get_erlang_compat_beam(File) ->
+   % Extract all Erlang MFA in Abstract code
+   Abs1 = get_abstract(File),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
+   ?STORE(geas_calls, X),
+   %io:format("~p~n", [X)])
+   % Get the min and max release for each MFA
+   % Get the min release compatible
+   Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
+   ?STORE(geas_minrels, Min),
+   {MinRelss, _} = lists:unzip(Min),
+   MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
+   % Get the max release compatible
+   Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
+   ?STORE(geas_maxrels, Min),
+   {MaxRelss, _} = lists:unzip(Max),
+   MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
+   % Get the releases to discard
+   DiscRels = lists:usort(lists:flatten(lists:flatmap(fun(A) -> case rel_disc(A) of
+                                                                  ok -> [] ;
+                                                                  D  -> [{A, D}]
+                                                                end end, X))),
+   {highest_version(MinRels), lowest_version(MaxRels), {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
 %% @doc Extract remote call of external functions in abstract code

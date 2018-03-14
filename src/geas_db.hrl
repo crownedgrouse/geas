@@ -7,7 +7,7 @@
 %%% Geas database 
 %%% @end 
 -define('GEAS_MIN_REL', "R15").
--define('GEAS_MAX_REL', "20.2").
+-define('GEAS_MAX_REL', "20.3").
 
 rel_max({beam_validator, file, 1}) -> "17.5" ;
 rel_max({beam_validator, files, 1}) -> "17.5" ;
@@ -1912,6 +1912,11 @@ rel_max({test_server, purify_new_leaks, 0}) -> "20.0" ;
 rel_max({test_server_gl, start_link, 0}) -> "20.0" ;
 rel_max({zlib, getQSize, 1}) -> "20.0" ;
 rel_max({zlib, inflateSync, 1}) -> "20.0" ;
+rel_max({dtls_record, get_dtls_records, 2}) -> "20.2" ;
+rel_max({ssh_channel_sup, start_child, 2}) -> "20.2" ;
+rel_max({ssh_transport, verify, 4}) -> "20.2" ;
+rel_max({ssl_handshake, cipher_suites, 2}) -> "20.2" ;
+rel_max({tls_record, get_tls_records, 2}) -> "20.2" ;
 rel_max({code, start_link, 1}) -> "18.3" ;
 rel_max({code_server, call, 2}) -> "18.3" ;
 rel_max({code_server, system_continue, 3}) -> "18.3" ;
@@ -3913,8 +3918,8 @@ rel_min({cth_log_redirect, pre_init_per_suite, 3}) -> "R16B02" ;
 rel_min({cth_log_redirect, pre_init_per_testcase, 3}) -> "R16B02" ;
 rel_min({diameter_peer_fsm, result_code, 2}) -> "R16B02" ;
 rel_min({dtls_handshake, client_hello, 9}) -> "R16B02" ;
-rel_min({dtls_handshake, dtls_handshake_new_epoch, 1}) -> "R16B02" ;
-rel_min({dtls_handshake, dtls_handshake_new_flight, 1}) -> "R16B02" ;
+%rel_min({dtls_handshake, dtls_handshake_new_epoch, 1}) -> "R16B02" ;
+%rel_min({dtls_handshake, dtls_handshake_new_flight, 1}) -> "R16B02" ;
 rel_min({dtls_handshake, encode_handshake, 4}) -> "R16B02" ;
 rel_min({dtls_handshake, get_dtls_handshake, 2}) -> "R16B02" ;
 rel_min({dtls_handshake, hello, 3}) -> "R16B02" ;
@@ -6550,6 +6555,25 @@ rel_min({tls_connection, protocol_name, 0}) -> "20.1" ;
 rel_min({zlib, inflate, 3}) -> "20.1" ;
 rel_min({zlib, on_load, 0}) -> "20.1" ;
 rel_min({zlib, safeInflate, 2}) -> "20.1" ;
+rel_min({dtls_record, get_dtls_records, 3}) -> "20.3" ;
+rel_min({dtls_v1, anonymous_suites, 1}) -> "20.3" ;
+rel_min({erl_prim_loader, is_basename, 1}) -> "20.3" ;
+rel_min({observer_lib, add_scroll_entries, 2}) -> "20.3" ;
+rel_min({observer_lib, sync_destroy_progress_dialog, 0}) -> "20.3" ;
+rel_min({os, cmd, 2}) -> "20.3" ;
+rel_min({ssh_channel_sup, start_child, 5}) -> "20.3" ;
+rel_min({ssh_transport, adjust_algs_for_peer_version, 2}) -> "20.3" ;
+rel_min({ssh_transport, verify, 5}) -> "20.3" ;
+rel_min({ssl, append_cipher_suites, 2}) -> "20.3" ;
+rel_min({ssl, cipher_suites, 2}) -> "20.3" ;
+rel_min({ssl, filter_cipher_suites, 2}) -> "20.3" ;
+rel_min({ssl, prepend_cipher_suites, 2}) -> "20.3" ;
+rel_min({ssl_cipher, crypto_support_filters, 0}) -> "20.3" ;
+rel_min({ssl_cipher, filter_suites, 2}) -> "20.3" ;
+rel_min({ssl_cipher, psk_suites_anon, 1}) -> "20.3" ;
+rel_min({ssl_cipher, srp_suites_anon, 0}) -> "20.3" ;
+rel_min({ssl_handshake, cipher_suites, 3}) -> "20.3" ;
+rel_min({tls_record, get_tls_records, 3}) -> "20.3" ;
 rel_min({cerl, c_map_pair_exact, 2}) -> "19.0" ;
 rel_min({cerl, is_c_map_pattern, 1}) -> "19.0" ;
 rel_min({cerl_trees, mapfold, 4}) -> "19.0" ;
@@ -6590,8 +6614,8 @@ rel_min({dtls_connection, next_record_if_active, 1}) -> "19.0" ;
 rel_min({dtls_connection, passive_receive, 2}) -> "19.0" ;
 rel_min({dtls_connection, queue_change_cipher, 2}) -> "19.0" ;
 rel_min({dtls_connection, queue_handshake, 2}) -> "19.0" ;
-%rel_min({dtls_handshake, dtls_handshake_new_epoch, 1}) -> "19.0" ;
-%rel_min({dtls_handshake, dtls_handshake_new_flight, 1}) -> "19.0" ;
+rel_min({dtls_handshake, dtls_handshake_new_epoch, 1}) -> "19.0" ;
+rel_min({dtls_handshake, dtls_handshake_new_flight, 1}) -> "19.0" ;
 rel_min({dtls_handshake, hello_verify_request, 1}) -> "19.0" ;
 rel_min({dtls_record, encode_tls_cipher_text, 5}) -> "19.0" ;
 rel_min({dtls_record, highest_protocol_version, 2}) -> "19.0" ;
