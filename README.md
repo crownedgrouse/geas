@@ -96,7 +96,7 @@ A single capital letter is used as tag for each information.
    - P = Patches : List of patches detected to be installed on current release, if any (for example 20.2.2)
    - T = Total   : All releases inside computed release window
       `GEAS_MY_RELS=""`
-   - L = Local   : All local releases given by GEAS_MY_RELS inside computed window
+   - L = Local   : All local releases given by user inside computed window
       `GEAS_MY_RELS="18.1 19.0"`
    - D = Discarded  : Show releases that was automatically discarded
       `GEAS_DISC_RELS=1`
