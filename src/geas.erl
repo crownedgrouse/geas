@@ -1210,6 +1210,22 @@ compat(RootDir, print) ->
                io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
                Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
                io:format("~n",[]),
+					% Always display current version detected and patches found
+					application:load(compiler),
+               {ok, Cvsn} = application:get_key(compiler, vsn),
+               {_, Current, _} = get_erlang_version(Cvsn),
+               io:format("C : ~ts~n",[Current]),
+               Patches = list_installed_patches(Current),
+               case Patches of
+                  [] -> ok ;
+                  _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
+               end,
+					% Display Recommanded Erlang release if requested
+					case os:getenv("GEAS_TIPS") of
+                  false -> ok ;
+                  "0"   -> ok ;
+                  "1"   -> todo
+					end,
                case os:getenv("GEAS_MY_RELS") of
 							   false -> ok ;
 							   "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
@@ -1239,22 +1255,6 @@ compat(RootDir, print) ->
 												 end;
 										 false -> ok
 									  end
-					end,
-					% Always display current version detected and patches found
-					application:load(compiler),
-               {ok, Cvsn} = application:get_key(compiler, vsn),
-               {_, Current, _} = get_erlang_version(Cvsn),
-               io:format("C : ~ts~n",[Current]),
-               Patches = list_installed_patches(Current),
-               case Patches of
-                  [] -> ok ;
-                  _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
-               end,
-					% Display Recommanded Erlang release if requested
-					case os:getenv("GEAS_TIPS") of
-                  false -> ok ;
-                  "0"   -> ok ;
-                  "1"   -> todo
 					end,
                ok.
 
