@@ -82,6 +82,7 @@
 
 info(Dir) when is_list(Dir) ->
         {ok, CurPwd} = file:get_cwd(),
+        put(geas_cwd, CurPwd),
         try
             % Fatal tests
             is_valid_dir(Dir),
@@ -109,8 +110,10 @@ info(Dir) when is_list(Dir) ->
             Maint     = get_maintainer(VCS),
             CL        = get_changelog(),
             RN        = get_releasenotes(),
-
-            {_, Current, _} = Erlang,
+            Current   = case Erlang of
+                        {_, Current_, _} -> Current_ ;
+                        undefined        -> undefined
+                        end,
             Patches   = list_installed_patches(Current),
 
             {ok,
@@ -148,6 +151,7 @@ info(Dir) when is_list(Dir) ->
 
 what(Dir) when is_list(Dir) ->
         {ok, CurPwd} = file:get_cwd(),
+        put(geas_cwd, CurPwd),
         try
             Output = case filelib:is_regular(Dir) of
                         true  -> what_beam(Dir);
@@ -169,7 +173,10 @@ what(Dir) when is_list(Dir) ->
 what_dir(Dir) ->
             ?COMMON_DIR(Dir) ,
             Compat    = get_erlang_compat(Dir),
-            {_, Current, _} = Erlang,
+            Current   = case Erlang of
+                        {_, Current_, _} -> Current_ ;
+                        undefined        -> undefined
+                        end,
             Patches   = list_installed_patches(Current),
 
             {ok,
@@ -211,7 +218,10 @@ what_beam(File) ->
             Comp      = get_compile_version(File),
             Erlang    = get_erlang_version(Comp),
             Compat    = get_erlang_compat_file(File),
-            {_, Current, _} = Erlang,
+            Current   = case Erlang of
+                        {_, Current_, _} -> Current_ ;
+                        undefined        -> undefined
+                        end,
             Patches   = list_installed_patches(Current),
 
             {ok,
@@ -717,18 +727,18 @@ is_native_from_file(File) ->
 -spec get_compile_version(list()) -> list().
 
 get_compile_version(File) ->
-		case filename:extension(File) of
-			".erl" -> ?LOG(geas_logs, {notice, {undefined, compile_version}, File}),
-					  undefined ;
-			_      -> Bn = filename:rootname(File, ".beam"),
-                      case filelib:is_regular(File) of
-                            true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                                    {version, E} = lists:keyfind(version, 1, L),
-                                    E;
-                            false -> ?LOG(geas_logs, {warning, {undefined, compile_version}, File}),
-					  			 	 undefined
-                      end
-		end.
+         case filename:extension(File) of
+            ".erl" -> ?LOG(geas_logs, {notice, {undefined, compile_version}, File}),
+                  undefined ;
+            _      -> Bn = filename:rootname(File, ".beam"),
+                        case filelib:is_regular(File) of
+                              true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
+                                       {version, E} = lists:keyfind(version, 1, L),
+                                       E;
+                              false -> ?LOG(geas_logs, {warning, {undefined, compile_version}, File}),
+                                       undefined
+                        end
+         end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get application name, version, desc from .app file in ebin/ directory
@@ -1152,7 +1162,7 @@ compat(RootDir, term) ->
                     Global = Ps ++ [filename:absname(RootDir)],
                     D = lists:flatmap(fun(X) ->
                                          case catch info(X) of
-										 {ok, I} ->
+										             {ok, I} ->
                                              Compat = lists:keyfind(compat, 1, I),
                                              {compat,{MinDb, Min, Max, MaxDb}} = Compat,
                                              N = lists:keyfind(native, 1, I),
@@ -1171,12 +1181,12 @@ compat(RootDir, term) ->
                                                             true  -> "" ;
                                                             false -> Max
                                                      end,
-											 Name = case filename:basename(X) of
-														"." -> filename:basename(filename:dirname(X)) ;
-														NN  -> NN
-													end,
+											            Name = case filename:basename(X) of
+														             "." -> filename:basename(filename:dirname(X)) ;
+														             NN  -> NN
+													             end,
                                              [{Left , ArchString, Right, Name}] ;
-										 {error, Reason} -> throw({error, Reason})
+										            {error, Reason} -> throw({error, Reason})
 										 end
                                        end, Global),
                     % Get global info
@@ -1570,6 +1580,7 @@ git_tag(X) -> case string:substr(X, 1, 1) of
 %% @doc List currently installed patches
 %% @end
 %%-------------------------------------------------------------------------
+list_installed_patches(undefined) -> [];
 list_installed_patches(Current) ->
    P = list_potential_patches(Current),
    % For each potential patch, see if all updated application are found in lib_dir
@@ -1604,7 +1615,7 @@ list_potential_patches(Current) ->
 %% @end
 %%-------------------------------------------------------------------------
 parse_otp_table() ->
-   S = filename:join(code:priv_dir(geas), "otp_versions.table"),
+   S = filename:join([get(geas_cwd),code:priv_dir(geas), "otp_versions.table"]),
    {ok, B} = file:read_file(S),
    Raw = binary:split(B, <<"\n">>, [trim_all, global]),
    Net = lists:foldl(fun(X, Acc) -> [N | _] = binary:split(X, <<"#">>,[trim_all, global]),
