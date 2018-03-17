@@ -85,8 +85,25 @@ Environment variables cheatsheet :
 `GEAS_USE_SRC`   | `boolean`      | [**0** / 1]           | Use source code instead beam files    | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#using-source-code)
 `GEAS_MY_RELS`   | `string`       | Erlang release list   | List possible releases                | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#listing-possible-releases)
 `GEAS_EXC_RELS`  | `string`       | Erlang release list   | Exclude some releases                 | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#exclude-some-releases)
+`GEAS_DISC_RELS` | `boolean`      | [**0** / 1]           | Show discarded buggy Erlang releases  | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#discard-some-releases)
 `GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations)
 `GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [WIP]
+
+Under compat table output, some informations can be shown depending those environment variables and analyze result.
+A single capital letter is used as tag for each information.
+
+   - C = Current : Current Erlang major.minor release used (for example 20.2)
+   - P = Patches : List of patches detected to be installed on current release, if any (for example 20.2.2)
+   - T = Total   : All releases inside computed release window
+      `GEAS_MY_RELS=""`
+   - L = Local   : All local releases given by GEAS_MY_RELS inside computed window
+      `GEAS_MY_RELS="18.1 19.0"`
+   - D = Discarded  : Show releases that was automatically discarded
+      `GEAS_DISC_RELS=1`
+   - E = Excluded  : User excluded release list
+      `GEAS_EXC_RELS="R16B03"`
+   - R = Recommended : [WIP] Patches that should be applied, because code is using module impacted by a patch for current version
+         `GEAS_TIPS=1`
 
 
 ## Quick Start ##
