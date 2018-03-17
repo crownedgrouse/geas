@@ -16,7 +16,7 @@ Geas will tell you if some beam files are compiled native.
 
 For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B02`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5``.
 
-See [Wiki](https://github.com/crownedgrouse/geas/wiki).
+For more details, see [Wiki](https://github.com/crownedgrouse/geas/wiki).
 
 ## When using it ? ##
 
