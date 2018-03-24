@@ -12,7 +12,7 @@ include erlang.mk
 #-include plugins.mk
 
 otp:
-	cd priv && wget https://raw.githubusercontent.com/erlang/otp/master/otp_versions.table
+	cd priv && rm -f otp_versions.table && wget https://raw.githubusercontent.com/erlang/otp/master/otp_versions.table
 
 clean:: 
 	-@find . -type f -name \*~ -delete
