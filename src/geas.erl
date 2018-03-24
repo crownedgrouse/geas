@@ -716,7 +716,7 @@ is_native_from_file(File) ->
                                     {options, O} = lists:keyfind(options, 1, L),
                                     lists:member(native, O);
                             false -> ?LOG(geas_logs, {warning, {undefined, native}, File}),
-					  			     undefined
+					  			             undefined
                       end
 		end.
 
@@ -729,7 +729,7 @@ is_native_from_file(File) ->
 get_compile_version(File) ->
          case filename:extension(File) of
             ".erl" -> ?LOG(geas_logs, {notice, {undefined, compile_version}, File}),
-                  undefined ;
+                      undefined ;
             _      -> Bn = filename:rootname(File, ".beam"),
                         case filelib:is_regular(File) of
                               true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
@@ -752,12 +752,12 @@ get_app_infos(File) ->  {ok,[{application, App, L}]} = file:consult(File),
                         VSN  = case lists:keyfind(vsn, 1, L) of
                                     {vsn, V} -> V ;
                                     _        -> ?LOG(geas_logs, {warning, {undefined, vsn}, File}),
-					  			 				undefined
+					  			 				            undefined
                                end,
                         Desc = case lists:keyfind(description, 1, L) of
                                     {description, D} -> D ;
                                     _                -> ?LOG(geas_logs, {warning, {undefined, description}, File}),
-					  			 						undefined
+					  			 						              undefined
                                end,
                         {App, VSN, Desc}.
 
@@ -776,12 +776,12 @@ get_date(File) ->
                    	  case filelib:is_regular(File) of
                         true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                                 T = case lists:keyfind(time, 1, L) of
-					{time, X} -> X ;
-					_         -> undefined % not in beam starting 19.0
+                                       {time, X} -> X ;
+                                       _         -> undefined % not in beam starting 19.0
                                     end,
-				T;
+                                    T;
                         false -> ?LOG(geas_logs, {warning, {undefined, 'date'}, File}),
-					  			 undefined
+					  			          undefined
                       end
 		end.
 
@@ -1046,73 +1046,76 @@ highest_version(A, _B) -> A.
 
 versionize([]) -> [];
 versionize(V)  ->
-                 [Pref | Tail] = V,
-                 case Pref of
-                     $R -> Split = re:split(Tail,"([AB])",[{return,list}]),
-                           New = lists:map(fun(X) -> XX = case X of
-                                                                "A" -> "1" ;
-                                                                "B" -> "2" ;
-                                                                X   -> X
-                                                           end,
-                                                           case string:to_integer(XX) of
-                                                                {error, no_integer} -> [] ;
-                                                                {error, not_a_list} -> [] ;
-                                                                {L, []} -> [integer_to_list(L)] ;
-                                                                {L, R} when is_integer(L),
-                                                                            is_list(R) -> [integer_to_list(L) ++ R] ;
-                                                                _                   -> []
-                                                           end
-                                            end, Split),
-                            VV = lists:flatten(string:join(New, ".")),
-                                 VV;
-                     _   -> V
-                 end.
+   [Pref | Tail] = V,
+   case Pref of
+      $R -> Split = re:split(Tail,"([AB])",[{return,list}]),
+            New = lists:map(fun(X) -> XX = case X of
+                                                   "A" -> "1" ;
+                                                   "B" -> "2" ;
+                                                   X   -> X
+                                             end,
+                                             case string:to_integer(XX) of
+                                                   {error, no_integer} -> [] ;
+                                                   {error, not_a_list} -> [] ;
+                                                   {L, []} -> [integer_to_list(L)] ;
+                                                   {L, R} when is_integer(L),
+                                                               is_list(R) -> [integer_to_list(L) ++ R] ;
+                                                   _                   -> []
+                                             end
+                              end, Split),
+               VV = lists:flatten(string:join(New, ".")),
+                  VV;
+      _   -> V
+   end.
 %%-------------------------------------------------------------------------
 %% @doc Give the offending modules/functions that reduce release window
 %% @end
 %%-------------------------------------------------------------------------
-offending(File) -> % check it is a file or exit
-                   case filelib:is_regular(File) of
-                        false -> {error, invalid_argument} ;
-                        true  -> % Apply geas:what on the beam, bring lowest and highest if necessary
-                                 {ok, L } = geas:what(File),
-                                 {compat, Compat} = lists:keyfind(compat, 1, L),
-                                 {A, B, C, D} = Compat,
-                                 MinOff = case A =/= B of
-                                                true -> get_min_offending(B, File) ;
-                                                false -> []
-                                          end,
-                                 MaxOff = case C =/= D of
-                                                true -> get_max_offending(C, File) ;
-                                                false -> []
-                                          end,
-                                 {ok, {MinOff, MaxOff}}
-                   end.
+offending(File) ->
+  % check it is a file or exit
+   case filelib:is_regular(File) of
+      false -> {error, invalid_argument} ;
+      true  -> % Apply geas:what on the beam, bring lowest and highest if necessary
+               {ok, L } = geas:what(File),
+               {compat, Compat} = lists:keyfind(compat, 1, L),
+               {A, B, C, D} = Compat,
+               MinOff = case A =/= B of
+                              true -> get_min_offending(B, File) ;
+                              false -> []
+                        end,
+               MaxOff = case C =/= D of
+                              true -> get_max_offending(C, File) ;
+                              false -> []
+                        end,
+               {ok, {MinOff, MaxOff}}
+   end.
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
 %% @end
 %%-------------------------------------------------------------------------
-get_min_offending(Rel, File) -> Abs = get_abstract(File),
-								X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-							    % From list get the release of offending functions
-							    R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
-							    % Extract only the release we search
-							    R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-							    %% Extract the function
-							    [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}].
+get_min_offending(Rel, File) ->
+   Abs = get_abstract(File),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+   % From list get the release of offending functions
+   R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
+   % Extract only the release we search
+   R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+   %% Extract the function
+   [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}].
 
 %%-------------------------------------------------------------------------
 %% @doc Give the offending max modules/functions that reduce release window
 %% @end
 %%-------------------------------------------------------------------------
-get_max_offending(Rel, File) ->  Abs = get_abstract(File),
-								 X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
-					         	 % From list get the release of offending functions
-					             R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
-					             % Extract only the release we search
-					             R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
-					             %% Extract the function
-					             [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}].
+get_max_offending(Rel, File) ->
+   Abs = get_abstract(File),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+   % From list get the release of offending functions
+   R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
+   % Extract only the release we search
+   R1 = lists:filter(fun({Relx, _A}) -> (Rel == Relx) end, R),
+   %% Extract the function
+   [{Rel, lists:flatmap(fun({_, FF}) -> [FF] end, R1)}].
 
 %%-------------------------------------------------------------------------
 %% @doc Compat output on stdout, mainly for erlang.mk plugin
@@ -1129,275 +1132,297 @@ compat(RootDir, global) -> {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, te
 						   {?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL};
 
 compat(RootDir, term) ->
-					% reset at each run
-					put(geas_logs,[]),
-					put(geas_calls,[]),
-					put(geas_disc,[]),
-					put(geas_minrels,[]),
-					put(geas_maxrels,[]),
-					put(geas_exports,[]),
-					put(geas_attributes,[]),
-					% Get all .beam (or .erl) files recursively
-					Ext = ext_to_search(),
-                    Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
-							 true  -> "deps" ;
-							 false -> "_build"
-						  end,
-                    PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true,
-                            fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
-										 case filename:basename(P) of
-											  "geas" -> Y ; % Exclude geas from results
-											  "src"  -> case lists:member(filename:dirname(P), Y) of
-                                              				true  -> Y ;
-                                              				false -> Y ++ [filename:dirname(P)]
-														end;
-											  _      -> case lists:member(P, Y) of
-                                              				true  -> Y ;
-                                              				false -> Y ++ [P]
-														end
-                                         end
-                            end, []),
-                    % Get all upper project
-                    Ps = lists:usort(PP),
-                    Global = Ps ++ [filename:absname(RootDir)],
-                    D = lists:flatmap(fun(X) ->
-                                         case catch info(X) of
-										             {ok, I} ->
-                                             Compat = lists:keyfind(compat, 1, I),
-                                             {compat,{MinDb, Min, Max, MaxDb}} = Compat,
-                                             N = lists:keyfind(native, 1, I),
-                                             {native, Native} = N,
-                                             A = lists:keyfind(arch, 1, I),
-                                             {arch, Arch} = A,
-                                             ArchString = case Native  of
-                                                               true -> atom_to_list(Arch) ;
-                                                               false -> ""
-                                                          end,
-                                             Left  = case (MinDb =:= Min) of
-                                                            true  -> "" ;
-                                                            false -> Min
-                                                     end,
-                                             Right = case (MaxDb =:= Max) of
-                                                            true  -> "" ;
-                                                            false -> Max
-                                                     end,
-											            Name = case filename:basename(X) of
-														             "." -> filename:basename(filename:dirname(X)) ;
-														             NN  -> NN
-													             end,
-                                             [{Left , ArchString, Right, Name}] ;
-										            {error, Reason} -> throw({error, Reason})
-										 end
-                                       end, Global),
-                    % Get global info
-					MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
-                    MinGlob = highest_version(MinList) ,
-					ArchList = lists:usort(lists:flatmap(fun({_, X, _, _}) -> [X] end, D)),
-                    ArchGlob = tl(ArchList), % Assuming only one arch localy !
-					MaxList = lists:usort([?GEAS_MAX_REL] ++ lists:flatmap(fun({_, _, X, _}) -> [X] end, D)),
-                    MaxGlob = lowest_version(MaxList) ,
-                    {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
+   % reset at each run
+   put(geas_logs,[]),
+   put(geas_calls,[]),
+   put(geas_disc,[]),
+   put(geas_minrels,[]),
+   put(geas_maxrels,[]),
+   put(geas_exports,[]),
+   put(geas_attributes,[]),
+   % Get all .beam (or .erl) files recursively
+   Ext = ext_to_search(),
+   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
+      true  -> "deps" ;
+      false -> "_build"
+   end,
+   PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true,
+            fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
+               case filename:basename(P) of
+                  "geas" -> Y ; % Exclude geas from results
+                  "src"  -> case lists:member(filename:dirname(P), Y) of
+                                       true  -> Y ;
+                                       false -> Y ++ [filename:dirname(P)]
+                        end;
+                  _      -> case lists:member(P, Y) of
+                                       true  -> Y ;
+                                       false -> Y ++ [P]
+                        end
+                        end
+            end, []),
+   % Get all upper project
+   Ps = lists:usort(PP),
+   Global = Ps ++ [filename:absname(RootDir)],
+   D = lists:flatmap(fun(X) ->
+                        case catch info(X) of
+                           {ok, I} ->
+                           Compat = lists:keyfind(compat, 1, I),
+                           {compat,{MinDb, Min, Max, MaxDb}} = Compat,
+                           N = lists:keyfind(native, 1, I),
+                           {native, Native} = N,
+                           A = lists:keyfind(arch, 1, I),
+                           {arch, Arch} = A,
+                           ArchString = case Native  of
+                                             true -> atom_to_list(Arch) ;
+                                             false -> ""
+                                          end,
+                           Left  = case (MinDb =:= Min) of
+                                          true  -> "" ;
+                                          false -> Min
+                                    end,
+                           Right = case (MaxDb =:= Max) of
+                                          true  -> "" ;
+                                          false -> Max
+                                    end,
+                           Name = case filename:basename(X) of
+                                       "." -> filename:basename(filename:dirname(X)) ;
+                                       NN  -> NN
+                                    end,
+                           [{Left , ArchString, Right, Name}] ;
+                        {error, Reason} -> throw({error, Reason})
+               end
+                     end, Global),
+   % Get global info
+   MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
+   MinGlob = highest_version(MinList) ,
+   ArchList = lists:usort(lists:flatmap(fun({_, X, _, _}) -> [X] end, D)),
+   ArchGlob = tl(ArchList), % Assuming only one arch localy !
+   MaxList = lists:usort([?GEAS_MAX_REL] ++ lists:flatmap(fun({_, _, X, _}) -> [X] end, D)),
+   MaxGlob = lowest_version(MaxList) ,
+   {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
 
 compat(RootDir, print) ->
-					{{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
-               % Display log if needed
-               geas:log(),
-               % Display header
-               io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
-               io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
-               lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
-               io:format("~80s~n",[string:copies("-",80)]),
-               io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
-               Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
-               io:format("~n",[]),
-					% Always display current version detected and patches found
-					application:load(compiler),
-               {ok, Cvsn} = application:get_key(compiler, vsn),
-               {_, Current, _} = get_erlang_version(Cvsn),
-               io:format("C : ~ts~n",[Current]),
-               Patches = list_installed_patches(Current),
-               case Patches of
-                  [] -> ok ;
-                  _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
-               end,
-					% Display Recommanded Erlang release if requested
-					case os:getenv("GEAS_TIPS") of
-                  false -> ok ;
-                  "0"   -> ok ;
-                  "1"   -> todo
-					end,
-               case os:getenv("GEAS_MY_RELS") of
-							   false -> ok ;
-							   "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
-							   _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
-					end,
-					case os:getenv("GEAS_EXC_RELS") of
-							   false -> ok ;
-							   Exc   -> case pickup_rel(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, false), string:tokens(Exc, " ")) of
-                                    []       -> ok ;
-                                    InWindow -> io:format("E : ~ts~n",[string:join(InWindow," ")])
-										   end
-					end,
-					% Display Discarded release due to known bugs
-               case erlang:get(geas_disc) of
-						 undefined -> ok ;
-						 Disc      -> ShowDisc = case os:getenv("GEAS_DISC_RELS") of
-													false -> true ;
-													"1"   -> true ;
-													"0"   -> false
-               			  						 end,
-									  case ShowDisc of
-										 true -> % Do not display if outside of window
-												 DL = in_window(MinGlob, distinct_disc_rels(Disc), MaxGlob),
-												 case DL of
-													 [] -> ok ;
-												     DL -> io:format("D : ~ts~n",[string:join(DL," ")])
-												 end;
-										 false -> ok
-									  end
-					end,
-               ok.
+   {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
+   % Display log if needed
+   geas:log(),
+   % Display header
+   io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
+   io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
+   lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
+   io:format("~80s~n",[string:copies("-",80)]),
+   io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
+   Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
+   io:format("~n",[]),
+   % Always display current version detected and patches found
+   application:load(compiler),
+   {ok, Cvsn} = application:get_key(compiler, vsn),
+   {_, Current, _} = get_erlang_version(Cvsn),
+   io:format("C : ~ts~n",[Current]),
+   Patches = list_installed_patches(Current),
+   case Patches of
+      [] -> ok ;
+      _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
+   end,
+   % Display Recommanded Erlang release if requested
+   case os:getenv("GEAS_TIPS") of
+      false -> ok ;
+      "0"   -> ok ;
+      "1"   -> Rec = get_recommanded_patches(Current),
+               case Rec of
+                  []  -> ok;
+                  Rec -> io:format("R : ~ts~n", [string:join(Rec, " ")])
+               end
+   end,
+   case os:getenv("GEAS_MY_RELS") of
+            false -> ok ;
+            "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
+            _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
+   end,
+   case os:getenv("GEAS_EXC_RELS") of
+            false -> ok ;
+            Exc   -> case pickup_rel(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, false), string:tokens(Exc, " ")) of
+                        []       -> ok ;
+                        InWindow -> io:format("E : ~ts~n",[string:join(InWindow," ")])
+                     end
+   end,
+   % Display Discarded release due to known bugs
+   case erlang:get(geas_disc) of
+         undefined -> ok ;
+         Disc      -> ShowDisc = case os:getenv("GEAS_DISC_RELS") of
+                           false -> false ;
+                           "1"   -> true ;
+                           "0"   -> false
+                                 end,
+                  case ShowDisc of
+                     true -> % Do not display if outside of window
+                           DL = in_window(MinGlob, distinct_disc_rels(Disc), MaxGlob),
+                           case DL of
+                              [] -> ok ;
+                              DL -> io:format("D : ~ts~n",[string:join(DL," ")])
+                           end;
+                     false -> ok
+                  end
+   end,
+   ok.
 
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
 %% @end
 %%-------------------------------------------------------------------------
 
-guilty(RootDir) -> Ext = ext_to_search(),
-				   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
-							 true  -> "deps" ;
-							 false -> "_build"
-						  end,
-				   DirS = dir_to_search(),
-				   Bs1 = filelib:fold_files(filename:join(RootDir, Dir), Ext, true,
-                            				fun(X, Y) -> Y ++ [X] end, []),
-				   Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true,
-                            				fun(X, Y) -> Y ++ [X] end, []),
-				   Bs = Bs1 ++ Bs2,
-				   % Check Offendings for each beam / erl
-				   All = lists:flatmap(fun(X) -> Off = offending(X),
-										   case Off of
-												{ok, []}          -> [] ;
-												{ok, {[],[]}}     -> [] ;
-												{ok, {[{[],[]}],[]}} -> [] ;
-												{ok, {[],[{[],[]}]}} -> [] ;
-												{ok,{[{[],[]}],[{[],[]}]}} -> [] ;
-												{ok,{Left,Right}} -> [{X, Left, Right}] ;
-												_E                -> []
-										   end
-								       end, Bs),
-				   lists:foreach(fun({_F, L, R}) ->
-								   io:format("~n~ts", [_F]) ,
-								   case L of
-										[{Min, MinList}] -> io:format("~n~-10ts", [Min]),
-															LL = lists:flatmap(fun({M, F, A}) ->
-																				[atom_to_list(M) ++ ":" ++
-																				 atom_to_list(F) ++ "/" ++
-																				 integer_to_list(A)] end, MinList),
-															io:format("~ts~n", [string:join(LL, ", ")]) ;
-										_  -> ok
-								   end,
-								   case R of
-										[{Max, MaxList}] -> io:format("~n~-10ts", [Max]),
-															RR = lists:flatmap(fun({M, F, A}) ->
-																				[atom_to_list(M) ++ ":" ++
-																				 atom_to_list(F) ++ "/" ++
-																				 integer_to_list(A)] end, MaxList),
-															io:format("~ts~n", [string:join(RR, ", ")]) ;
-										_  -> ok
-								   end
+guilty(RootDir) ->
+   Ext = ext_to_search(),
+   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
+            true  -> "deps" ;
+            false -> "_build"
+         end,
+   DirS = dir_to_search(),
+   Bs1 = filelib:fold_files(filename:join(RootDir, Dir), Ext, true,
+                           fun(X, Y) -> Y ++ [X] end, []),
+   Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true,
+                           fun(X, Y) -> Y ++ [X] end, []),
+   Bs = Bs1 ++ Bs2,
+   % Check Offendings for each beam / erl
+   All = lists:flatmap(fun(X) -> Off = offending(X),
+                     case Off of
+                        {ok, []}          -> [] ;
+                        {ok, {[],[]}}     -> [] ;
+                        {ok, {[{[],[]}],[]}} -> [] ;
+                        {ok, {[],[{[],[]}]}} -> [] ;
+                        {ok,{[{[],[]}],[{[],[]}]}} -> [] ;
+                        {ok,{Left,Right}} -> [{X, Left, Right}] ;
+                        _E                -> []
+                     end
+                     end, Bs),
+   lists:foreach(fun({_F, L, R}) ->
+               io:format("~n~ts", [_F]) ,
+               case L of
+                  [{Min, MinList}] -> io:format("~n~-10ts", [Min]),
+                                 LL = lists:flatmap(fun({M, F, A}) ->
+                                                [atom_to_list(M) ++ ":" ++
+                                                   atom_to_list(F) ++ "/" ++
+                                                   integer_to_list(A)] end, MinList),
+                                 io:format("~ts~n", [string:join(LL, ", ")]) ;
+                  _  -> ok
+               end,
+               case R of
+                  [{Max, MaxList}] -> io:format("~n~-10ts", [Max]),
+                                 RR = lists:flatmap(fun({M, F, A}) ->
+                                                [atom_to_list(M) ++ ":" ++
+                                                   atom_to_list(F) ++ "/" ++
+                                                   integer_to_list(A)] end, MaxList),
+                                 io:format("~ts~n", [string:join(RR, ", ")]) ;
+                  _  -> ok
+               end
 
-								 end, lists:usort(All)) .
+               end, lists:usort(All)) .
 
+
+%%-------------------------------------------------------------------------
+%% @doc Log levels set
+%% @since 2.0.6
+%% @end
+%%-------------------------------------------------------------------------
+loglevels() ->
+   case os:getenv("GEAS_LOG") of
+         false -> [] ;
+         ""    -> ["debug", "notice", "warning", "error", "tip"];
+         LL    -> string:tokens(LL, " ")
+   end.
 %%-------------------------------------------------------------------------
 %% @doc Log infos on analyze
 %% @since 2.0.6
 %% @end
 %%-------------------------------------------------------------------------
-log() -> L = get(geas_logs),
-		 case is_list(L) of
-		 		true -> case os:getenv("GEAS_LOG") of
-								   false -> ok ;
-								   ""    -> log(L, ["debug", "notice", "warning", "error"]);
-								   LL    -> log(L, string:tokens(LL, " "))
-						end;
-				false -> ok
-		 end.
+log() ->
+   L  = get(geas_logs),
+   LL = loglevels(),
+   case is_list(L) of
+      true  -> log(L, LL);
+      false -> ok
+   end.
 
-log(L, LogLevels) -> lists:foreach(fun(X) -> {Level, Info, File} = X,
-									case lists:member(atom_to_list(Level), LogLevels) of
-										true  -> Tag = case Level of
-											   			notice  -> "(i)";
-											   			warning -> "/!\\" ;
-											   			error   -> "[!]";
-											   			_       -> " @ "
-										  			   end,
-												InfoS = lists:flatten(io_lib:format("~p",[Info])) ,
-												io:format("~s ~s ~s~n",[Tag, string:left(InfoS,30), File]);
-										false -> ok
-									end
-								end, L).
+log(L) when is_list(L) -> log(L, loglevels());
+log(L) -> log([L], loglevels()).
+
+log(L, LogLevels) ->
+   lists:foreach(fun(X) -> {Level, Info, File} = X,
+                     case lists:member(atom_to_list(Level), LogLevels) of
+                        true  -> Tag = case Level of
+                                       notice  -> "(i)";
+                                       warning -> "/!\\" ;
+                                       error   -> "[!]";
+                                       tip     -> "(?)";
+                                       _       -> " @ "
+                                    end,
+                              InfoS     = lists:flatten(io_lib:format("~p",[Info])) ,
+                              FileInfos = lists:flatten(io_lib:format("~p",[File])) ,
+                              io:format(standard_error, "~s ~s ~s~n",[Tag, string:left(InfoS,30), FileInfos]);
+                        false -> ok
+                     end
+                  end, L).
 
 %%-------------------------------------------------------------------------
 %% @doc Get abstract file either from beam or src file
 %% @end
 %%-------------------------------------------------------------------------
 get_abstract(File) -> %io:format("~p~n",[File]),
-					  case filename:extension(File) of
-						  ".beam" -> get_abstract(File, beam) ;
-						  ".erl"  -> get_abstract(File, src) ;
-						  _       -> []
-					  end.
+   case filename:extension(File) of
+      ".beam" -> get_abstract(File, beam) ;
+      ".erl"  -> get_abstract(File, src) ;
+      _       -> []
+   end.
 
 get_abstract(File, beam) -> %io:format("beam ~p~n",[File]),
-							case beam_lib:chunks(File,[abstract_code]) of
-								{ok,{_,[{abstract_code, {_, Abs}}]}} -> % Extract also exported functions
-																		{ok, {M,[{exports, Exp}]}} = beam_lib:chunks(File,[exports]),
-																		lists:foreach(fun({F, A}) -> ?STORE(geas_exports, {M, F, A}) end, Exp),
-																		Abs;
-								{ok,{_,[{abstract_code, no_abstract_code}]}} ->
-										?LOG(geas_logs,{warning, no_abstract_code, File}),
-										% Try on source file as fallback
-									    SrcFile = get_src_from_beam(File),
-										case filelib:is_regular(SrcFile) of
-									    	 true  -> case filename:extension(SrcFile) of
-														 ".dtl" -> get_abstract(SrcFile, dtl) ;
-														 _      -> get_abstract(SrcFile, src)
-													  end;
-											 false -> ?LOG(geas_logs, {error, no_source_file, SrcFile}),
-													  []
-										end
-						     end;
+   case beam_lib:chunks(File,[abstract_code]) of
+      {ok,{_,[{abstract_code, {_, Abs}}]}} -> % Extract also exported functions
+                                    {ok, {M,[{exports, Exp}]}} = beam_lib:chunks(File,[exports]),
+                                    lists:foreach(fun({F, A}) -> ?STORE(geas_exports, {M, F, A}) end, Exp),
+                                    Abs;
+      {ok,{_,[{abstract_code, no_abstract_code}]}} ->
+            ?LOG(geas_logs,{warning, no_abstract_code, File}),
+            % Try on source file as fallback
+               SrcFile = get_src_from_beam(File),
+            case filelib:is_regular(SrcFile) of
+                  true  -> case filename:extension(SrcFile) of
+                           ".dtl" -> get_abstract(SrcFile, dtl) ;
+                           _      -> get_abstract(SrcFile, src)
+                        end;
+                  false -> ?LOG(geas_logs, {error, no_source_file, SrcFile}),
+                        []
+            end
+      end;
 
 get_abstract(File, dtl) ->	% Do not treat for the moment
-							?LOG(geas_logs, {notice, template_file, File}),
-							[];
+   ?LOG(geas_logs, {notice, template_file, File}),
+   [];
 get_abstract(File, src) ->	% Add non conventional include dir for sub-directories in src/
-							IncDir = get_upper_dir(filename:dirname(File), "include"),
-							SrcDir = get_upper_dir(filename:dirname(File), "src"),
-							%io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
-							% DO NOT USE : epp:parse_file/2, because starting "R16B03-1"
-							% Geas need to work on the maximal release window
-                            case epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []) of
-								{ok , Form} -> case is_valid_code(Form) of
-													true  -> % Extract exported functions
-											 				store_exported(Form),
-											 				Form;
-													false -> ?LOG(geas_logs, {error, parse_error, File}),
-											 				 []
-												end;
-								Res         -> ?LOG(geas_logs, {error, Res, File}),
-											   []
-							end.
+   IncDir = get_upper_dir(filename:dirname(File), "include"),
+   SrcDir = get_upper_dir(filename:dirname(File), "src"),
+   %io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
+   % DO NOT USE : epp:parse_file/2, because starting "R16B03-1"
+   % Geas need to work on the maximal release window
+            case epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []) of
+      {ok , Form} -> case is_valid_code(Form) of
+                     true  -> % Extract exported functions
+                           store_exported(Form),
+                           Form;
+                     false -> ?LOG(geas_logs, {error, parse_error, File}),
+                              []
+                  end;
+      Res         -> ?LOG(geas_logs, {error, Res, File}),
+                  []
+   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Check if source file can be compiled
 %% @end
 %%-------------------------------------------------------------------------
-is_valid_code(Form) -> case lists:keyfind(error, 1, Form) of
-							false -> true ;
-							_     -> false
-					   end.
+is_valid_code(Form) ->
+   case lists:keyfind(error, 1, Form) of
+      false -> true ;
+      _     -> false
+   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get source (or dtl) file from beam file
@@ -1475,43 +1500,43 @@ geas(_, _ ) -> {ok, Dir} = file:get_cwd(),
 w2l({A, MinRel, MaxRel, B}) -> w2l({A, MinRel, MaxRel, B}, true).
 
 w2l({_, MinRel, MaxRel, _}, Exc) ->
-			   L = geas_db:get_rel_list(),
-			   Lower = lists:filter(fun(X) -> case (versionize(X) >= versionize(MinRel) ) of
-													  true  -> true ;
-													  false -> false
-											   end
-                                       end, L),
-			   Res = lists:filter(fun(X) -> case ( versionize(X) =< versionize(MaxRel) ) of
-													  true  -> true ;
-													  false -> false
-											   end
-                                       end, Lower),
-			   Exclude = case os:getenv("GEAS_EXC_RELS") of
-							   false -> [] ;
-							   Excs -> case Exc of
-											true -> string:tokens(Excs, " ") ;
-											_    -> []
-									   end
-					 end,
-			   Local = case os:getenv("GEAS_MY_RELS") of
-							   false -> Res -- Exclude;
-							   ""    -> Res -- Exclude;
-							   MyRel -> MyRelList = string:tokens(MyRel, " "),
-										pickup_rel(MyRelList, Res) -- Exclude
+   L = geas_db:get_rel_list(),
+   Lower = lists:filter(fun(X) -> case (versionize(X) >= versionize(MinRel) ) of
+                                 true  -> true ;
+                                 false -> false
+                           end
+                              end, L),
+   Res = lists:filter(fun(X) -> case ( versionize(X) =< versionize(MaxRel) ) of
+                                 true  -> true ;
+                                 false -> false
+                           end
+                              end, Lower),
+   Exclude = case os:getenv("GEAS_EXC_RELS") of
+               false -> [] ;
+               Excs -> case Exc of
+                        true -> string:tokens(Excs, " ") ;
+                        _    -> []
+                     end
+         end,
+   Local = case os:getenv("GEAS_MY_RELS") of
+               false -> Res -- Exclude;
+               ""    -> Res -- Exclude;
+               MyRel -> MyRelList = string:tokens(MyRel, " "),
+                     pickup_rel(MyRelList, Res) -- Exclude
 
-			   		   end,
-			   ShowDisc = case os:getenv("GEAS_DISC_RELS") of
-								false -> true ;
-								"1"   -> true ;
-								"0"   -> false
-               			  end,
-			   case erlang:get(geas_disc) of
-						 undefined -> Local ;
-						 Disc      -> case ShowDisc of
-										   true  -> Local -- distinct_disc_rels(Disc);
-										   false -> Local
-									  end
-			   end.
+            end,
+   ShowDisc = case os:getenv("GEAS_DISC_RELS") of
+               false -> true ;
+               "1"   -> true ;
+               "0"   -> false
+                  end,
+   case erlang:get(geas_disc) of
+            undefined -> Local ;
+            Disc      -> case ShowDisc of
+                        true  -> Local -- distinct_disc_rels(Disc);
+                        false -> Local
+                     end
+   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Pick right elements existing in left
@@ -1555,15 +1580,15 @@ in_window(MinGlob, L, MaxGlob) -> LMin = lists:filter(fun(X) -> X =:= highest_ve
 store_exported(Form)
 	when is_list(Form),
 		 length(Form) > 0 -> % Get module name
-						  {[{_, _, module, M}], _} = lists:partition(fun(Y) -> lists:keymember(module,3,[Y]) end, Form),
-                          % Get exported functions
-						  {E, _} = lists:partition(fun(Y) -> lists:keymember(export,3,[Y]) end, Form),
-						  lists:flatmap(fun({attribute, _, export, L})
-										-> lists:foreach(fun({F, A})
-														 -> ?STORE(geas_exports, {M, F, A})
-														 end, L), []
-						   				end, E),
-						  [];
+                     {[{_, _, module, M}], _} = lists:partition(fun(Y) -> lists:keymember(module,3,[Y]) end, Form),
+                           % Get exported functions
+                     {E, _} = lists:partition(fun(Y) -> lists:keymember(export,3,[Y]) end, Form),
+                     lists:flatmap(fun({attribute, _, export, L})
+                              -> lists:foreach(fun({F, A})
+                                             -> ?STORE(geas_exports, {M, F, A})
+                                             end, L), []
+                                 end, E),
+                     [];
 
 store_exported(_) -> [].
 
@@ -1628,7 +1653,43 @@ parse_otp_table() ->
    Net.
 
 %%-------------------------------------------------------------------------
-%% @doc Get application rep name
+%% @doc Get recommanded patches
 %% @end
 %%-------------------------------------------------------------------------
-%get_rep_name(App) -> filename:basename(code:lib_dir(App)).
+get_recommanded_patches(Current) ->
+      % List all applications used in current global code
+      C = get(geas_calls),
+      T = filename:join([get(geas_cwd),code:priv_dir(geas),"mod2app.term"]),
+      {ok, B} = file:read_file(T),
+      Term = erlang:binary_to_term(B),
+      Apps = lists:usort(lists:flatmap(fun({M, _, _}) -> case lists:keyfind(M, 1, Term) of
+                                                               false  -> [];
+                                                               {M, A} -> [A];
+                                                               _      -> []
+                                                         end
+                                       end, C)),
+      erlang:put(geas_apps, Apps),
+      log({notice, applications, Apps}),
+      % List patches higher than current version
+      Pot = list_potential_patches(Current),
+      Ins = list_installed_patches(Current),
+      Candidats = lists:usort(lists:flatten(lists:flatmap(fun({P, L}) ->
+                                                            case lists:member(P, Ins) of
+                                                                  true -> [];
+                                                                  false -> [{P, L}]
+                                                            end
+                                            end , Pot))),
+      % For each patche, list application(s) that should be upgraded
+      R = lists:usort(lists:flatmap(fun({P, Al}) ->
+                                       %erlang:display({P, Al}),
+                                       [lists:usort(lists:flatmap(fun(A) ->
+                                                         [A_ | _] = string:split(A, "-"),
+                                                         case lists:member(erlang:list_to_atom(A_), Apps) of
+                                                            false -> [];
+                                                            true  -> log({tip, {recommend, P}, A}),
+                                                                     [P]
+                                                         end
+                                                   end, Al))]
+                    end, lists:reverse(Candidats))),
+      R.
+

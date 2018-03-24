@@ -14,6 +14,8 @@ Geas will tell you what are the offending functions in the beam/source files tha
 
 Geas will tell you if some beam files are compiled native.
 
+Geas will tell you the installed patches and recommend patches that should be installed depending your code.
+
 For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B02`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5``.
 
 For more details, see [Wiki](https://github.com/crownedgrouse/geas/wiki).
@@ -47,6 +49,7 @@ Example on a test project using cowboy :
 
 C : 20.2
 P : 20.2.3 20.2.2 20.2.1
+R : 20.2.4
 T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
@@ -73,6 +76,7 @@ R16B      erlang:binary_to_integer/1
 Current (C) Erlang release found is `20.2` and some patches (P) was detected.
 The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
 Native x86 compilation was detected on test module.
+Recommended patches (R) are proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
 
 ## Tuning output ##
 
@@ -87,7 +91,7 @@ Environment variables cheatsheet :
 `GEAS_EXC_RELS`  | `string`       | Erlang release list   | Exclude some releases                 | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#exclude-some-releases)
 `GEAS_DISC_RELS` | `boolean`      | [**0** / 1]           | Show discarded buggy Erlang releases  | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#discard-some-releases)
 `GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations)
-`GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [WIP]
+`GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#tips)
 
 Under compat table output, some informations can be shown depending those environment variables and analyze result.
 A single capital letter is used as tag for each information.
@@ -102,7 +106,7 @@ A single capital letter is used as tag for each information.
       `GEAS_DISC_RELS=1`
    - E = Excluded  : User excluded release list
       `GEAS_EXC_RELS="R16B03"`
-   - R = Recommended : [WIP] Patches that should be applied, because code is using module impacted by a patch for current version
+   - R = Recommended : Patches that should be applied, because code is using module impacted by a patch for current version
          `GEAS_TIPS=1`
 
 
