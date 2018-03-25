@@ -10,3 +10,4 @@ edoc-info
 *.png
 *.css
 ebin
+rebar.lock
