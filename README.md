@@ -8,13 +8,13 @@ By extension, obligation or prohibition imposed by an Erlang application or modu
 
 ## Overview ##
 
-Geas is a tool that will detect the runnable official Erlang release window for your project.
+Geas is a tool detecting the runnable official Erlang release window for your project.
 
-Geas will tell you what are the offending functions in the beam/source files that reduce the available window.
+Geas will tell you also :
 
-Geas will tell you if some beam files are compiled native.
-
-Geas will tell you the installed patches and recommend patches that should be installed depending your code.
+   - what are the offending functions in the beam/source files that reduce the available window.
+   - if some beam files are compiled native.
+   - the installed patches and recommend patches that should be installed depending your code.
 
 For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B02`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5``.
 
@@ -38,7 +38,7 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   20.3       Geas database
+   R15                   21.0       Geas database
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy
                          19.3       cowlib
@@ -49,7 +49,7 @@ Example on a test project using cowboy :
 
 C : 20.2
 P : 20.2.3 20.2.2 20.2.1
-R : 20.2.4
+R : 20.2.4 20.3.5 20.3.6
 T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
 /home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
