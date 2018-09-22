@@ -1,4 +1,4 @@
-# geas #
+# geas [![Build Status](https://travis-ci.org/crownedgrouse/geas.svg?branch=master)](https://travis-ci.org/crownedgrouse/geas) #
 
 Guess Erlang Application Scattering
 
