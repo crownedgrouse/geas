@@ -20,6 +20,8 @@ For example , if a dependency is using ``application:ensure_all_started/1`` your
 
 For more details, see [Wiki](https://github.com/crownedgrouse/geas/wiki).
 
+Geas is also available on [hex.pm](https://hex.pm/packages/geas).
+
 ## When using it ? ##
 
 - Each time you prepare a project release or update a dependancy.
