@@ -1,12 +1,17 @@
 {application, geas,
  [
   {description, "Guess Erlang Application Scattering"},
-  {vsn, "2.2"},
+  {vsn, "2.2.0"},
   {registered, []},
   {applications, [
                   kernel,
                   stdlib
                  ]},
   {env, []},
-  {modules, []}
+  {modules, []},
+  {pkg_name,"geas"},
+  {licenses,["ISC"]},
+  {maintainers,["Eric Pailleau"]},
+  {links,[{"Github","https://github.com/crownedgrouse/geas"},
+          {"Wiki","https://github.com/crownedgrouse/geas/wiki"}]}
  ]}.
