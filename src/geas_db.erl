@@ -35,7 +35,7 @@
 		             "18.0", "18.1", "18.2", "18.3",
 		             "19.0", "19.1", "19.2", "19.3",
                    "20.0", "20.1", "20.2", "20.3",
-                   "21.0"]).
+                   "21.0", "21.1"]).
 
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
@@ -214,16 +214,89 @@ do_max_modules(Io, Data) -> lists:foreach(fun({M, R}) -> io:format(Io,"rel_max({
 %% @doc Oldest modules in min release
 %% @end
 %%-------------------------------------------------------------------------
-do_min_functions(Io, Data) -> lists:foreach(fun({M, F, A, R}) -> io:format(Io,"rel_min({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]) end, Data).
+do_min_functions(Io, Data) ->
+   lists:foreach(fun({M, F, A, R}) ->
+      case dooblon(min, {M, F, A}) of
+         true  -> exception(min, {M, F, A, R}),
+                  io:format(Io,"%rel_min({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]);
+         false -> minlist({M, F, A}),
+                  io:format(Io,"rel_min({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R])
+      end end, Data).
 
 %%-------------------------------------------------------------------------
 %% @doc Add all removed modules in reldiffs
 %% @end
 %%-------------------------------------------------------------------------
-do_max_functions(Io, Data) -> lists:foreach(fun({M, F, A, R}) -> io:format(Io,"rel_max({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]) end, Data).
+do_max_functions(Io, Data) ->
+   lists:foreach(fun({M, F, A, R}) ->
+      case dooblon(max, {M, F, A}) of
+         true  -> exception(max, {M, F, A, R}),
+                  io:format(Io,"%rel_max({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]);
+         false -> maxlist({M, F, A}),
+                  io:format(Io,"rel_max({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R])
+      end end, Data).
 
 %%-------------------------------------------------------------------------
 %% @doc Give release list
 %% @end
 %%-------------------------------------------------------------------------
 get_rel_list() -> ?REL_LIST.
+
+%%-------------------------------------------------------------------------
+%% @doc Give release list
+%% @end
+%%-------------------------------------------------------------------------
+exception(min, X) ->
+   case get(exception_min) of
+      undefined ->
+         put(exception_min, [X]);
+      L when is_list(L) ->
+         put(exception_min, L ++ [X] ) ;
+      _ ->
+         throw(exception_min_error)
+   end;
+
+exception(max, X) ->
+   case get(exception_max) of
+      undefined ->
+         put(exception_max, [X]);
+      L when is_list(L) ->
+         put(exception_max, L ++ [X] ) ;
+      _ -> throw(exception_max_error)
+   end.
+
+dooblon(min, X) ->
+   case get(minlist) of
+      undefined ->
+         put(minlist, [X]),
+         false;
+      L when is_list(L) ->
+         lists:member(X, L)
+   end;
+
+dooblon(max, X) ->
+   case get(maxlist) of
+      undefined ->
+         put(maxlist, [X]),
+         false;
+      L when is_list(L) ->
+         lists:member(X, L)
+   end.
+
+minlist(X) ->
+   case get(minlist) of
+      undefined ->
+         put(minlist, [X]);
+      L when is_list(L) ->
+         put(minlist, L ++ [X] ) ;
+      _ -> throw(exception_minlist_error)
+   end.
+
+maxlist(X) ->
+   case get(maxlist) of
+      undefined ->
+         put(maxlist, [X]);
+      L when is_list(L) ->
+         put(maxlist, L ++ [X] ) ;
+      _ -> throw(exception_maxlist_error)
+   end.
