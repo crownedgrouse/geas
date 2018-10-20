@@ -936,7 +936,17 @@ get_erlang_compat_beam(File) ->
                                                                   ok -> [] ;
                                                                   D  -> [{A, D}]
                                                                 end end, X))),
-   {highest_version(MinRels), lowest_version(MaxRels), {File, DiscRels}}.
+   Highest_ = highest_version(MinRels),
+   Lowest_  = lowest_version(MaxRels),
+   Highest = case geas:highest_version(Highest_, Lowest_) of
+                  Highest_ -> "???";
+                  _        -> Highest_
+             end,
+   Lowest  = case geas:highest_version(Highest_, Lowest_) of
+                   Highest_ -> "???";
+                  _        -> Lowest_
+             end,
+   {Highest, Lowest, {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
 %% @doc Extract remote call of external functions in abstract code
