@@ -936,8 +936,8 @@ get_erlang_compat_beam(File) ->
                                                                   ok -> [] ;
                                                                   D  -> [{A, D}]
                                                                 end end, X))),
-   Highest_ = highest_version(MinRels),
-   Lowest_  = lowest_version(MaxRels),
+   Highest = highest_version(MinRels),
+   Lowest  = lowest_version(MaxRels),
    %Highest = case geas:highest_version(Highest_, Lowest_) of
    %               Highest_ -> "???";
    %                _        -> Highest_
