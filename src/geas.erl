@@ -39,6 +39,11 @@
 % Discard or discourage usage of some release when some module or functions used
 -include("geas_disc.hrl").
 
+-define(SPLIT_OPTS, case ( geas:lowest_version("17.5", erlang:system_info(otp_release))) of
+                         "17.5" -> [trim_all,global];
+                         _  -> [global]
+                    end).
+
 -define(STORE(X, Y),
         case erlang:get(X) of
 			 undefined when is_list(Y)  -> erlang:put(X, Y) ;
@@ -1627,7 +1632,7 @@ list_installed_patches(Current) ->
    P = list_potential_patches(Current),
    % For each potential patch, see if all updated application are found in lib_dir
    A =lists:foldl(fun({L, R}, Acc) ->
-                   case lists:all(fun(X)-> [Nameb, _] = binary:split(list_to_binary(X), <<"-">>, [trim_all, global]),
+                   case lists:all(fun(X)-> [Nameb, _] = binary:split(list_to_binary(X), <<"-">>, ?SPLIT_OPTS),
                                             Name = list_to_atom(binary_to_list(Nameb)),
                                            code:lib_dir(Name) == filename:join(code:lib_dir(), X)
                                   end , R) of
@@ -1659,13 +1664,17 @@ list_potential_patches(Current) ->
 parse_otp_table() ->
    S = filename:join([get(geas_cwd),code:priv_dir(geas), "otp_versions.table"]),
    {ok, B} = file:read_file(S),
-   Raw = binary:split(B, <<"\n">>, [trim_all, global]),
-   Net = lists:foldl(fun(X, Acc) -> [N | _] = binary:split(X, <<"#">>,[trim_all, global]),
-                                    [L, R] = binary:split(N, <<":">>, [trim_all, global]),
-                                    [_, V] = binary:split(L, <<"-">>, [trim_all, global]),
-                                    P_ = binary:split(R, <<" ">>, [trim_all, global]),
+   Raw = binary:split(B, <<"\n">>, ?SPLIT_OPTS),
+   Net = lists:foldl(fun(X, Acc) -> case X of
+                                       <<>> -> [];
+                                       _  ->
+                                    [N | _] = binary:split(X, <<"#">>,?SPLIT_OPTS),
+                                    [L, R] = binary:split(N, <<":">>, ?SPLIT_OPTS),
+                                    [_, V] = binary:split(L, <<"-">>, ?SPLIT_OPTS),
+                                    P_ = binary:split(R, <<" ">>, ?SPLIT_OPTS),
                                     P  = lists:flatmap(fun(Z) -> [erlang:binary_to_list(Z)] end, P_),
                                     Acc ++ [{string:strip(erlang:binary_to_list(V)), P}]
+                                    end
                      end, [], Raw),
    Net.
 
