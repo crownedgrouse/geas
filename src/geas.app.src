@@ -1,7 +1,7 @@
 {application, geas,
  [
   {description, "Guess Erlang Application Scattering"},
-  {vsn, "2.4.2"},
+  {vsn, "2.4.3"},
   {registered, []},
   {applications, [
                   kernel,
