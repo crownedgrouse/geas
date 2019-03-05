@@ -2,9 +2,9 @@
 %%% File:      geas_SUITE.erl
 %%% @author    Eric Pailleau <geas@crownedgrouse.com>
 %%% @copyright 2016 crownedgrouse.com
-%%% @doc  
+%%% @doc
 %%% Geas Common Test Suite
-%%% @end  
+%%% @end
 %%%
 %%% Permission to use, copy, modify, and/or distribute this software
 %%% for any purpose with or without fee is hereby granted, provided
@@ -42,13 +42,13 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 
-init_per_suite(Config) ->  % cd into priv_dir     
-	PrivDir = ?config(priv_dir, Config),
-    ok = file:set_cwd(PrivDir),
-    % List test projects
-	AllFile1 = filelib:wildcard("*"),
-	Dirs  = lists:filter(fun(X) -> (filelib:is_dir(X) and (string:sub_string(X,1,1) /= "." )) end , AllFile1) ,
-    Config ++ [{dirs, Dirs}].
+init_per_suite(Config) ->  % cd into priv_dir
+   PrivDir = ?config(priv_dir, Config),
+   ok = file:set_cwd(PrivDir),
+   % List test projects
+   AllFile1 = filelib:wildcard("*"),
+   Dirs  = lists:filter(fun(X) -> (filelib:is_dir(X) and (string:sub_string(X,1,1) /= "." )) end , AllFile1) ,
+                        Config ++ [{dirs, Dirs}].
 
 %%--------------------------------------------------------------------
 %% Function: end_per_suite(Config0) -> term()
@@ -64,7 +64,9 @@ end_per_suite(_Config) ->  ok.
 %% Config0 = Config1 = [tuple()]
 %% Reason = term()
 %%--------------------------------------------------------------------
-init_per_group(_, Config) -> ct:pal("ConfigG = ~p", [Config]), Config.
+init_per_group(_, Config) ->
+   %ct:pal("ConfigG = ~p", [Config]),
+   Config.
 
 
 %%--------------------------------------------------------------------
@@ -122,7 +124,7 @@ groups() ->
 %% TestCase = atom()
 %% Reason = term()
 %%--------------------------------------------------------------------
-all() -> 
+all() ->
     [{group, info}
 	,{group, what_dir}
 	,{group, what_file}
@@ -143,7 +145,9 @@ all() ->
 %% Reason = term()
 %% Comment = term()
 %%--------------------------------------------------------------------
-test1(Config) -> ct:pal("Config = ~p", [Config]), ok.
+test1(_Config) ->
+   %ct:pal("Config = ~p", [Config]),
+   ok.
 
 
 
