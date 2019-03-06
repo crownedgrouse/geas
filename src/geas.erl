@@ -827,7 +827,7 @@ get_author(File) ->
 
 get_erlang_version("7.4")       -> {"22.0","22.0","22.0"};
 get_erlang_version("7.3.1")     -> {"21.2.3","21.2.7","21.2.7"};
-get_erlang_version("7.3")       -> {"21.2","21.2","21.2"};
+get_erlang_version("7.3")       -> {"21.2","21.2","21.2.2"};
 get_erlang_version("7.2.5")     -> {"21.1","21.1","21.1"};
 get_erlang_version("7.2.3")     -> {"21.0.5","21.0.8","21.0.8"};
 get_erlang_version("7.2.2")     -> {"21.0.2","21.0.4","21.0.4"};
@@ -1244,7 +1244,7 @@ compat(RootDir, print) ->
    % Always display current version detected and patches found
    application:load(compiler),
    {ok, Cvsn} = application:get_key(compiler, vsn),
-   {_, Current, _} = get_erlang_version(Cvsn),
+   {Current,  _, _} = get_erlang_version(Cvsn),
    io:format("C : ~ts~n",[Current]),
    Patches = list_installed_patches(Current),
    case Patches of
