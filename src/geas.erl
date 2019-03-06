@@ -1235,11 +1235,11 @@ compat(RootDir, print) ->
    % Display log if needed
    geas:log(),
    % Display header
-   io:format("   ~-10s            ~-10s ~-20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database"]),
+   io:format("   ~-10s            ~-10s ~-20s ~20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database", get_version(geas)]),
    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
-   lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[LD, AD, RD, FD]) end, D),
+   lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[LD, AD, RD, FD, get_version(FD)]) end, D),
    io:format("~80s~n",[string:copies("-",80)]),
-   io:format("   ~-10s ~-10s ~-10s ~-20s ~n",[MinGlob , ArchGlob, MaxGlob, "Global project"]),
+   io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[MinGlob , ArchGlob, MaxGlob, "Global project", get_version(filename:basename(filename:dirname(filename:absname(RootDir))))]),
    Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
    io:format("~n",[]),
    % Always display current version detected and patches found
@@ -1294,6 +1294,25 @@ compat(RootDir, print) ->
    end,
    ok.
 
+%%-------------------------------------------------------------------------
+%% @doc Get version of app or module
+%% @end
+%%-------------------------------------------------------------------------
+get_version(M) when is_list(M) -> get_version(erlang:list_to_atom(M)) ;
+get_version(M) ->
+      application:load(M),
+      Vapp = case application:get_key(M, vsn) of
+                  {ok, Y} -> Y;
+                  _       -> "?"
+             end,
+      Vmod = case beam_lib:version(code:which(M)) of
+               {ok, {M, X}} -> lists:flatten(X) ;
+               {error, beam_lib, _} -> "?"
+             end,
+      case Vapp of
+         "?" -> io_lib:format("~20p", [Vmod]);
+         _   -> Vapp
+      end.
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
 %% @end
