@@ -279,7 +279,7 @@ parse_range(V) when is_list(V) ->
                              {ok, L2, R2} = strip_range(simple_range(Right)),
                              {'or', {'and', L1, R1}, {'and', L2, R2}};
       [Left, "||" | Right] -> {ok, L1, R1} = strip_range(simple_range(Left)),
-                              R = parse_range(lists:flatten(lists:join(" ", Right))),
+                              R = parse_range(lists:flatten(join(" ", Right))),
                               {'or', {'and', L1, R1}, R};
       [Left, Right]       -> {ok, L1, R1} = strip_range(simple_range(Left)),
                              {ok, L2, R2} = strip_range(simple_range(Right)),
@@ -301,6 +301,19 @@ supchar(S, C) -> case S of
 
 strip_range({ok, L, R})    -> {ok, L, R};
 strip_range({'and', L, R}) -> {ok, L, R}.
+
+%% join is available since 19.0
+-spec join(Sep, List1) -> List2 when
+      Sep :: T,
+      List1 :: [T],
+      List2 :: [T],
+      T :: term().
+
+join(_Sep, []) -> [];
+join(Sep, [H|T]) -> [H|join_prepend(Sep, T)].
+
+join_prepend(_Sep, []) -> [];
+join_prepend(Sep, [H|T]) -> [Sep,H|join_prepend(Sep,T)].
 
 
  %%% TESTS %%%
