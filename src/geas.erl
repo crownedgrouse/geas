@@ -1226,13 +1226,17 @@ compat(RootDir, term) ->
 compat(RootDir, print) ->
    {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
    % Display log if needed
+   Project = case RootDir of
+                  "." -> filename:basename(filename:dirname(filename:absname(RootDir)));
+                  _   -> filename:basename(RootDir)
+             end,
    geas:log(),
    % Display header
    io:format("   ~-10s            ~-10s ~-20s ~20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database", get_version(geas)]),
    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
    lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[LD, AD, RD, FD, get_version(FD)]) end, D),
    io:format("~80s~n",[string:copies("-",80)]),
-   io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[MinGlob , ArchGlob, MaxGlob, "Global project", get_version(filename:basename(filename:dirname(filename:absname(RootDir))))]),
+   io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[MinGlob , ArchGlob, MaxGlob, "Global project", get_version(Project)]),
    Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
    io:format("~n",[]),
    % Always display current version detected and patches found
