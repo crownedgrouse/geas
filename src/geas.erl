@@ -1670,7 +1670,7 @@ list_installed_patches(Current) ->
                      true  -> lists:flatten(Acc ++ [list_to_atom(L)])
                    end
                end, [], P),
-   lists:flatmap(fun(X) -> [atom_to_list(X)] end, A).
+   lists:flatmap(fun(X) -> [atom_to_list(X)] end, lists:sort(A)).
 
 %%-------------------------------------------------------------------------
 %% @doc List possible patches for current release
