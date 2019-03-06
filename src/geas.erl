@@ -1303,7 +1303,7 @@ get_version(M) ->
                {error, beam_lib, _} -> "?"
              end,
       case Vapp of
-         "?" -> io_lib:format("~20p", [Vmod]);
+         "?" -> io_lib:format("~20s", [Vmod]);
          _   -> Vapp
       end.
 %%-------------------------------------------------------------------------
