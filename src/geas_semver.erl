@@ -28,8 +28,64 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -export([parse/1,simple_range/1, parse_range/1]).
+-export([check/2]).
 
 -define(SEMVER, "(\\*|x|[^0-9]{0,})([0-9\\*x]+){0,1}(\.[0-9\\*x]+){0,1}(\\.[0-9x]+){0,1}(\\-.*){0,}").
+
+-record(version, { comp = "="
+                 , major
+                 , minor
+                 , patch
+                 , pre}).
+
+check(Version, Range)
+   when is_list(Version), is_list(Range) ->
+   {ok, L} = parse(Version),
+   R = parse_range(Range),
+   %io:format("~p~n~p~n", [L, R]),
+   check(L, R);
+check(Version, {'and', L, R})
+   when is_record(Version, version) ->
+   (check(Version, L) and check(Version, R));
+check(Version, {'or', L, R})
+   when is_record(Version, version) ->
+   (check(Version, L) or check(Version, R));
+check(_Version, {_, lowest})  -> true;
+check(_Version, {_, highest}) -> true;
+check(Version, {Comp, Major, Minor, Patche})  -> check(Version, Comp, Major, Minor, Patche).
+
+
+check(Version, Comp, Major, Minor, Patche)
+   when is_record(Version, version), is_list(Comp), is_list(Major), is_list(Minor), is_list(Patche) ->
+   C = case (Version#version.major == Major) of
+        false -> case (list_to_integer(Version#version.major) > list_to_integer(Major)) of
+                     true  -> ">" ;
+                     false -> "<"
+                 end;
+        true  -> case (Version#version.minor == Minor) of
+                     false -> case (list_to_integer(Version#version.minor) > list_to_integer(Minor)) of
+                                    true  -> ">" ;
+                                    false -> "<"
+                              end;
+                     true  -> case (Version#version.patch == Patche) of
+                                 true  -> "=" ;
+                                 false -> case (list_to_integer(Version#version.patch) > list_to_integer(Patche)) of
+                                                true  -> ">" ;
+                                                false -> "<"
+                                          end
+                              end
+                 end
+      end,
+   case Comp of
+        "="  when (C == "=")  -> true ;
+        ">="  when (C == "=") -> true ;
+        "<="  when (C == "=") -> true ;
+        ">=" when (C == ">")  -> true ;
+        ">"  when (C == ">")  -> true ;
+        "<=" when (C == "<")  -> true ;
+        "<"  when (C == "<")  -> true ;
+        _ -> false
+   end.
 
 parse(V) when is_list(V) ->
       case re:run(V, ?SEMVER, [global, {capture, all_but_first, list}, notempty]) of
@@ -44,7 +100,7 @@ parse(V) when is_list(V) ->
                               case C of
                                  {error, E} -> {error, E} ;
                                  _          -> {Comp, Major, Minor, Patch, Pre} = C,
-                                               {ok, #{comp => Comp, major => Major, minor => Minor, patch => Patch, pre => Pre}}
+                                               {ok, #version{comp = Comp, major = Major, minor = Minor, patch = Patch, pre = Pre}}
                               end;
          match             -> {error, match}; % Should never happen !
          nomatch           -> {error, nomatch};
@@ -66,49 +122,48 @@ simple_range(X) ->
 %% @doc
 %% @end
 %%-------------------------------------------------------------------------
-simple_range_translate(X) when is_map(X) ->
-   Comp = maps:get(comp, X),
-   simple_range_translate(X, Comp).
+simple_range_translate(X) when is_record(X, version) ->
+   simple_range_translate(X, X#version.comp).
 
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, C)
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, C)
    when (Major == "") ->
-   simple_range_translate(#{major => "0", minor => Minor, patch => Patch}, C);
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, C)
+   simple_range_translate(#version{major = "0", minor = Minor, patch = Patch}, C);
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, C)
    when (Major =/= ""),(Minor == "") ->
-   simple_range_translate(#{major => Major, minor => "0", patch => Patch}, C);
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, C)
+   simple_range_translate(#version{major = Major, minor = "0", patch = Patch}, C);
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, C)
    when (Major =/= ""),(Minor =/= ""),(Patch == "") ->
-   simple_range_translate(#{major => Major, minor => Minor, patch => "0"}, C);
-simple_range_translate(#{major := Major, minor := _Minor, patch := _Patch}, _)
+   simple_range_translate(#version{major = Major, minor = Minor, patch = "0"}, C);
+simple_range_translate(#version{major = Major, minor = _Minor, patch = _Patch}, _)
    when (Major == "x") ->
-   simple_range_translate(#{major => "0", minor => "0", patch => "0"}, ">=");
-simple_range_translate(#{major := Major, minor := Minor, patch := _Patch}, _)
+   simple_range_translate(#version{major = "0", minor = "0", patch = "0"}, ">=");
+simple_range_translate(#version{major = Major, minor = Minor, patch = _Patch}, _)
    when (Minor == "x") ->
    parse_range(io_lib:format(">=~ts.0.0 <~ts.0.0", [Major, erlang:integer_to_list(erlang:list_to_integer(Major) + 1)]));
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, _)
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, _)
    when (Patch == "x") ->
    parse_range(io_lib:format(">=~ts.~ts.0 <~ts.~ts.0", [Major, Minor, Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1)]));
 % ~ 	means “reasonably close to”
 % ~1.2.3 	is >=1.2.3 <1.3.0
 % ~1.2 	   is >=1.2.0 <1.3.0 	(like ~1.2.0)
 % ~1 	      same
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "~")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "~")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
    Min = {">=", Major, Minor, Patch},
    Max = {"<", Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor}, "~")
+simple_range_translate(#version{major = Major, minor = Minor}, "~")
    when (Major =/= ""),(Minor =/= "") ->
    Min = {">=",Major, Minor, "0"},
    Max = {"<", Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"},
    {ok, Min, Max};
-simple_range_translate(#{major := Major}, "~")
+simple_range_translate(#version{major = Major}, "~")
    when (Major =/= "") ->
    Min = {"=", Major},
    Max = {"=", Major},
    {ok, Min, Max};
 % * 	      any version
-simple_range_translate(#{major := _Major, minor := _Minor, patch := _Patch}, "*")
+simple_range_translate(#version{major = _Major, minor = _Minor, patch = _Patch}, "*")
    -> {ok, lowest, highest};
 
 % ^ 	means “compatible with”
@@ -117,72 +172,72 @@ simple_range_translate(#{major := _Major, minor := _Minor, patch := _Patch}, "*"
 % ^0.0.1 	is =0.0.1 	         (0.0.x is special)
 % ^1.2 	   is >=1.2.0 <2.0.0 	(like ^1.2.0)
 % ^1 	      is >=1.0.0 <2.0.0
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "^")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "^")
    when (Major =/= ""),(Major =/= "0"),(Minor =/= ""),(Patch =/= "") ->
    Min = {">=", Major, Minor, Patch},
    Max = {"<", erlang:integer_to_list(erlang:list_to_integer(Major) + 1), "0", "0"},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "^")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "^")
    when (Major =/= ""),(Major == "0"),(Minor =/= ""),(Minor =/= "0"),(Patch =/= "") ->
    Min = {">=", Major, Minor, Patch},
    Max = {"<", Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "^")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "^")
    when (Major =/= ""),(Major == "0"),(Minor =/= ""),(Minor == "0"),(Patch =/= "") ->
    Min = {"=", Major, Minor, Patch},
    Max = {"=", Major, Minor, Patch},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "^")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "^")
    when (Major =/= ""),(Minor =/= ""),(Patch == "") ->
    Min = {">=", Major, Minor, "0"},
    Max = {"<", erlang:integer_to_list(erlang:list_to_integer(Major) + 1), "0", "0"},
    {ok, Min, Max};
-simple_range_translate(#{major := Major}, "^")
+simple_range_translate(#version{major = Major}, "^")
    when (Major =/= "") ->
    Min = {">=", Major, "0", "0"},
    Max = {"<", erlang:integer_to_list(erlang:list_to_integer(Major) + 1), "0", "0"},
    {ok, Min, Max};
 %% = >= > <
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "=")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "=")
    when (Major =/= ""),(Major =/= "0"),(Minor =/= ""),(Patch =/= "") ->
    Min = {"=", Major, Minor, Patch},
    Max = {"=", Major, Minor, Patch},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, ">=")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, ">=")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
    Min = {">=", Major, Minor, Patch},
-   Max = highest,
+   Max = {"<=", highest},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, ">")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, ">")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
    Min = {">", Major, Minor, Patch},
-   Max = highest,
+   Max = {"<=", highest},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "<=")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "<=")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
-   Min = lowest,
+   Min = {">=",lowest},
    Max = {"<=", Major, Minor, Patch},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := Patch}, "<")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "<")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
-   Min = lowest,
+   Min = {">=",lowest},
    Max = {"<", Major, Minor, Patch},
    {ok, Min, Max};
 % 1.x 	   same
 % 1.* 	   same
 % 1 	      same
 % x 	      same
-simple_range_translate(#{major := Major, minor := Minor, patch := _Patch}, "")
+simple_range_translate(#version{major = Major, minor = Minor, patch = _Patch}, "")
    when (Major =/= ""),(Minor =/= "") ->
   Min = {"=", Major, Minor},
   Max = {"=", Major, Minor},
   {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := Minor, patch := _Patch}, "")
+simple_range_translate(#version{major = Major, minor = Minor, patch = _Patch}, "")
    when (Major =/= ""),(Minor =/= "*") ->
    Min = {"=", Major, Minor},
    Max = {"=", Major, Minor},
    {ok, Min, Max};
-simple_range_translate(#{major := Major, minor := _Minor, patch := _Patch}, "")
+simple_range_translate(#version{major = Major, minor = _Minor, patch = _Patch}, "")
    when (Major =/= "") ->
    Min = {"=", Major},
    Max = {"=", Major},
@@ -192,7 +247,7 @@ simple_range_translate(X, Y)
 
 
 %%-------------------------------------------------------------------------
-%% @doc
+%% @doc Parse range into 'and' and 'or' logic
 %% @end
 %%-------------------------------------------------------------------------
 % Hyphenated ranges
@@ -209,7 +264,7 @@ simple_range_translate(X, Y)
 % 0.14.x || 15.x.x 	Or (pipe-separated)
 parse_range(V) when is_list(V) ->
    case string:tokens(V, " ") of
-      [Left, "-", Right]  -> {ok, #{major := Major, minor := Minor, patch := Patch} = X} = parse(Right),
+      [Left, "-", Right]  -> {ok, #version{major = Major, minor = Minor, patch = Patch} = X} = parse(Right),
                              case X of
                                  X when (Patch =/= "")
                                     -> parse_range(io_lib:format(">=~ts <=~ts", [Left, Right]));
@@ -220,15 +275,18 @@ parse_range(V) when is_list(V) ->
                                     -> parse_range(io_lib:format(">=~ts <~ts.~ts.~ts", [Left, Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"]))
 
                              end ;
-      [Left, "||", Right] -> L = simple_range(Left),
-                             R = simple_range(Right),
-                             {'or', L, R};
-      [Left, Right]       -> {ok, L, _} = simple_range(Left),
-                             {ok, _, R} = simple_range(Right),
-                             {'and', L, R};
-      [Single]            -> simple_range(Single)
+      [Left, "||", Right] -> {ok, L1, R1} = strip_range(simple_range(Left)),
+                             {ok, L2, R2} = strip_range(simple_range(Right)),
+                             {'or', {'and', L1, R1}, {'and', L2, R2}};
+      [Left, "||" | Right] -> {ok, L1, R1} = strip_range(simple_range(Left)),
+                              R = parse_range(lists:flatten(lists:join(" ", Right))),
+                              {'or', {'and', L1, R1}, R};
+      [Left, Right]       -> {ok, L1, R1} = strip_range(simple_range(Left)),
+                             {ok, L2, R2} = strip_range(simple_range(Right)),
+                             {'and', {'and', L1, R1}, {'and', L2, R2}};
+      [Single]            -> {ok, L1, R1} = strip_range(simple_range(Single)),
+                             {'and', L1, R1}
    end.
-
 
 
 %%% Local functions %%%
@@ -241,17 +299,44 @@ supchar(S, C) -> case S of
                      _ -> S
                  end.
 
+strip_range({ok, L, R})    -> {ok, L, R};
+strip_range({'and', L, R}) -> {ok, L, R}.
+
 
  %%% TESTS %%%
 parse_range_test() ->
-    ?assertEqual({'and',{">=","1","2","3"},{"<=","2","3","0"}}, parse_range("1.2.3 - 2.3.0"))
-   ,?assertEqual({'and',{">=","1","2","3"},{"<=","2","3","4"}}, parse_range("1.2.3 - 2.3.4"))
+    ?assertEqual({'and',{'and',{">=","1","2","3"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<=","2","3","0"}}},
+                 parse_range("1.2.3 - 2.3.0"))
+   ,?assertEqual({'and',{'and',{">=","1","2","3"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<=","2","3","4"}}},
+                 parse_range("1.2.3 - 2.3.4"))
    % Partial right
-   ,?assertEqual({'and',{">=","1","2","3"},{"<","2","4","0"}}, parse_range("1.2.3 - 2.3"))
-   ,?assertEqual({'and',{">=","1","2","3"},{"<","3","0","0"}}, parse_range("1.2.3 - 2"))
+   ,?assertEqual({'and',{'and',{">=","1","2","3"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<","2","4","0"}}},
+                 parse_range("1.2.3 - 2.3"))
+   ,?assertEqual({'and',{'and',{">=","1","2","3"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<","3","0","0"}}},
+                 parse_range("1.2.3 - 2"))
    % Partial left
-   ,?assertEqual({'and',{">=","1","2","0"},{"<=","2","3","0"}}, parse_range("1.2 - 2.3.0"))
+   ,?assertEqual({'and',{'and',{">=","1","2","0"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<=","2","3","0"}}},
+                 parse_range("1.2 - 2.3.0"))
    % Combining ranges
-   ,?assertEqual({'and', {">=","0","14","0"}, {"<","16","0","0"}}, parse_range(">=0.14 <16"))
-   ,?assertEqual({'or', {'and', {">=","0","14","0"}, {"<","0","15","0"}}, {'and',{">=","15","0","0"}, {"<","16","0","0"}}}, parse_range("0.14.x || 15.x.x"))
+   ,?assertEqual({'and',{'and',{">=","0","14","0"},{"<=",highest}},
+                        {'and',{">=",lowest},{"<","16","0","0"}}},
+                 parse_range(">=0.14 <16"))
+   ,?assertEqual({'or', {'and',{'and',{">=","0","14","0"},{"<=",highest}},
+                               {'and',{">=",lowest},{"<","0","15","0"}}},
+                        {'and',{'and',{">=","15","0","0"},{"<=",highest}},
+                               {'and',{">=",lowest},{"<","16","0","0"}}}},
+                 parse_range("0.14.x || 15.x.x"))
+   ,?assertEqual({'or',{'and',{">=",lowest},{"<","11","0","0"}},
+                       {'and',{">","13","0","0"},{"<=",highest}}},
+                 parse_range("<11 || >13"))
+   ,?assertEqual({'or',{'and',{">=",lowest},{"<","11","0","0"}},
+                       {'or',{'and',{">","13","0","0"},{"<=",highest}},
+                             {'and',{'and',{">=","12","3","0"},{"<=",highest}},
+                                    {'and',{">=",lowest},{"<","12","4","0"}}}}},
+                 parse_range("<11 || >13 || 12.3.x"))
    ,ok.
