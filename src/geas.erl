@@ -1318,7 +1318,7 @@ get_version(M) ->
 get_current_erlang_version() ->
    F = filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), "OTP_VERSION"]),
    case file:read_file(F) of
-      {ok, B}      -> io_lib:format("~ts", [B]);
+      {ok, B}      -> lists:flatten(string:replace(io_lib:format("~ts", [B]),"\n",""));
       {error, _}   -> application:load(compiler),
                      {ok, Cvsn} = application:get_key(compiler, vsn),
                      % Bring lowest version from compiler version
@@ -1679,7 +1679,7 @@ list_installed_patches(Current) ->
                      true  -> lists:flatten(Acc ++ [list_to_atom(L)])
                    end
                end, [], P),
-   lists:flatmap(fun(X) -> [atom_to_list(X)] end, lists:sort(A)).
+   lists:flatmap(fun(X) -> [atom_to_list(X)] end, A).
 
 %%-------------------------------------------------------------------------
 %% @doc List possible patches for current release
