@@ -1242,9 +1242,7 @@ compat(RootDir, print) ->
    Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
    io:format("~n",[]),
    % Always display current version detected and patches found
-   application:load(compiler),
-   {ok, Cvsn} = application:get_key(compiler, vsn),
-   {Current,  _, _} = get_erlang_version(Cvsn),
+   Current = get_current_erlang_version(),
    io:format("C : ~ts~n",[Current]),
    Patches = list_installed_patches(Current),
    case Patches of
@@ -1312,6 +1310,22 @@ get_version(M) ->
          "?" -> io_lib:format("~20s", [Vmod]);
          _   -> Vapp
       end.
+
+%%-------------------------------------------------------------------------
+%% @doc Get version of current Erlang release
+%% @end
+%%-------------------------------------------------------------------------
+get_current_erlang_version() ->
+   F = filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), "OTP_VERSION"]),
+   case file:read_file(F) of
+      {ok, B}      -> io_lib:format("~ts", [B]);
+      {error, _}   -> application:load(compiler),
+                     {ok, Cvsn} = application:get_key(compiler, vsn),
+                     % Bring lowest version from compiler version
+                     {Current,  _, _} = get_erlang_version(Cvsn),
+                     Current
+   end.
+
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
 %% @end
