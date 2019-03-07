@@ -78,6 +78,77 @@
             Erlang    = get_erlang_version(Comp)
 ).
 
+% GEAS_USE_SRC 	boolean 	[0 / 1] 	            Use source code instead beam files 	...
+% GEAS_MY_RELS 	string 	Erlang release list 	List possible releases 	...
+% GEAS_EXC_RELS 	string 	Erlang release list 	Exclude some releases 	...
+% GEAS_DISC_RELS 	boolean 	[0 / 1] 	            Show discarded buggy Erlang releases 	...
+% GEAS_LOG 	      string 	Log level list 	   Log informations 	...
+% GEAS_TIPS 	   boolean 	[0 / 1] 	            Give tips on patches to apply
+
+-record(config, {use_src   = false
+                ,my_rels   = []
+                ,exc_rels  = []
+                ,disc_rels = false
+                ,log       = []
+                ,tips      = false
+                ,frame     = []
+                }).
+
+%%-------------------------------------------------------------------------
+%% @doc Get config from rebar3 config and/or environment variables
+%% @since 2.5
+%% @end
+%%-------------------------------------------------------------------------
+get_config()     -> get_config([]).
+
+get_config(Conf) ->
+   Use_src_   = case os:getenv("GEAS_USE_SRC") of
+                        false -> false ;
+                        "0"   -> false ;
+                        "1"   -> true ;
+                        _     -> false
+                end,
+   My_rels_   = case os:getenv("GEAS_MY_RELS") of
+                     false -> [] ;
+                     ""    -> [];
+                     M     -> M
+                end,
+   Exc_rels_  = case os:getenv("GEAS_EXC_RELS") of
+                     false -> [] ;
+                     ""    -> [];
+                     E     -> E
+                end,
+   Disc_rels_ = case os:getenv("GEAS_DISC_RELS") of
+                        false -> false ;
+                        "0"   -> false ;
+                        "1"   -> true ;
+                        _     -> false
+                end,
+   Log_       = case os:getenv("GEAS_LOG") of
+                     false -> [] ;
+                     ""    -> all;
+                     L     -> L
+                end,
+   Tips_      = case os:getenv("GEAS_TIPS") of
+                        false -> false ;
+                        "0"   -> false ;
+                        "1"   -> true ;
+                        _     -> false
+                end,
+   Frame      = case os:getenv("GEAS_FRAME") of
+                     false -> [] ;
+                     ""    -> [] ;
+                     F     -> F
+                end,
+   Use_src   = proplists:get_value(use_src, Conf, Use_src_),
+   My_rels   = proplists:get_value(my_rels, Conf, My_rels_),
+   Exc_rels  = proplists:get_value(exc_rels, Conf, Exc_rels_),
+   Disc_rels = proplists:get_value(disc_rels, Conf, Disc_rels_),
+   Log       = proplists:get_value(log, Conf, Log_),
+   Tips      = proplists:get_value(tips, Conf, Tips_),
+   Frame     = proplists:get_value(frame, Conf, Frame),
+   #config{use_src = Use_src, my_rels = My_rels, exc_rels = Exc_rels, disc_rels = Disc_rels, log = Log, tips = Tips, frame = Frame}.
+
 %%-------------------------------------------------------------------------
 %% @doc Return infos after application directory analysis
 %% @since 1.0.0
@@ -88,6 +159,7 @@
 info(Dir) when is_list(Dir) ->
         {ok, CurPwd} = file:get_cwd(),
         put(geas_cwd, CurPwd),
+        Conf = get_config(),
         try
             % Fatal tests
             is_valid_dir(Dir),
@@ -98,12 +170,10 @@ info(Dir) when is_list(Dir) ->
             SrcDir   = filename:join(Dir, "src"),
             Driver    = is_using_driver(CsrcDir),
             ?COMMON_DIR(EbinDir) ,
-            InfoDir = case os:getenv("GEAS_USE_SRC") of
-                        false -> EbinDir ;
-                        "0"   -> EbinDir ;
-                        "1"   -> SrcDir;
-                        _     -> EbinDir
-                     end,
+            InfoDir = case Conf#config.use_src of
+                        false  -> EbinDir ;
+                        true   -> SrcDir
+                      end,
             Compat    = get_erlang_compat(InfoDir),
             % Commands to be done in Dir
             ok = file:set_cwd(Dir),
@@ -1318,7 +1388,7 @@ get_version(M) ->
 get_current_erlang_version() ->
    F = filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), "OTP_VERSION"]),
    case file:read_file(F) of
-      {ok, B}      -> lists:flatten(string:replace(io_lib:format("~ts", [B]),"\n",""));
+      {ok, B}      -> string:strip(lists:flatten(io_lib:format("~ts", [B])), both, $\n);
       {error, _}   -> application:load(compiler),
                      {ok, Cvsn} = application:get_key(compiler, vsn),
                      % Bring lowest version from compiler version
