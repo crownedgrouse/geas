@@ -1001,12 +1001,12 @@ get_erlang_compat_beam(File) ->
    % Get the min and max release for each MFA
    % Get the min release compatible
    Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
-   ?STORE(geas_minrels, Min),
+   %?STORE(geas_minrels, Min),
    {MinRelss, _} = lists:unzip(Min),
    MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
    % Get the max release compatible
    Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
-   ?STORE(geas_maxrels, Min),
+   %?STORE(geas_maxrels, Max),
    {MaxRelss, _} = lists:unzip(Max),
    MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
    % Get the releases to discard
@@ -1021,15 +1021,17 @@ get_erlang_compat_beam(File) ->
    % 18.0      edoc_lib:write_info_file/3
    % 17.5      edoc_lib:write_file/5, edoc_lib:write_info_file/4
    % (Due to a test if a function is existing, otherwise use another one)
-   Highest = case highest_version(Highest_, Lowest_) of
-                  Highest_ -> Lowest_ ;
-                  _        -> Highest_
+   {Highest, A} = case highest_version(Highest_, Lowest_) of
+                  Highest_ -> {Lowest_, Max} ;
+                  _        -> {Highest_, Min}
              end,
-   Lowest = case highest_version(Highest_, Lowest_) of
-                  Highest_ -> [] ;
-                  _        -> Lowest_
+   {Lowest, B} = case highest_version(Highest_, Lowest_) of
+                  Lowest_  -> {Lowest_, Max} ;
+                  _        -> {[], []}
 
              end,
+   ?STORE(geas_minrels, A),
+   ?STORE(geas_maxrels, B),
    {Highest, Lowest, {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
@@ -1383,7 +1385,7 @@ get_version(M) ->
                {error, beam_lib, _} -> "?"
              end,
       case Vapp of
-         "?" -> io_lib:format("~20s", [Vmod]);
+         "?" -> io_lib:format("~20p", [Vmod]);
          _   -> Vapp
       end.
 
