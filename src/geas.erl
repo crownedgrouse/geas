@@ -1014,16 +1014,22 @@ get_erlang_compat_beam(File) ->
                                                                   ok -> [] ;
                                                                   D  -> [{A, D}]
                                                                 end end, X))),
-   Highest = highest_version(MinRels),
-   Lowest  = lowest_version(MaxRels),
-   %Highest = case geas:highest_version(Highest_, Lowest_) of
-   %               Highest_ -> "???";
-   %                _        -> Highest_
-   %          end,
-   %Lowest  = case geas:highest_version(Highest_, Lowest_) of
-   %                Highest_ -> "???";
-   %               _        -> Lowest_
-   %          end,
+   Highest_ = highest_version(MinRels),
+   Lowest_  = lowest_version(MaxRels),
+   % Some code syntax may find a Lowest version higher than Highest version, for instance :
+   % ./_build/default/lib/edown/ebin/edown_doclet.beam
+   % 18.0      edoc_lib:write_info_file/3
+   % 17.5      edoc_lib:write_file/5, edoc_lib:write_info_file/4
+   % (Due to a test if a function is existing, otherwise use another one)
+   Highest = case highest_version(Highest_, Lowest_) of
+                  Highest_ -> Lowest_ ;
+                  _        -> Highest_
+             end,
+   Lowest = case highest_version(Highest_, Lowest_) of
+                  Highest_ -> [] ;
+                  _        -> Lowest_
+
+             end,
    {Highest, Lowest, {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
