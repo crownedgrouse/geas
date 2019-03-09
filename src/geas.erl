@@ -957,8 +957,18 @@ get_erlang_compat(Dir) ->
                   "1"   -> "**/*.erl"
            end,
    Beams = filelib:wildcard(Joker, Dir),
-   X = lists:usort(lists:flatmap(fun(F) -> [get_erlang_compat_beam(filename:join(Dir,F))] end, Beams)),
-                  {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
+   X = lists:usort(lists:flatmap(fun(F) -> File = filename:join(Dir,F),
+                                          Comp = get_erlang_compat_beam(File),
+                                          Ign  = case get(geas_ignore) of
+                                                   undefined -> [];
+                                                   I         -> I
+                                                 end,
+                                          Res = case lists:member(File, Ign) of
+                                                   false -> Comp ;
+                                                   true  -> {?GEAS_MIN_REL, ?GEAS_MAX_REL, {File, []}}
+                                                end,
+                                          [Res] end, Beams)),
+   {MinList, MaxList, DiscListRaw} = lists:unzip3(X),
    DiscList = lists:filter(fun(XX) -> {_, T} = XX, T =/= [] end, DiscListRaw),
    % Get the highest version of Min releases of all beam
    MinR = highest_version(MinList),
@@ -1001,12 +1011,10 @@ get_erlang_compat_beam(File) ->
    % Get the min and max release for each MFA
    % Get the min release compatible
    Min = lists:flatmap(fun(A) -> [{rel_min(A), A}] end, X),
-   %?STORE(geas_minrels, Min),
    {MinRelss, _} = lists:unzip(Min),
    MinRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false;_ -> true end end, lists:usort(MinRelss)),
    % Get the max release compatible
    Max = lists:flatmap(fun(A) -> [{rel_max(A), A}] end, X),
-   %?STORE(geas_maxrels, Max),
    {MaxRelss, _} = lists:unzip(Max),
    MaxRels = lists:filter(fun(XX) -> case XX of undefined -> false; [] -> false; _ -> true end end, lists:usort(MaxRelss)),
    % Get the releases to discard
@@ -1014,24 +1022,22 @@ get_erlang_compat_beam(File) ->
                                                                   ok -> [] ;
                                                                   D  -> [{A, D}]
                                                                 end end, X))),
-   Highest_ = highest_version(MinRels),
-   Lowest_  = lowest_version(MaxRels),
+   Highest = highest_version(MinRels),
+   Lowest  = lowest_version(MaxRels),
    % Some code syntax may find a Lowest version higher than Highest version, for instance :
    % ./_build/default/lib/edown/ebin/edown_doclet.beam
    % 18.0      edoc_lib:write_info_file/3
    % 17.5      edoc_lib:write_file/5, edoc_lib:write_info_file/4
    % (Due to a test if a function is existing, otherwise use another one)
-   {Highest, A} = case highest_version(Highest_, Lowest_) of
-                  Highest_ -> {Lowest_, Max} ;
-                  _        -> {Highest_, Min}
-             end,
-   {Lowest, B} = case highest_version(Highest_, Lowest_) of
-                  Lowest_  -> {Lowest_, Max} ;
-                  _        -> {[], []}
-
-             end,
-   ?STORE(geas_minrels, A),
-   ?STORE(geas_maxrels, B),
+   case highest_version(Highest, Lowest) of
+                  Highest when (Highest =/= []),(Lowest =/= [])
+                           -> ?STORE(geas_ignore, [File]),
+                              ?LOG(geas_logs, {debug, {Highest, Lowest}, File}),
+                              ?LOG(geas_logs, {warning, ignoring, File});
+                  _        -> ok
+   end,
+   ?STORE(geas_minrels, Max),
+   ?STORE(geas_maxrels, Min),
    {Highest, Lowest, {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
@@ -1184,11 +1190,11 @@ offending(File) ->
                MinOff = case A =/= B of
                               true -> get_min_offending(B, File) ;
                               false -> []
-                        end,
+                         end,
                MaxOff = case C =/= D of
                               true -> get_max_offending(C, File) ;
                               false -> []
-                        end,
+                         end,
                {ok, {MinOff, MaxOff}}
    end.
 %%-------------------------------------------------------------------------
@@ -1385,7 +1391,8 @@ get_version(M) ->
                {error, beam_lib, _} -> "?"
              end,
       case Vapp of
-         "?" -> io_lib:format("~20p", [Vmod]);
+         "?" when (Vmod =/= "?") -> io_lib:format("~20p", [Vmod]);
+         "?" -> io_lib:format("~20s", [Vmod]);
          _   -> Vapp
       end.
 
