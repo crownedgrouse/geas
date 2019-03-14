@@ -7,7 +7,7 @@
 %%% Geas database 
 %%% @end 
 -define('GEAS_MIN_REL', "R15").
--define('GEAS_MAX_REL', "21.2").
+-define('GEAS_MAX_REL', "21.3").
 
 rel_max({beam_validator, file, 1}) -> "17.5" ;
 rel_max({beam_validator, files, 1}) -> "17.5" ;
@@ -3211,6 +3211,29 @@ rel_max({erl2html2, convert, 2}) -> "17.4" ;
 rel_max({ssl_cipher, decipher, 5}) -> "17.4" ;
 rel_max({ssl_record, decipher, 3}) -> "17.4" ;
 rel_max({tls_record, decode_cipher_text, 2}) -> "17.4" ;
+rel_max({dialyzer_contracts, store_tmp_contract, 5}) -> "21.2" ;
+rel_max({dtls_connection, encode_data, 3}) -> "21.2" ;
+rel_max({dtls_connection, handle_common_event, 4}) -> "21.2" ;
+rel_max({dtls_connection, send, 3}) -> "21.2" ;
+rel_max({dtls_connection, socket, 5}) -> "21.2" ;
+rel_max({erl_types, t_map, 2}) -> "21.2" ;
+rel_max({logger_disk_log_h, info, 1}) -> "21.2" ;
+rel_max({logger_disk_log_h, reset, 1}) -> "21.2" ;
+rel_max({logger_h_common, info, 2}) -> "21.2" ;
+rel_max({logger_h_common, reset, 2}) -> "21.2" ;
+rel_max({logger_h_common, start_link, 1}) -> "21.2" ;
+rel_max({logger_std_h, info, 1}) -> "21.2" ;
+rel_max({logger_std_h, reset, 1}) -> "21.2" ;
+rel_max({ssl_connection, get_sslsocket, 1}) -> "21.2" ;
+rel_max({ssl_connection, start_or_recv_cancel_timer, 2}) -> "21.2" ;
+rel_max({ssl_connection, stop, 2}) -> "21.2" ;
+rel_max({ssl_connection, stop_and_reply, 3}) -> "21.2" ;
+rel_max({ssl_manager, register_session, 3}) -> "21.2" ;
+rel_max({tls_connection, encode_alert, 3}) -> "21.2" ;
+rel_max({tls_connection, encode_data, 3}) -> "21.2" ;
+rel_max({tls_connection, handle_common_event, 4}) -> "21.2" ;
+rel_max({tls_connection, send, 3}) -> "21.2" ;
+rel_max({tls_connection, socket, 5}) -> "21.2" ;
 rel_max({dialyzer_contracts, blame_remote, 3}) -> "17.1" ;
 rel_max({dialyzer_contracts, blame_remote_list, 3}) -> "17.1" ;
 rel_max({dialyzer_contracts, butlast, 1}) -> "17.1" ;
@@ -8246,6 +8269,39 @@ rel_min({ssl_manager, invalidate_pem, 1}) -> "17.5" ;
 rel_min({ssl_record, decipher, 4}) -> "17.5" ;
 rel_min({tls_record, decode_cipher_text, 3}) -> "17.5" ;
 rel_min({tls_record, is_higher, 2}) -> "17.5" ;
+rel_min({application, set_env, 1}) -> "21.3" ;
+rel_min({application, set_env, 2}) -> "21.3" ;
+rel_min({application_controller, set_env, 2}) -> "21.3" ;
+rel_min({dialyzer_contracts, store_tmp_contract, 6}) -> "21.3" ;
+rel_min({diameter_traffic, request, 1}) -> "21.3" ;
+rel_min({diameter_traffic, request_info, 1}) -> "21.3" ;
+rel_min({dtls_connection, handle_protocol_record, 3}) -> "21.3" ;
+rel_min({dtls_connection, socket, 4}) -> "21.3" ;
+rel_min({erl_types, t_widen_to_number, 1}) -> "21.3" ;
+rel_min({erts_internal, spawn_system_process, 3}) -> "21.3" ;
+rel_min({io_lib, chars_length, 1}) -> "21.3" ;
+rel_min({logger, get_proxy_config, 0}) -> "21.3" ;
+rel_min({logger, i, 0}) -> "21.3" ;
+rel_min({logger, i, 1}) -> "21.3" ;
+rel_min({logger, set_proxy_config, 1}) -> "21.3" ;
+rel_min({logger, timestamp, 0}) -> "21.3" ;
+rel_min({logger, update_proxy_config, 1}) -> "21.3" ;
+rel_min({logger_h_common, handle_load, 2}) -> "21.3" ;
+rel_min({logger_h_common, notify, 2}) -> "21.3" ;
+rel_min({logger_h_common, reset_state, 1}) -> "21.3" ;
+rel_min({logger_std_h, config_changed, 3}) -> "21.3" ;
+rel_min({observer_wx, get_scale, 0}) -> "21.3" ;
+rel_min({persistent_term, get, 2}) -> "21.3" ;
+rel_min({prim_file, start, 0}) -> "21.3" ;
+rel_min({ssl_cipher, calc_mac_hash, 6}) -> "21.3" ;
+rel_min({ssl_manager, register_session, 4}) -> "21.3" ;
+rel_min({ssl_record, cipher, 5}) -> "21.3" ;
+rel_min({ssl_record, cipher_aead, 5}) -> "21.3" ;
+rel_min({tls_connection, handle_protocol_record, 3}) -> "21.3" ;
+rel_min({tls_connection, socket, 4}) -> "21.3" ;
+rel_min({tls_sender, downgrade, 2}) -> "21.3" ;
+rel_min({tls_sender, peer_renegotiate, 1}) -> "21.3" ;
+rel_min({tls_socket, update_active_n, 2}) -> "21.3" ;
 rel_min({'OTP-PUB-KEY', getdec_internal_object_set_argument_12, 1}) -> "17.3" ;
 rel_min({'OTP-PUB-KEY', getdec_internal_object_set_argument_13, 1}) -> "17.3" ;
 rel_min({'OTP-PUB-KEY', getenc_internal_object_set_argument_12, 1}) -> "17.3" ;
