@@ -1256,20 +1256,24 @@ compat(RootDir, term) ->
    end,
    PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true,
             fun(X, Y) -> P = filename:dirname(filename:dirname(X)),
-               case filename:basename(P) of
-                  "geas" -> Y ; % Exclude geas from results
-                  "src"  -> case lists:member(filename:dirname(P), Y) of
-                                       true  -> Y ;
-                                       false -> Y ++ [filename:dirname(P)]
-                        end;
-                  _      -> case lists:member(P, Y) of
-                                       true  -> Y ;
-                                       false -> Y ++ [P]
-                        end
-                        end
+                         case  lists:member("_rel",re:split(P,"/",[{return,list}])) of
+                               false -> case filename:basename(P) of
+                                          "geas" -> Y ; % Exclude geas from results
+                                          "src"  -> case lists:member(filename:dirname(P), Y) of
+                                                               true  -> Y ;
+                                                               false -> Y ++ [filename:dirname(P)]
+                                                end;
+                                          _      -> case lists:member(P, Y) of
+                                                               true  -> Y ;
+                                                               false ->  Y ++ [P]
+                                                   end
+                                        end;
+                               true -> Y
+                          end
             end, []),
    % Get all upper project
    Ps = lists:usort(PP),
+   ?LOG(geas_logs, {debug, "", Ps }),
    Global = Ps ++ [filename:absname(RootDir)],
    D = lists:flatmap(fun(X) ->
                         case catch info(X) of
@@ -1427,7 +1431,11 @@ guilty(RootDir) ->
                            fun(X, Y) -> Y ++ [X] end, []),
    Bs2 = filelib:fold_files(filename:join(RootDir, DirS), Ext, true,
                            fun(X, Y) -> Y ++ [X] end, []),
-   Bs = Bs1 ++ Bs2,
+   Bs_ = Bs1 ++ Bs2,
+   Bs = lists:flatmap(fun(X) -> case lists:member("_rel",re:split(X,"/",[{return,list}])) of
+                                    true  -> [] ;
+                                    false -> [X]
+                                end end, Bs_),
    % Check Offendings for each beam / erl
    All = lists:flatmap(fun(X) -> Off = offending(X),
                      case Off of
