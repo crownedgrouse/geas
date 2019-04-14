@@ -996,6 +996,11 @@ get_erlang_compat_file(File) ->
    ?STORE(geas_disc, DiscList),
    {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
+get_module_name_from_file(File) -> case (filelib:is_regular(File)) of
+                                       true  -> erlang:list_to_atom(filename:basename(File, filename:extension(File)));
+                                       false -> ''
+                                   end.
+
 %%-------------------------------------------------------------------------
 %% @doc Analyze compatibility of a beam file
 %% @end
@@ -1005,7 +1010,9 @@ get_erlang_compat_file(File) ->
 get_erlang_compat_beam(File) ->
    % Extract all Erlang MFA in Abstract code
    Abs1 = get_abstract(File),
-   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs1))),
+   Mod = get_module_name_from_file(File),
+   Exports = lists:filter(fun({M, _F, _A}) -> (M == Mod) end, get(geas_exports)),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A, Exports)] end, Abs1))),
    ?STORE(geas_calls, X),
    %io:format("~p~n", [X)])
    % Get the min and max release for each MFA
@@ -1044,32 +1051,39 @@ get_erlang_compat_beam(File) ->
 %% @doc Extract remote call of external functions in abstract code
 %% @end
 %%-------------------------------------------------------------------------
--spec get_remote_call(tuple()) -> list().
+-spec get_remote_call(tuple(), list()) -> list().
 
-get_remote_call({call,_,{atom,_, F}, Args})
-                when is_list(Args)-> [{erlang, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
-get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args})
-                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
-get_remote_call({call,_, {remote,_,{var,_,M},{atom,_,F}}, Args})
-                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X) end, Args)] ;
-get_remote_call({_, _, _, L1, L2, L3}) when is_list(L1),
-                                            is_list(L2),
-                                            is_list(L3) -> [lists:flatmap(fun(X) -> get_remote_call(X) end, L1),
-                                                            lists:flatmap(fun(X) -> get_remote_call(X) end, L2),
-                                                            lists:flatmap(fun(X) -> get_remote_call(X) end, L3)]
-                                                                 ;
-get_remote_call({_, _, _, _, L}) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
-get_remote_call({'case', _, {call, A, B, C}, L}) -> [get_remote_call({call, A, B, C}), lists:flatmap(fun(X) -> get_remote_call(X) end, L)] ;
-get_remote_call({_, _, _, _, _}) -> [] ;
-get_remote_call({_, _, _, L})   when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
-get_remote_call({_, _, _, T})   when is_tuple(T) -> get_remote_call(T) ;
-get_remote_call({_, _, _, _}) -> [] ;
-get_remote_call({_, _, L}) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X) end, L) ;
-get_remote_call({_, _, _}) -> [] ;
-get_remote_call({_, _}) -> [] ;
-get_remote_call(_I) when is_integer(_I) -> [];
-get_remote_call(_A) when is_atom(_A) -> [];
-get_remote_call(_Z) -> %io:format("Missed : ~p~n", [_Z]),
+get_remote_call({call,_,{atom,_, F}, Args}, Exp)
+                when is_list(Args)->
+                     Arity = length(Args),
+                     Z = lists:any(fun({_, A, B}) -> ((A == F) andalso (B == Arity)) end, Exp),
+                     X = case Z of
+                           false -> {erlang, F, Arity};
+                           true  -> []
+                         end,
+                     [X, lists:flatmap(fun(X_) -> get_remote_call(X_, Exp) end, Args)] ;
+get_remote_call({call,_, {remote,_,{atom, _,M},{atom, _, F}}, Args}, Exp)
+                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, Args)] ;
+get_remote_call({call,_, {remote,_,{var,_,M},{atom,_,F}}, Args}, Exp)
+                when is_list(Args)-> [{M, F, length(Args)}, lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, Args)] ;
+get_remote_call({_, _, _, L1, L2, L3}, Exp)
+      when  is_list(L1),
+            is_list(L2),
+            is_list(L3) -> [lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L1),
+                            lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L2),
+                            lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L3)];
+get_remote_call({_, _, _, _, L}, Exp) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L) ;
+get_remote_call({'case', _, {call, A, B, C}, L}, Exp) -> [get_remote_call({call, A, B, C}, Exp), lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L)] ;
+get_remote_call({_, _, _, _, _}, _Exp) -> [] ;
+get_remote_call({_, _, _, L}, Exp)   when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L) ;
+get_remote_call({_, _, _, T}, Exp)   when is_tuple(T) -> get_remote_call(T, Exp) ;
+get_remote_call({_, _, _, _}, _Exp) -> [] ;
+get_remote_call({_, _, L}, Exp) when is_list(L) -> lists:flatmap(fun(X) -> get_remote_call(X, Exp) end, L) ;
+get_remote_call({_, _, _}, _Exp) -> [] ;
+get_remote_call({_, _}, _Exp) -> [] ;
+get_remote_call(_I, _Exp) when is_integer(_I) -> [];
+get_remote_call(_A, _Exp) when is_atom(_A) -> [];
+get_remote_call(_Z, _Exp) -> %io:format("Missed : ~p~n", [_Z]),
 					   ?LOG(geas_logs,{debug, unhandled, _Z}),
                        [].
 
@@ -1203,7 +1217,9 @@ offending(File) ->
 %%-------------------------------------------------------------------------
 get_min_offending(Rel, File) ->
    Abs = get_abstract(File),
-   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+   Mod = get_module_name_from_file(File),
+   Exports = lists:filter(fun({M, _F, _A}) -> (M == Mod) end, get(geas_exports)),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A, Exports)] end, Abs))),
    % From list get the release of offending functions
    R = lists:flatmap(fun(F) -> [{rel_min(F), F}] end , X),
    % Extract only the release we search
@@ -1217,7 +1233,9 @@ get_min_offending(Rel, File) ->
 %%-------------------------------------------------------------------------
 get_max_offending(Rel, File) ->
    Abs = get_abstract(File),
-   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A)] end, Abs))),
+   Mod = get_module_name_from_file(File),
+   Exports = lists:filter(fun({M, _F, _A}) -> (M == Mod) end, get(geas_exports)),
+   X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A, Exports)] end, Abs))),
    % From list get the release of offending functions
    R = lists:flatmap(fun(F) -> [{rel_max(F), F}] end , X),
    % Extract only the release we search
@@ -1273,7 +1291,7 @@ compat(RootDir, term) ->
             end, []),
    % Get all upper project
    Ps = lists:usort(PP),
-   ?LOG(geas_logs, {debug, "", Ps }),
+   ?LOG(geas_logs, {debug, dir_list, Ps }),
    Global = Ps ++ [filename:absname(RootDir)],
    D = lists:flatmap(fun(X) ->
                         case catch info(X) of
@@ -1560,7 +1578,7 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
       {ok , Form} -> case is_valid_code(Form) of
                      true  -> % Extract exported functions
                            store_exported(Form),
-                           Form;
+                           {Form, []};
                      false -> ?LOG(geas_logs, {error, parse_error, File}),
                               []
                   end;
