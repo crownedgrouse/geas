@@ -601,7 +601,10 @@ get_module_name_from_file(File) ->
 
 get_erlang_compat_beam(File) ->
    % Extract all Erlang MFA in Abstract code
-   Abs1 = get_abstract(File),
+   Abs1 = case get_abstract(File) of
+            AA when is_tuple(AA) -> [AA];
+            AA -> AA
+         end,
    Mod = get_module_name_from_file(File),
    Exports = lists:filter(fun({M, _F, _A}) -> (M == Mod) end, get(geas_exports)),
    X = lists:usort(lists:flatten(lists:flatmap(fun(A) -> [get_remote_call(A, Exports)] end, Abs1))),

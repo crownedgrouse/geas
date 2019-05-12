@@ -34,7 +34,7 @@ get_remote_call({_, _, _}, _Exp) -> [] ;
 get_remote_call({_, _}, _Exp) -> [] ;
 get_remote_call(_I, _Exp) when is_integer(_I) -> [];
 get_remote_call(_A, _Exp) when is_atom(_A) -> [];
-get_remote_call(_Z, _Exp) -> %io:format("Missed : ~p~n", [_Z]),
-					   ?LOG(geas_logs,{debug, unhandled, _Z}),
+get_remote_call(_Z, _Exp) -> io:format("Missed : ~p~n", [_Z]),
+				?LOG(geas_logs,{debug, unhandled, _Z}),
                        [].
 
