@@ -74,10 +74,13 @@ get_app_file(Dir) ->
             and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) ) of
       true ->
             case filelib:wildcard("*.app", Dir) of
-                     []    -> throw("Application Resource File (.app) not found. Aborting."),
-                                 "" ;
+                     []    -> %throw("Application Resource File (.app) not found. Aborting."),
+                              ?LOG(geas_logs, {error, no_app_file_found , Dir}),
+                              "" ;
                      [App] -> filename:join(Dir, App) ;
-                     _     -> throw("More than one .app file found in : "++ Dir), ""
+                     _     -> %throw("More than one .app file found in : "++ Dir), 
+                              ?LOG(geas_logs, {error, many_app_file_found , Dir}),
+                              ""
             end;
       false ->  % Workaround for subdirectories in src/
             DirSrc = case filename:basename(Dir) of
