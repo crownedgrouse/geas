@@ -190,22 +190,26 @@ what_beam(File) ->
 %% @end
 %%-------------------------------------------------------------------------
 offending(File) ->
-  % check it is a file or exit
-   case filelib:is_regular(File) of
-      false -> {error, invalid_argument} ;
-      true  -> % Apply geas:what on the beam, bring lowest and highest if necessary
-               {ok, L } = geas:what(File),
-               {compat, Compat} = lists:keyfind(compat, 1, L),
-               {A, B, C, D} = Compat,
-               MinOff = case A =/= B of
-                              true -> get_min_offending(B, File) ;
-                              false -> []
-                         end,
-               MaxOff = case C =/= D of
-                              true -> get_max_offending(C, File) ;
-                              false -> []
-                         end,
-               {ok, {MinOff, MaxOff}}
+   try
+   % check it is a file or exit
+      case filelib:is_regular(File) of
+         false -> {error, invalid_argument} ;
+         true  -> % Apply geas:what on the beam, bring lowest and highest if necessary
+                  {ok, L } = geas:what(File),
+                  {compat, Compat} = lists:keyfind(compat, 1, L),
+                  {A, B, C, D} = Compat,
+                  MinOff = case A =/= B of
+                                 true -> get_min_offending(B, File) ;
+                                 false -> []
+                           end,
+                  MaxOff = case C =/= D of
+                                 true -> get_max_offending(C, File) ;
+                                 false -> []
+                           end,
+                  {ok, {MinOff, MaxOff}}
+      end
+   catch
+      _:Reason -> {error, Reason}
    end.
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
