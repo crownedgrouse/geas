@@ -11,3 +11,4 @@ edoc-info
 *.css
 ebin
 rebar.lock
+.*.code-workspace
