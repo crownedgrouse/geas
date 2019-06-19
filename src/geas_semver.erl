@@ -38,6 +38,13 @@
                  , patch
                  , pre}).
 
+%%-------------------------------------------------------------------------
+%% @doc  Check a version against a semver range
+%% @since 2.5
+%% @end
+%%-------------------------------------------------------------------------
+%({version,[],"1","4",[],[]},{"=","1","4"})
+
 check(Version, Range)
    when is_list(Version), is_list(Range) ->
    {ok, L} = parse(Version),
@@ -52,24 +59,37 @@ check(Version, {'or', L, R})
    (check(Version, L) or check(Version, R));
 check(_Version, {_, lowest})  -> true;
 check(_Version, {_, highest}) -> true;
-check(Version, {Comp, Major, Minor, Patche})  -> check(Version, Comp, Major, Minor, Patche).
+check(Version, {Comp}) -> check(Version, Comp, [], [], []);
+check(Version, {Comp, Major}) -> check(Version, Comp, Major, [], []);
+check(Version, {Comp, Major, Minor}) -> check(Version, Comp, Major, Minor, []);
+check(Version, {Comp, Major, Minor, Patche}) -> check(Version, Comp, Major, Minor, Patche).
 
 
 check(Version, Comp, Major, Minor, Patche)
+   when (Comp==[]) -> check(Version, "=", Major, Minor, Patche);
+check(Version, Comp, Major, Minor, Patche)
+   when (Major==[]) -> check(Version, Comp, "0", Minor, Patche);
+check(Version, Comp, Major, Minor, Patche)
+   when (Minor==[]) -> check(Version, Comp, Major, "0", Patche);
+check(Version, Comp, Major, Minor, Patche) 
+   when (Patche==[]) -> check(Version, Comp, Major, Minor, "0");
+check(Version, Comp, Major, Minor, Patche)
    when is_record(Version, version), is_list(Comp), is_list(Major), is_list(Minor), is_list(Patche) ->
+
+   io:format("~p~n", [{Version, Comp, Major, Minor, Patche}]),
    C = case (Version#version.major == Major) of
-        false -> case (list_to_integer(Version#version.major) > list_to_integer(Major)) of
+        false -> case (safe_list_to_integer(Version#version.major) > safe_list_to_integer(Major)) of
                      true  -> ">" ;
                      false -> "<"
                  end;
-        true  -> case (Version#version.minor == Minor) of
-                     false -> case (list_to_integer(Version#version.minor) > list_to_integer(Minor)) of
+        true   -> case (Version#version.minor == Minor) of
+                     false -> case (safe_list_to_integer(Version#version.minor) > safe_list_to_integer(Minor)) of
                                     true  -> ">" ;
                                     false -> "<"
                               end;
                      true  -> case (Version#version.patch == Patche) of
                                  true  -> "=" ;
-                                 false -> case (list_to_integer(Version#version.patch) > list_to_integer(Patche)) of
+                                 false -> case (safe_list_to_integer(Version#version.patch) > safe_list_to_integer(Patche)) of
                                                 true  -> ">" ;
                                                 false -> "<"
                                           end
@@ -77,16 +97,21 @@ check(Version, Comp, Major, Minor, Patche)
                  end
       end,
    case Comp of
-        "="  when (C == "=")  -> true ;
-        ">="  when (C == "=") -> true ;
-        "<="  when (C == "=") -> true ;
-        ">=" when (C == ">")  -> true ;
-        ">"  when (C == ">")  -> true ;
-        "<=" when (C == "<")  -> true ;
-        "<"  when (C == "<")  -> true ;
+        "="  when (C == "=") -> true ;
+        ">=" when (C == "=") -> true ;
+        "<=" when (C == "=") -> true ;
+        ">=" when (C == ">") -> true ;
+        ">"  when (C == ">") -> true ;
+        "<=" when (C == "<") -> true ;
+        "<"  when (C == "<") -> true ;
         _ -> false
    end.
 
+%%-------------------------------------------------------------------------
+%% @doc  Parse semver string
+%% @since 2.5
+%% @end
+%%-------------------------------------------------------------------------
 parse(V) when is_list(V) ->
       case re:run(V, ?SEMVER, [global, {capture, all_but_first, list}, notempty]) of
          {match, Captured} -> C = case Captured of
@@ -108,8 +133,8 @@ parse(V) when is_list(V) ->
       end.
 
 %%-------------------------------------------------------------------------
-%% @doc
-%% @since
+%% @doc  Extract simple range
+%% @since 2.5
 %% @end
 %%-------------------------------------------------------------------------
 simple_range(X) ->
@@ -119,7 +144,7 @@ simple_range(X) ->
    end.
 
 %%-------------------------------------------------------------------------
-%% @doc
+%% @doc Translate simple range
 %% @end
 %%-------------------------------------------------------------------------
 simple_range_translate(X) when is_record(X, version) ->
@@ -265,6 +290,7 @@ simple_range_translate(X, Y)
 parse_range(V) when is_list(V) ->
    case string:tokens(V, " ") of
       [Left, "-", Right]  -> {ok, #version{major = Major, minor = Minor, patch = Patch} = X} = parse(Right),
+      io:format("ici ~p~n",[X]),
                              case X of
                                  X when (Patch =/= "")
                                     -> parse_range(io_lib:format(">=~ts <=~ts", [Left, Right]));
@@ -302,7 +328,7 @@ supchar(S, C) -> case S of
 strip_range({ok, L, R})    -> {ok, L, R};
 strip_range({'and', L, R}) -> {ok, L, R}.
 
-%% join is available since 19.0
+%% join is available since 19.0 only
 -spec join(Sep, List1) -> List2 when
       Sep :: T,
       List1 :: [T],
@@ -314,6 +340,9 @@ join(Sep, [H|T]) -> [H|join_prepend(Sep, T)].
 
 join_prepend(_Sep, []) -> [];
 join_prepend(Sep, [H|T]) -> [Sep,H|join_prepend(Sep,T)].
+
+safe_list_to_integer([]) -> safe_list_to_integer("0");
+safe_list_to_integer(L) -> erlang:list_to_integer(L).
 
 
  %%% TESTS %%%
@@ -352,4 +381,13 @@ parse_range_test() ->
                              {'and',{'and',{">=","12","3","0"},{"<=",highest}},
                                     {'and',{">=",lowest},{"<","12","4","0"}}}}},
                  parse_range("<11 || >13 || 12.3.x"))
+   ,ok.
+
+check_test() ->
+    ?assertEqual(true, check("1.4","~1.2 || 1.4"))
+   ,?assertEqual(false, check("1.4.1","~1.2 || 1.4"))
+   ,?assertEqual(true, check("1.2.7","~1.2 || 1.4"))
+   ,?assertEqual(true, check("1.4.0","~1.2 || 1.4"))
+   ,?assertEqual(false, check("1.4.2","~1.2 || 1.4"))
+   ,?assertEqual(true, check("1.4.2","~1.2 || ~1.4"))
    ,ok.

@@ -194,7 +194,7 @@ get_abstract(File, beam) -> %io:format("beam ~p~n",[File]),
       {ok,{_,[{abstract_code, no_abstract_code}]}} ->
          ?LOG(geas_logs,{warning, no_abstract_code, File}),
          % Try on source file as fallback
-            SrcFile = get_src_from_beam(File),
+         SrcFile = get_src_from_beam(File),
          case filelib:is_regular(SrcFile) of
                true  -> case filename:extension(SrcFile) of
                         ".dtl" -> get_abstract(SrcFile, dtl) ;
@@ -214,7 +214,7 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
    %io:format("inc ~p~nsrc ~p~n",[IncDir, SrcDir]),
    % DO NOT USE : epp:parse_file/2, because starting "R16B03-1"
    % Geas need to work on the maximal release window
-            case epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []) of
+   case epp:parse_file(File, [{includes,[filename:dirname(File), IncDir, SrcDir]}], []) of
       {ok , Form} -> 
          case is_valid_code(Form) of
             true  -> % Extract exported functions
