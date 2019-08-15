@@ -219,7 +219,7 @@ get_abstract(File, src) ->	% Add non conventional include dir for sub-directorie
          case is_valid_code(Form) of
             true  -> % Extract exported functions
                   store_exported(Form),
-                  {Form, []};
+                  Form;
             false -> ?LOG(geas_logs, {error, parse_error, File}),
                      []
          end;
