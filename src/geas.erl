@@ -43,18 +43,18 @@
 -include("geas_disc.hrl").
 
 % Code
--include("geas_defs.hrl").    % Concerning definitions, records
--include("geas_logs.hrl").    % Concerning logs
--include("geas_path.hrl").    % Concerning paths and directories
--include("geas_beam.hrl").    % Concerning BEAM
--include("geas_app.hrl").     % Concerning Erlang applications
--include("geas_vcs.hrl").     % Concerning VCS
--include("geas_version.hrl"). % Concerning Erlang versions
--include("geas_misc.hrl").    % Concerning misc things
--include("geas_calls.hrl").   % Concerning calls in abstract code
--include("geas_patches.hrl"). % Concerning Erlang releases patches
--include("geas_api.hrl").     % Concerning Geas API
--include("geas_plugins.hrl"). % Concerning Geas plugins
+-include("geas_defs.hrl").    %  definitions, records
+-include("geas_logs.hrl").    %  logs
+-include("geas_path.hrl").    %  paths and directories
+-include("geas_beam.hrl").    %  BEAM
+-include("geas_app.hrl").     %  Erlang applications
+-include("geas_vcs.hrl").     %  VCS
+-include("geas_version.hrl"). %  Erlang versions
+-include("geas_misc.hrl").    %  misc things
+-include("geas_calls.hrl").   %  calls in abstract code
+-include("geas_patches.hrl"). %  Erlang releases patches
+-include("geas_api.hrl").     %  Geas API
+-include("geas_plugins.hrl"). %  Geas plugins
 
 
 

@@ -87,7 +87,9 @@ check(Version, Comp, Major, Minor, Patche)
                                     true  -> ">" ;
                                     false -> "<"
                               end;
-                     true  -> case (Version#version.patch == Patche) of
+                     true  -> case ((Version#version.patch == Patche)
+                                    or 
+                                    (Version#version.patch == []) and (Patche == "0")) of
                                  true  -> "=" ;
                                  false -> case (safe_list_to_integer(Version#version.patch) > safe_list_to_integer(Patche)) of
                                                 true  -> ">" ;
