@@ -25,5 +25,5 @@
                 ,disc_rels = false
                 ,log       = []
                 ,tips      = false
-                ,frame     = []
+                ,range     = []
                 }).

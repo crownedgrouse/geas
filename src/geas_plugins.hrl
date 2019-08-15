@@ -50,7 +50,7 @@ get_config(Conf) ->
                         "1"   -> true ;
                         _     -> false
                 end,
-   Frame      = case os:getenv("GEAS_FRAME") of
+   Range_     = case os:getenv("GEAS_RANGE") of
                      false -> [] ;
                      ""    -> [] ;
                      F     -> F
@@ -61,6 +61,13 @@ get_config(Conf) ->
    Disc_rels = proplists:get_value(disc_rels, Conf, Disc_rels_),
    Log       = proplists:get_value(log, Conf, Log_),
    Tips      = proplists:get_value(tips, Conf, Tips_),
-   Frame     = proplists:get_value(frame, Conf, Frame),
-   #config{use_src = Use_src, my_rels = My_rels, exc_rels = Exc_rels, disc_rels = Disc_rels, log = Log, tips = Tips, frame = Frame}.
+   Range     = proplists:get_value(range, Conf, Range_),
+   #config{ use_src = Use_src
+          , my_rels = My_rels
+          , exc_rels = Exc_rels
+          , disc_rels = Disc_rels
+          , log = Log
+          , tips = Tips
+          , range = Range}.
+
 

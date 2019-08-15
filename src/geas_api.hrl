@@ -339,7 +339,11 @@ compat(RootDir, term) ->
    {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
 
 compat(RootDir, print) ->
-   {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
+   compat(RootDir, print, get_config()).
+
+
+compat(RootDir, print, Conf) ->
+      {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
    % Display log if needed
    Project = 
       case RootDir of
@@ -364,7 +368,7 @@ compat(RootDir, print) ->
       _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
    end,
    % Display Recommanded Erlang release if requested
-   case os:getenv("GEAS_TIPS") of
+   case Conf#config.tips of
       false -> ok ;
       "0"   -> ok ;
       "1"   -> Rec = get_recommanded_patches(Current),
@@ -373,12 +377,12 @@ compat(RootDir, print) ->
                   Rec -> io:format("R : ~ts~n", [string:join(Rec, " ")])
                end
    end,
-   case os:getenv("GEAS_MY_RELS") of
+   case Conf#config.my_rels of
       false -> ok ;
       "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
       _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
    end,
-   case os:getenv("GEAS_EXC_RELS") of
+   case Conf#config.exc_rels of
       false -> ok ;
       Exc   -> case pickup_rel(w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, false), string:tokens(Exc, " ")) of
                   []       -> ok ;
@@ -389,7 +393,7 @@ compat(RootDir, print) ->
    case erlang:get(geas_disc) of
       undefined -> ok ;
       Disc      -> 
-         ShowDisc = case os:getenv("GEAS_DISC_RELS") of
+         ShowDisc = case Conf#config.disc_rels of
                         false -> false ;
                         "1"   -> true ;
                         "0"   -> false

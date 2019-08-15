@@ -76,7 +76,7 @@ check(Version, Comp, Major, Minor, Patche)
 check(Version, Comp, Major, Minor, Patche)
    when is_record(Version, version), is_list(Comp), is_list(Major), is_list(Minor), is_list(Patche) ->
 
-   io:format("~p~n", [{Version, Comp, Major, Minor, Patche}]),
+   %io:format("~p~n", [{Version, Comp, Major, Minor, Patche}]),
    C = case (Version#version.major == Major) of
         false -> case (safe_list_to_integer(Version#version.major) > safe_list_to_integer(Major)) of
                      true  -> ">" ;
@@ -174,17 +174,17 @@ simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, _)
 % ~1.2.3 	is >=1.2.3 <1.3.0
 % ~1.2 	   is >=1.2.0 <1.3.0 	(like ~1.2.0)
 % ~1 	      same
-simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "~")
+simple_range_translate(#version{major = Major, minor = Minor, patch = Patch}, "\~")
    when (Major =/= ""),(Minor =/= ""),(Patch =/= "") ->
    Min = {">=", Major, Minor, Patch},
    Max = {"<", Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"},
    {ok, Min, Max};
-simple_range_translate(#version{major = Major, minor = Minor}, "~")
+simple_range_translate(#version{major = Major, minor = Minor}, "\~")
    when (Major =/= ""),(Minor =/= "") ->
    Min = {">=",Major, Minor, "0"},
    Max = {"<", Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"},
    {ok, Min, Max};
-simple_range_translate(#version{major = Major}, "~")
+simple_range_translate(#version{major = Major}, "\~")
    when (Major =/= "") ->
    Min = {"=", Major},
    Max = {"=", Major},
@@ -292,7 +292,7 @@ simple_range_translate(X, Y)
 parse_range(V) when is_list(V) ->
    case string:tokens(V, " ") of
       [Left, "-", Right]  -> {ok, #version{major = Major, minor = Minor, patch = Patch} = X} = parse(Right),
-      io:format("ici ~p~n",[X]),
+      %io:format("parse_range : ~p~n",[X]),
                              case X of
                                  X when (Patch =/= "")
                                     -> parse_range(io_lib:format(">=~ts <=~ts", [Left, Right]));
@@ -391,5 +391,12 @@ check_test() ->
    ,?assertEqual(true, check("1.2.7","~1.2 || 1.4"))
    ,?assertEqual(true, check("1.4.0","~1.2 || 1.4"))
    ,?assertEqual(false, check("1.4.2","~1.2 || 1.4"))
-   ,?assertEqual(true, check("1.4.2","~1.2 || ~1.4"))
+   ,?assertEqual(true, check("1.4.3","~1.2 || ~1.4"))
+   ,?assertEqual(false, check("1.5","~1.2 || ~1.4"))
+   ,?assertEqual(false, check("1.5.1","~1.2 || ~1.4"))
+   ,?assertEqual(false, check("1.1",">1.2  <1.4"))
+   ,?assertEqual(true, check("1.3.3",">1.2  <1.4"))
+   ,?assertEqual(false, check("1.4.0",">1.2  <1.4"))
+   ,?assertEqual(true, check("1.4.0",">1.2  <=1.4"))
+   ,?assertEqual(false, check("1.4.3",">1.2  <=1.4"))
    ,ok.
