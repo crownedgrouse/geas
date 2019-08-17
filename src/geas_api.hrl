@@ -371,7 +371,7 @@ compat(RootDir, print, Conf) ->
    case Conf#config.tips of
       false -> ok ;
       "0"   -> ok ;
-      "1"   -> Rec = get_recommanded_patches(Current),
+      _     -> Rec = get_recommanded_patches(Current),
                case Rec of
                   []  -> ok;
                   Rec -> io:format("R : ~ts~n", [string:join(Rec, " ")])
@@ -408,6 +408,10 @@ compat(RootDir, print, Conf) ->
             false -> ok
          end
    end,
+   %% Set the plugin exit code
+   % Current version is incompatible with release window
+   % Check versions against semver range set
+
    ok.
 
 %%-------------------------------------------------------------------------
@@ -530,6 +534,13 @@ git_tag(X) ->
       "R" -> "OTP_" ++ X;
       _   -> "OTP-" ++ X
    end.
+
+%%-------------------------------------------------------------------------
+%% @doc Return exit code
+%% @end
+%%-------------------------------------------------------------------------
+exit_code()
+   -> get(geas_exit_code).
 
 %%=========================================================================
 %%=== Local functions                                                   ===
