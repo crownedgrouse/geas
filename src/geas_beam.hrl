@@ -275,7 +275,9 @@ beam_opcode_compat(Beam) ->
 %% @doc Get opcode from current version
 %% @end
 %%-------------------------------------------------------------------------
-get_cur_max_opcode() -> get_cur_max_opcode(0, 100).
+get_cur_max_opcode() -> MO = get_cur_max_opcode(0, 100),
+                        put(geas_otp_maxopcode, MO),
+                        MO.
 
 get_cur_max_opcode(Int, Step) 
    when is_integer(Int),is_integer(Step) -> 
@@ -293,13 +295,15 @@ get_cur_max_opcode(Int, Step)
 %% @end
 %%-------------------------------------------------------------------------
 get_beam_max_opcode(Beam) -> 
-   case catch beam_lib:chunks(Beam, ["Code"]) of
+   MO = case catch beam_lib:chunks(Beam, ["Code"]) of
       {ok,{_Mod,[{"Code",Code}]}} 
          -> CodeFormatNumber = 0,
             <<_Size:32,CodeFormatNumber:32,Highest:32,_/binary>> = Code,
             Highest;
       _ -> 0 % TODO raw method
-   end.
+   end,
+   put(geas_beam_maxopcode, MO),
+   MO.
   
 %%-------------------------------------------------------------------------
 %% @doc Get arch of native compiled modules, or local architecture otherwise

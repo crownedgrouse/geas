@@ -1,20 +1,20 @@
 
 
 -define(COMMON_DIR(Dir),
-            AppFile   = get_app_file(Dir),
-            % Informations inventory
-            {AppName, Version , Desc}  = get_app_infos(AppFile),
-            AppType   = get_app_type(AppFile, Dir),
-            Native    = is_native(Dir),
-            Arch      = get_arch(Native, Dir),
-            Word      = get_word(),
-            AppBeam   = filename:join(Dir, atom_to_list(AppName)++".beam"),
-            Date      = get_date(AppBeam),
-            Author    = get_author(AppBeam),
-            Os        = get_os(),
-            %Erts      = get_erts_version(AppBeam),
-            Comp      = get_compile_version(AppBeam),
-            Erlang    = get_erlang_version(Comp)
+   AppFile   = get_app_file(Dir),
+   % Informations inventory
+   {AppName, Version , Desc}  = get_app_infos(AppFile),
+   AppType   = get_app_type(AppFile, Dir),
+   Native    = is_native(Dir),
+   Arch      = get_arch(Native, Dir),
+   Word      = get_word(),
+   AppBeam   = filename:join(Dir, atom_to_list(AppName)++".beam"),
+   Date      = get_date(AppBeam),
+   Author    = get_author(AppBeam),
+   Os        = get_os(),
+   %Erts      = get_erts_version(AppBeam),
+   Comp      = get_compile_version(AppBeam),
+   Erlang    = get_erlang_version(Comp)
 ).
 %%-------------------------------------------------------------------------
 %% @doc Return infos after application directory analysis
@@ -24,65 +24,65 @@
 -spec info(list()) -> tuple().
 
 info(Dir) when is_list(Dir) ->
-        {ok, CurPwd} = file:get_cwd(),
-        put(geas_cwd, CurPwd),
-        Conf = get_config(),
-        try
-            % Fatal tests
-            is_valid_dir(Dir),
-            is_valid_erlang_project(Dir),
-            % Variables
-            EbinDir   = filename:join(Dir, "ebin"),
-            CsrcDir   = filename:join(Dir, "c_src"),
-            SrcDir   = filename:join(Dir, "src"),
-            Driver    = is_using_driver(CsrcDir),
-            ?COMMON_DIR(EbinDir) ,
-            InfoDir = case Conf#config.use_src of
-                        false  -> EbinDir ;
-                        true   -> SrcDir
-                      end,
-            Compat    = get_erlang_compat(InfoDir),
-            % Commands to be done in Dir
-            ok = file:set_cwd(Dir),
+  {ok, CurPwd} = file:get_cwd(),
+  put(geas_cwd, CurPwd),
+  Conf = get_config(),
+  try
+      % Fatal tests
+      is_valid_dir(Dir),
+      is_valid_erlang_project(Dir),
+      % Variables
+      EbinDir   = filename:join(Dir, "ebin"),
+      CsrcDir   = filename:join(Dir, "c_src"),
+      SrcDir   = filename:join(Dir, "src"),
+      Driver    = is_using_driver(CsrcDir),
+      ?COMMON_DIR(EbinDir) ,
+      InfoDir = case Conf#config.use_src of
+                  false  -> EbinDir ;
+                  true   -> SrcDir
+                end,
+      Compat    = get_erlang_compat(InfoDir),
+      % Commands to be done in Dir
+      ok = file:set_cwd(Dir),
 
-            VCS       = get_vcs(),
-            VcsVsn    = get_vcs_version(VCS),
-            VcsUrl    = get_vcs_url(VCS),
+      VCS       = get_vcs(),
+      VcsVsn    = get_vcs_version(VCS),
+      VcsUrl    = get_vcs_url(VCS),
 
-            Maint     = get_maintainer(VCS),
-            CL        = get_changelog(),
-            RN        = get_releasenotes(),
-            Current   = case Erlang of
-                        {_, Current_, _} -> Current_ ;
-                        undefined        -> undefined
-                        end,
-            Patches   = list_installed_patches(Current),
+      Maint     = get_maintainer(VCS),
+      CL        = get_changelog(),
+      RN        = get_releasenotes(),
+      Current   = case Erlang of
+                  {_, Current_, _} -> Current_ ;
+                  undefined        -> undefined
+                  end,
+      Patches   = list_installed_patches(Current),
 
-            {ok,
-            [{name, AppName},
-             {version, Version},
-             {description, Desc},
-             {type, AppType},
-             {datetime, Date},
-             {native, Native},
-             {arch, Arch},
-             {os, Os},
-             {word, Word},
-             {compile, Comp},
-             {erlang, Erlang},
-             {compat, Compat},
-             {author, Author},
-             {vcs, {VCS, VcsVsn, VcsUrl}},
-             {maintainer, Maint},
-             {changelog, CL},
-             {releasenotes, RN},
-             {driver, Driver},
-             {patches, Patches}]}
-       catch
-           _:Reason -> {error, Reason}
-       after
-           ok = file:set_cwd(CurPwd)
-       end.
+      {ok,
+      [{name, AppName},
+       {version, Version},
+       {description, Desc},
+       {type, AppType},
+       {datetime, Date},
+       {native, Native},
+       {arch, Arch},
+       {os, Os},
+       {word, Word},
+       {compile, Comp},
+       {erlang, Erlang},
+       {compat, Compat},
+       {author, Author},
+       {vcs, {VCS, VcsVsn, VcsUrl}},
+       {maintainer, Maint},
+       {changelog, CL},
+       {releasenotes, RN},
+       {driver, Driver},
+       {patches, Patches}]}
+ catch
+     _:Reason -> {error, Reason}
+ after
+     ok = file:set_cwd(CurPwd)
+ end.
        
 %%-------------------------------------------------------------------------
 %% @doc Return infos on .beam file(s) only
@@ -185,6 +185,7 @@ what_beam(File) ->
    catch
       _:Reason -> {error, Reason}
    end.
+
 %%-------------------------------------------------------------------------
 %% @doc Give the offending modules/functions that reduce release window
 %% @end
@@ -211,6 +212,7 @@ offending(File) ->
    catch
       _:Reason -> {error, Reason}
    end.
+
 %%-------------------------------------------------------------------------
 %% @doc Give the offending min modules/functions that reduce release window
 %% @end
@@ -370,15 +372,13 @@ compat(RootDir, print, Conf) ->
    % Display Recommanded Erlang release if requested
    case Conf#config.tips of
       false -> ok ;
-      "0"   -> ok ;
-      _     -> Rec = get_recommanded_patches(Current),
+      true  -> Rec = get_recommanded_patches(Current),
                case Rec of
                   []  -> ok;
                   Rec -> io:format("R : ~ts~n", [string:join(Rec, " ")])
                end
    end,
    case Conf#config.my_rels of
-      false -> ok ;
       "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
       _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
    end,
@@ -393,12 +393,7 @@ compat(RootDir, print, Conf) ->
    case erlang:get(geas_disc) of
       undefined -> ok ;
       Disc      -> 
-         ShowDisc = case Conf#config.disc_rels of
-                        false -> false ;
-                        "1"   -> true ;
-                        "0"   -> false
-                     end,
-         case ShowDisc of
+         case Conf#config.disc_rels of
             true -> % Do not display if outside of window
                DL = in_window(MinGlob, distinct_disc_rels(Disc), MaxGlob),
                case DL of
@@ -409,9 +404,17 @@ compat(RootDir, print, Conf) ->
          end
    end,
    %% Set the plugin exit code
-   % Current version is incompatible with release window
-   % Check versions against semver range set
-
+   try
+      % Current version is incompatible with release window
+      check_current_rel_vs_window(Current, Rels),
+      % Check versions against semver range set
+      check_window_vs_semver_range(Rels, Conf#config.range)
+   catch
+      _:Exit -> put(geas_exit_code, Exit),
+                Err = format_error(Exit),
+                ?LOG(geas_logs, {error, Exit, Err}),
+                geas:log()
+   end,
    ok.
 
 %%-------------------------------------------------------------------------
@@ -482,6 +485,7 @@ guilty(RootDir) ->
 w2l({A, MinRel, MaxRel, B}) -> w2l({A, MinRel, MaxRel, B}, true).
 
 w2l({_, MinRel, MaxRel, _}, Exc) ->
+   Conf = get_config(),
    L = geas_db:get_rel_list(),
    Lower = lists:filter(fun(X) -> 
                            case (versionize(X) >= versionize(MinRel) ) of
@@ -496,7 +500,7 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
                            end
                         end, Lower),
    Exclude = 
-      case os:getenv("GEAS_EXC_RELS") of
+      case Conf#config.exc_rels of
          false -> [] ;
          Excs -> case Exc of
                   true -> string:tokens(Excs, " ") ;
@@ -504,22 +508,16 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
                end
       end,
    Local = 
-      case os:getenv("GEAS_MY_RELS") of
+      case Conf#config.my_rels of
          false -> Res -- Exclude;
          ""    -> Res -- Exclude;
          MyRel -> MyRelList = string:tokens(MyRel, " "),
                pickup_rel(MyRelList, Res) -- Exclude
       end,
-   ShowDisc = 
-      case os:getenv("GEAS_DISC_RELS") of
-         false -> true ;
-         "1"   -> true ;
-         "0"   -> false
-      end,
    case erlang:get(geas_disc) of
       undefined -> Local ;
       Disc  ->
-         case ShowDisc of
+         case Conf#config.disc_rels of
             true  -> Local -- distinct_disc_rels(Disc);
             false -> Local
          end
@@ -553,12 +551,12 @@ exit_code()
 -spec get_erlang_compat(list()) -> {list(), list(), list(), list()}.
 
 get_erlang_compat(Dir) ->
+   Conf = get_config(),
    NbBeams =  length(filelib:wildcard("*.beam", Dir)),
-   Joker = case os:getenv("GEAS_USE_SRC") of
+   Joker = case Conf#config.use_src  of
                   _ when (NbBeams == 0) -> "**/*.erl" ;
                   false -> "*.beam" ;
-                  "0"   -> "*.beam" ;
-                  "1"   -> "**/*.erl"
+                  true  -> "**/*.erl"
            end,
    Beams = filelib:wildcard(Joker, Dir),
    Fun = fun(F) ->   
@@ -602,6 +600,10 @@ get_erlang_compat_file(File) ->
    ?STORE(geas_disc, DiscList),
    {?GEAS_MIN_REL , MinR, MaxR, ?GEAS_MAX_REL}.
 
+%%-------------------------------------------------------------------------
+%% @doc Get module name from file
+%% @end
+%%-------------------------------------------------------------------------
 get_module_name_from_file(File) -> 
    case (filelib:is_regular(File)) of
       true  -> erlang:list_to_atom(filename:basename(File, filename:extension(File)));
@@ -658,3 +660,27 @@ get_erlang_compat_beam(File) ->
    ?STORE(geas_minrels, Max),
    ?STORE(geas_maxrels, Min),
    {Highest, Lowest, {File, DiscRels}}.
+
+%%-------------------------------------------------------------------------
+%% @doc TODO
+%% @end
+%%-------------------------------------------------------------------------
+check_current_rel_vs_window(_Current, _Window)
+   -> true .
+
+%%-------------------------------------------------------------------------
+%% @doc TODO
+%% @end
+%%-------------------------------------------------------------------------
+check_window_vs_semver_range(_Window, _Range)
+   ->  true .
+
+%%-------------------------------------------------------------------------
+%% @doc Format exit code to error string
+%% @end
+%%-------------------------------------------------------------------------
+format_error(1) ->  "Current Erlang/OTP release is incompatible with project release window" ; 
+format_error(2) ->  "Release window do not match the required semver version range" ;
+format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
+format_error(4) ->  "Maximum opcode is higher in Beam files (May need recompilation)" ;
+format_error(_) ->  "Unexpected exit code".

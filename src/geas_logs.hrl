@@ -20,7 +20,7 @@ loglevels() ->
    end.
 
 %%-------------------------------------------------------------------------
-%% @doc Log infos on analyze
+%% @doc Log infos on analyze, and reinit log buffer
 %% @since 2.0.6
 %% @end
 %%-------------------------------------------------------------------------
@@ -30,7 +30,8 @@ log() ->
    case is_list(L) of
       true  -> log(L, LL);
       false -> ok
-   end.
+   end,
+   put(geas_logs, []).
 
 log(L) when is_list(L) -> log(L, loglevels());
 log(L) -> log([L], loglevels()).
