@@ -677,6 +677,7 @@ check_current_rel_vs_window(Current, Window)
    Start = hd(Window),
    End   = hd(lists:reverse(Window)),
    Range = lists:flatten(">=" ++ Start ++ " <=" ++ End),
+   io:format("~n~p ~p ~p ~p", [Current, Start, End, Range]),
    case geas_semver:check(Current, Range) of
       true  -> 0 ;
       false -> throw(1)
@@ -687,12 +688,15 @@ check_current_rel_vs_window(Current, Window)
 %% @end
 %%-------------------------------------------------------------------------
 check_window_vs_semver_range(Window, Range)
+   when is_list(Range)
    ->  
-   io:format("~p ~p", [Window, Range]),
-   case lists:all(fun(Rel) -> io:format("~p", [Rel]), geas_semver:check(Rel, Range) end, Window) of
+   case lists:all(fun(Rel) -> io:format("~n~p", [Rel]), geas_semver:check(Rel, Range) end, Window) of
       false -> throw(2);
       true  -> 0
-   end.
+   end;
+
+check_window_vs_semver_range(_Window, _Range) % No range set
+   -> 0.
 
 %%-------------------------------------------------------------------------
 %% @doc Format exit code to error string
