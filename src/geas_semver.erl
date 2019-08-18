@@ -47,10 +47,14 @@
 
 check(Version, Range)
    when is_list(Version), is_list(Range) ->
-   {ok, L} = parse(Version),
-   R = parse_range(Range),
-   %io:format("~p~n~p~n", [L, R]),
-   check(L, R);
+   try
+      {ok, L} = parse(Version),
+      R = parse_range(Range),
+      %io:format("~p~n~p~n", [L, R]),
+      check(L, R)
+    catch 
+      _:Reason -> throw({error, ?MODULE, Reason})
+    end;
 check(Version, {'and', L, R})
    when is_record(Version, version) ->
    (check(Version, L) and check(Version, R));

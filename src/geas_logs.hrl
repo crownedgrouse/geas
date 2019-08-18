@@ -31,6 +31,7 @@ log() ->
       true  -> log(L, LL);
       false -> ok
    end,
+   c:flush(),
    put(geas_logs, []).
 
 log(L) when is_list(L) -> log(L, loglevels());

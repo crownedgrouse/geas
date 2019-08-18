@@ -411,16 +411,20 @@ compat(RootDir, print, Conf) ->
       % Check versions against semver range set
       check_window_vs_semver_range(Rels, Conf#config.range)
    catch
-      _:Exit -> put(geas_exit_code, Exit),
-                case ( Exit > 0 ) of
-                  true ->
-                     Err = format_error(Exit),
-                     ?LOG(geas_logs, {error, Exit, Err});
-                  false ->
-                     ok
-                end,
-                geas:log(),
-                c:flush()
+      _:Exit when is_integer(Exit) 
+         ->  put(geas_exit_code, Exit),
+             case ( Exit > 0 ) of
+               true ->
+                  Err = format_error(Exit),
+                  ?LOG(geas_logs, {error, Exit, Err});
+               false ->
+                  ok
+             end;
+      _:Reason
+         -> put(geas_exit_code, -1),
+            ?LOG(geas_logs, {error, unexpexted_error, Reason})
+   after
+      geas:log()
    end,
    ok.
 
@@ -677,7 +681,7 @@ check_current_rel_vs_window(Current, Window)
    Start = hd(Window),
    End   = hd(lists:reverse(Window)),
    Range = lists:flatten(">=" ++ Start ++ " <=" ++ End),
-   io:format("~n~p ~p ~p ~p", [Current, Start, End, Range]),
+   %io:format("~n~p ~p ~p ~p", [Current, Start, End, Range]),
    case geas_semver:check(Current, Range) of
       true  -> 0 ;
       false -> throw(1)
@@ -690,7 +694,7 @@ check_current_rel_vs_window(Current, Window)
 check_window_vs_semver_range(Window, Range)
    when is_list(Range)
    ->  
-   case lists:all(fun(Rel) -> io:format("~n~p", [Rel]), geas_semver:check(Rel, Range) end, Window) of
+   case lists:all(fun(Rel) -> geas_semver:check(Rel, Range) end, Window) of
       false -> throw(2);
       true  -> 0
    end;
