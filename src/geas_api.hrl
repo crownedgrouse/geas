@@ -353,6 +353,7 @@ compat(RootDir, print, Conf) ->
          _   -> filename:basename(RootDir)
       end,
    geas:log(),
+   c:flush(),
    % Display header
    io:format("   ~-10s            ~-10s ~-20s ~20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database", get_version(geas)]),
    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
