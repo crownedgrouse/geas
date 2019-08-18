@@ -412,9 +412,15 @@ compat(RootDir, print, Conf) ->
       check_window_vs_semver_range(Rels, Conf#config.range)
    catch
       _:Exit -> put(geas_exit_code, Exit),
-                Err = format_error(Exit),
-                ?LOG(geas_logs, {error, Exit, Err}),
-                geas:log()
+                case ( Exit > 0 ) of
+                  true ->
+                     Err = format_error(Exit),
+                     ?LOG(geas_logs, {error, Exit, Err});
+                  false ->
+                     ok
+                end,
+                geas:log(),
+                c:flush()
    end,
    ok.
 
@@ -669,7 +675,7 @@ get_erlang_compat_beam(File) ->
 check_current_rel_vs_window(Current, Window)
    -> 
    Start = hd(Window),
-   End   = tl(Window),
+   End   = hd(lists:reverse(Window)),
    Range = lists:flatten(">=" ++ Start ++ " <=" ++ End),
    case geas_semver:check(Current, Range) of
       true  -> 0 ;
@@ -682,7 +688,8 @@ check_current_rel_vs_window(Current, Window)
 %%-------------------------------------------------------------------------
 check_window_vs_semver_range(Window, Range)
    ->  
-   case lists:all(fun(Rel) -> geas_semver:check(Rel, Range) end, Window) of
+   io:format("~p ~p", [Window, Range]),
+   case lists:all(fun(Rel) -> io:format("~p", [Rel]), geas_semver:check(Rel, Range) end, Window) of
       false -> throw(2);
       true  -> 0
    end.
@@ -691,6 +698,7 @@ check_window_vs_semver_range(Window, Range)
 %% @doc Format exit code to error string
 %% @end
 %%-------------------------------------------------------------------------
+format_error(0) ->  "Success" ;
 format_error(1) ->  "Current Erlang/OTP release is incompatible with project release window" ; 
 format_error(2) ->  "Release window do not match the required semver version range" ;
 format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
