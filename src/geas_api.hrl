@@ -662,18 +662,29 @@ get_erlang_compat_beam(File) ->
    {Highest, Lowest, {File, DiscRels}}.
 
 %%-------------------------------------------------------------------------
-%% @doc TODO
+%% @doc Check current Erlang release against project release window
 %% @end
 %%-------------------------------------------------------------------------
-check_current_rel_vs_window(_Current, _Window)
-   -> true .
+check_current_rel_vs_window(Current, Window)
+   -> 
+   Start = hd(Window),
+   End   = tl(Window),
+   Range = lists:flatten(">=" ++ Start ++ " <=" ++ End)
+   case geas_semver:check(Current, Range) of
+      true  -> 0 ;
+      false -> throw(1)
+   end.
 
 %%-------------------------------------------------------------------------
-%% @doc TODO
+%% @doc Check project release window against required semver range
 %% @end
 %%-------------------------------------------------------------------------
-check_window_vs_semver_range(_Window, _Range)
-   ->  true .
+check_window_vs_semver_range(Window, Range)
+   ->  
+   case lists:all(fun(Rel) -> geas_semver:check(Rel, Range) end, Window) of
+      false -> throw(2);
+      true  -> 0
+   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Format exit code to error string

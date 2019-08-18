@@ -90,3 +90,17 @@ sl_flatten(SL) ->
 Tmp = lists:flatten(lists:flatmap(fun(X) -> [list_to_atom(X)] end, SL)),
 lists:flatmap(fun(X) -> [atom_to_list(X)] end, Tmp).
 
+%%-------------------------------------------------------------------------
+%% @doc Facility function for boolean normalization
+%% @end
+%%-------------------------------------------------------------------------
+normalize_boolean(0) -> false ;
+normalize_boolean("0") -> false ;
+normalize_boolean(false) -> false ;
+normalize_boolean("false") -> false ;
+normalize_boolean([]) -> false ;
+normalize_boolean(1) -> true ;
+normalize_boolean("1") -> true ;
+normalize_boolean(true) -> true ;
+normalize_boolean("true") -> true.
+

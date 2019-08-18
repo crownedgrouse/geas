@@ -45,6 +45,7 @@
 % Code
 -include("geas_defs.hrl").    %  definitions, records
 -include("geas_logs.hrl").    %  logs
+-include("geas_config.hrl").  %  config
 -include("geas_path.hrl").    %  paths and directories
 -include("geas_beam.hrl").    %  BEAM
 -include("geas_app.hrl").     %  Erlang applications
