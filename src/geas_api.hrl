@@ -669,7 +669,7 @@ check_current_rel_vs_window(Current, Window)
    -> 
    Start = hd(Window),
    End   = tl(Window),
-   Range = lists:flatten(">=" ++ Start ++ " <=" ++ End)
+   Range = lists:flatten(">=" ++ Start ++ " <=" ++ End),
    case geas_semver:check(Current, Range) of
       true  -> 0 ;
       false -> throw(1)
