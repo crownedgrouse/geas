@@ -117,8 +117,8 @@ lowest_version([], B) -> B;
 lowest_version(A, []) -> A;
 lowest_version(A, B) 
    when A =/= B  -> 
-      AA = versionize(A),
-      BB = versionize(B),
+      AA = geas_semver:versionize(A),
+      BB = geas_semver:versionize(B),
       %[Vmin, _Vmax] = lists:usort([AA,BB]),
       %Vmin
       case lists:usort([AA,BB]) of
@@ -159,8 +159,8 @@ highest_version([], B) -> B;
 highest_version(A, []) -> A;
 highest_version(A, B) 
    when A =/= B -> 
-      AA = versionize(A),
-      BB = versionize(B),
+      AA = geas_semver:versionize(A),
+      BB = geas_semver:versionize(B),
       %[_Vmin, Vmax] = lists:usort([AA,BB]),
       %Vmax
       case lists:usort([AA,BB]) of
@@ -168,36 +168,3 @@ highest_version(A, B)
          [BB, AA] -> A
       end;
 highest_version(A, _B) -> A.
-
-%%-------------------------------------------------------------------------
-%% @doc Translate old release name into new name
-%%      Exemple R16B03 into 16.2.3
-%% @end
-%%-------------------------------------------------------------------------
--spec versionize(list()) -> list().
-
-versionize([]) -> [];
-versionize(V)  ->
-   [Pref | Tail] = V,
-   case Pref of
-      $R -> Split = re:split(Tail,"([AB])",[{return,list}]),
-            Fun = fun(X) -> 
-                     XX = case X of
-                        "A" -> "1" ;
-                        "B" -> "2" ;
-                        X   -> X
-                     end,
-                     case string:to_integer(XX) of
-                        {error, no_integer} -> [] ;
-                        {error, not_a_list} -> [] ;
-                        {L, []} -> [integer_to_list(L)] ;
-                        {L, R} when is_integer(L),
-                                    is_list(R) -> [integer_to_list(L) ++ R] ;
-                        _                   -> []
-                     end
-               end,
-            New = lists:map(Fun, Split),
-               VV = lists:flatten(string:join(New, ".")),
-               VV;
-      _   -> V
-   end.

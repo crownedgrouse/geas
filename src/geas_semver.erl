@@ -29,6 +29,7 @@
 
 -export([parse/1,simple_range/1, parse_range/1]).
 -export([check/2]).
+-export([versionize/1]).
 
 -define(SEMVER, "(\\*|x|[^0-9]{0,})([0-9\\*x]+){0,1}(\.[0-9\\*x]+){0,1}(\\.[0-9x]+){0,1}(\\-.*){0,}").
 
@@ -36,7 +37,8 @@
                  , major
                  , minor
                  , patch
-                 , pre}).
+                 , pre
+                 }).
 
 %%-------------------------------------------------------------------------
 %% @doc  Check a version against a semver range
@@ -119,24 +121,24 @@ check(Version, Comp, Major, Minor, Patche)
 %% @end
 %%-------------------------------------------------------------------------
 parse(V) when is_list(V) ->
-      case re:run(V, ?SEMVER, [global, {capture, all_but_first, list}, notempty]) of
-         {match, Captured} -> C = case Captured of
-                                   [["*",[],[]],[[],[],[]]] -> {"*", "", "", "", ""};
-                                   [[Co, Maj]]              -> {Co, Maj, "", "", ""};
-                                   [[Co, Maj, Min]]         -> {Co, Maj, supdot(Min), "", ""};
-                                   [[Co, Maj, Min, Pat]]    -> {Co, Maj, supdot(Min), supdot(Pat), ""};
-                                   [[Co, Maj, Min, Pat, P]] -> {Co, Maj, supdot(Min), supdot(Pat), supdash(P)};
-                                   _  -> {error, {parse_error, Captured}}
-                                  end,
-                              case C of
-                                 {error, E} -> {error, E} ;
-                                 _          -> {Comp, Major, Minor, Patch, Pre} = C,
-                                               {ok, #version{comp = Comp, major = Major, minor = Minor, patch = Patch, pre = Pre}}
-                              end;
-         match             -> {error, match}; % Should never happen !
-         nomatch           -> {error, nomatch};
-         {error, ErrType}  -> {error, ErrType}
-      end.
+  case re:run(versionize(V), ?SEMVER, [global, {capture, all_but_first, list}, notempty]) of
+     {match, Captured} -> C = case Captured of
+                               [["*",[],[]],[[],[],[]]] -> {"*", "", "", "", ""};
+                               [[Co, Maj]]              -> {Co, Maj, "", "", ""};
+                               [[Co, Maj, Min]]         -> {Co, Maj, supdot(Min), "", ""};
+                               [[Co, Maj, Min, Pat]]    -> {Co, Maj, supdot(Min), supdot(Pat), ""};
+                               [[Co, Maj, Min, Pat, P]] -> {Co, Maj, supdot(Min), supdot(Pat), supdash(P)};
+                               _  -> {error, {parse_error, Captured}}
+                              end,
+                          case C of
+                             {error, E} -> {error, E} ;
+                             _          -> {Comp, Major, Minor, Patch, Pre} = C,
+                                           {ok, #version{comp = Comp, major = Major, minor = Minor, patch = Patch, pre = Pre}}
+                          end;
+     match             -> {error, match}; % Should never happen !
+     nomatch           -> {error, nomatch};
+     {error, ErrType}  -> {error, ErrType}
+  end.
 
 %%-------------------------------------------------------------------------
 %% @doc  Extract simple range
@@ -295,18 +297,19 @@ simple_range_translate(X, Y)
 % 0.14.x || 15.x.x 	Or (pipe-separated)
 parse_range(V) when is_list(V) ->
    case string:tokens(V, " ") of
-      [Left, "-", Right]  -> {ok, #version{major = Major, minor = Minor, patch = Patch} = X} = parse(Right),
-      %io:format("parse_range : ~p~n",[X]),
-                             case X of
-                                 X when (Patch =/= "")
-                                    -> parse_range(io_lib:format(">=~ts <=~ts", [Left, Right]));
-                                 % Partial right
-                                 X when (Minor == ""),(Patch == "")
-                                    -> parse_range(io_lib:format(">=~ts <~ts.~ts.~ts", [Left, erlang:integer_to_list(erlang:list_to_integer(Major) + 1), "0", "0"]));
-                                 X when (Patch == "")
-                                    -> parse_range(io_lib:format(">=~ts <~ts.~ts.~ts", [Left, Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"]))
+      [Left, "-", Right]  
+        -> {ok, #version{major = Major, minor = Minor, patch = Patch} = X} = parse(Right),
+           %io:format("parse_range : ~p~n",[X]),
+           case X of
+               X when (Patch =/= "")
+                  -> parse_range(io_lib:format(">=~ts <=~ts", [Left, Right]));
+               % Partial right
+               X when (Minor == ""),(Patch == "")
+                  -> parse_range(io_lib:format(">=~ts <~ts.~ts.~ts", [Left, erlang:integer_to_list(erlang:list_to_integer(Major) + 1), "0", "0"]));
+               X when (Patch == "")
+                  -> parse_range(io_lib:format(">=~ts <~ts.~ts.~ts", [Left, Major, erlang:integer_to_list(erlang:list_to_integer(Minor) + 1), "0"]))
 
-                             end ;
+           end ;
       [Left, "||", Right] -> {ok, L1, R1} = strip_range(simple_range(Left)),
                              {ok, L2, R2} = strip_range(simple_range(Right)),
                              {'or', {'and', L1, R1}, {'and', L2, R2}};
@@ -350,8 +353,51 @@ join_prepend(Sep, [H|T]) -> [Sep,H|join_prepend(Sep,T)].
 safe_list_to_integer([]) -> safe_list_to_integer("0");
 safe_list_to_integer(L) -> erlang:list_to_integer(L).
 
+%%-------------------------------------------------------------------------
+%% @doc Translate old release name into new name
+%%      Exemple R16B03 into 16.2.3
+%% @end
+%%-------------------------------------------------------------------------
+-spec versionize(list()) -> list().
+
+versionize([]) -> [];
+versionize(V)  ->
+   [Pref | Tail] = V,
+   case Pref of
+      $R -> Split = re:split(Tail,"([AB])",[{return,list}]),
+            Fun = fun(X) -> 
+                     XX = case X of
+                        "A" -> "1" ;
+                        "B" -> "2" ;
+                        X   -> X
+                     end,
+                     case string:to_integer(XX) of
+                        {error, no_integer} -> [] ;
+                        {error, not_a_list} -> [] ;
+                        {L, []} -> [integer_to_list(L)] ;
+                        {L, R} when is_integer(L),
+                                    is_list(R) -> [integer_to_list(L) ++ R] ;
+                        _                   -> []
+                     end
+               end,
+               New_ = lists:map(Fun, Split),
+               New  = lists:filter(fun(N) -> case N of [] -> false; _ -> true end end, New_),
+               VV   = lists:flatten(string:join(New, ".")),
+               VV;
+      $>  -> [Pref] ++ versionize(Tail);
+      $>  -> [Pref] ++ versionize(Tail);
+      $=  -> [Pref] ++ versionize(Tail);
+      $~  -> [Pref] ++ versionize(Tail);
+      _   -> V
+   end.
 
  %%% TESTS %%%
+parse_test() ->
+  ?assertEqual({ok,{version, [], "16", "2", "3", "1"}}, parse("R16B03-1"))
+  ,?assertEqual({ok,{version, [], "16", "2", "2", ""}}, parse("R16B02"))
+  ,?assertEqual({ok,{version, [], "16", "2", "", ""}}, parse("R16B"))
+  .
+
 parse_range_test() ->
     ?assertEqual({'and',{'and',{">=","1","2","3"},{"<=",highest}},
                         {'and',{">=",lowest},{"<=","2","3","0"}}},
@@ -390,17 +436,19 @@ parse_range_test() ->
    ,ok.
 
 check_test() ->
-    ?assertEqual(true, check("1.4","~1.2 || 1.4"))
+    ?assertEqual(true,  check("1.4","~1.2 || 1.4"))
    ,?assertEqual(false, check("1.4.1","~1.2 || 1.4"))
-   ,?assertEqual(true, check("1.2.7","~1.2 || 1.4"))
-   ,?assertEqual(true, check("1.4.0","~1.2 || 1.4"))
+   ,?assertEqual(true,  check("1.2.7","~1.2 || 1.4"))
+   ,?assertEqual(true,  check("1.4.0","~1.2 || 1.4"))
    ,?assertEqual(false, check("1.4.2","~1.2 || 1.4"))
-   ,?assertEqual(true, check("1.4.3","~1.2 || ~1.4"))
+   ,?assertEqual(true,  check("1.4.3","~1.2 || ~1.4"))
    ,?assertEqual(false, check("1.5","~1.2 || ~1.4"))
    ,?assertEqual(false, check("1.5.1","~1.2 || ~1.4"))
    ,?assertEqual(false, check("1.1",">1.2  <1.4"))
-   ,?assertEqual(true, check("1.3.3",">1.2  <1.4"))
+   ,?assertEqual(true,  check("1.3.3",">1.2  <1.4"))
    ,?assertEqual(false, check("1.4.0",">1.2  <1.4"))
-   ,?assertEqual(true, check("1.4.0",">1.2  <=1.4"))
+   ,?assertEqual(true,  check("1.4.0",">1.2  <=1.4"))
    ,?assertEqual(false, check("1.4.3",">1.2  <=1.4"))
+   ,?assertEqual(true,  check("R16B03-1",">R16B  <=17.1"))
+   ,?assertEqual(true,  check("R16B03-1",">=R16B03  <=17.1"))
    ,ok.
