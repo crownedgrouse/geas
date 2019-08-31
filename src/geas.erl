@@ -36,6 +36,9 @@
 % rebar2 plugin
 -export([geas/2]).
 
+% erlang.mk plugin
+-export([geas_check/1]).
+
 % Geas database
 -include("geas_db.hrl").
 

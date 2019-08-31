@@ -10,6 +10,17 @@ geas(_, _ ) ->
    guilty(Dir).
 
 
+%%-------------------------------------------------------------------------
+%% @doc erlang.mk plugin call function
+%% @since 2.5
+%% @end
+%%-------------------------------------------------------------------------
+geas_check(Dir) ->
+	compat(Dir),
+    guilty(Dir),
+    halt(get(geas_exit_code)).
+
+
 
 
 

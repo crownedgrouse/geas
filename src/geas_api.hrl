@@ -344,7 +344,10 @@ compat(RootDir, print) ->
    compat(RootDir, print, get_config()).
 
 
+compat(RootDir, print, []) -> compat(RootDir, print);
+
 compat(RootDir, print, Conf) ->
+   put(geas_exit_code, 0),
       {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
    % Display log if needed
    Project = 
@@ -405,7 +408,7 @@ compat(RootDir, print, Conf) ->
          end
    end,
    %% Set the plugin exit code
-   try
+   try      
       % Current version is incompatible with release window
       check_current_rel_vs_window(Current, Rels),
       % Check versions against semver range set

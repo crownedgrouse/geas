@@ -60,39 +60,39 @@ parse_otp_table() ->
 %% @end
 %%-------------------------------------------------------------------------
 get_recommanded_patches(Current) ->
-      % List all applications used in current global code
-      C = get(geas_calls),
-      T = filename:join([get(geas_cwd),code:priv_dir(geas),"mod2app.term"]),
-      {ok, B} = file:read_file(T),
-      Term = erlang:binary_to_term(B),
-      Apps = lists:usort(lists:flatmap(fun({M, _, _}) -> 
-         case lists:keyfind(M, 1, Term) of
-            false  -> [];
-            {M, A} -> [A];
-            _      -> []
-         end
-      end, C)),
-      erlang:put(geas_apps, Apps),
-      log({notice, applications, Apps}),
-      % List patches higher than current version
-      Pot = list_potential_patches(Current),
-      Ins = list_installed_patches(Current),
-      Candidats = lists:usort(lists:flatten(lists:flatmap(fun({P, L}) ->
-                                                            case lists:member(P, Ins) of
-                                                                  true -> [];
-                                                                  false -> [{P, L}]
-                                                            end
-                                            end , Pot))),
-      % For each patche, list application(s) that should be upgraded
-      R = lists:usort(lists:flatmap(fun({P, Al}) ->
-                                       %erlang:display({P, Al}),
-                                       [lists:usort(lists:flatmap(fun(A) ->
-                                                         [A_ | _] = string:split(A, "-"),
-                                                         case lists:member(erlang:list_to_atom(A_), Apps) of
-                                                            false -> [];
-                                                            true  -> log({tip, {recommend, P}, A}),
-                                                                     [P]
+   % List all applications used in current global code
+   C = get(geas_calls),
+   T = filename:join([get(geas_cwd),code:priv_dir(geas),"mod2app.term"]),
+   {ok, B} = file:read_file(T),
+   Term = erlang:binary_to_term(B),
+   Apps = lists:usort(lists:flatmap(fun({M, _, _}) -> 
+      case lists:keyfind(M, 1, Term) of
+         false  -> [];
+         {M, A} -> [A];
+         _      -> []
+      end
+   end, C)),
+   erlang:put(geas_apps, Apps),
+   log({notice, applications, Apps}),
+   % List patches higher than current version
+   Pot = list_potential_patches(Current),
+   Ins = list_installed_patches(Current),
+   Candidats = lists:usort(lists:flatten(lists:flatmap(fun({P, L}) ->
+                                                         case lists:member(P, Ins) of
+                                                               true -> [];
+                                                               false -> [{P, L}]
                                                          end
-                                                   end, Al))]
-                    end, lists:reverse(Candidats))),
-      R.
+                                         end , Pot))),
+   % For each patche, list application(s) that should be upgraded
+   R = lists:usort(lists:flatmap(fun({P, Al}) ->
+                                    %erlang:display({P, Al}),
+                                    [lists:usort(lists:flatmap(fun(A) ->
+                                                      [A_ | _] = string:split(A, "-"),
+                                                      case lists:member(erlang:list_to_atom(A_), Apps) of
+                                                         false -> [];
+                                                         true  -> log({tip, {recommend, P}, A}),
+                                                                  [P]
+                                                      end
+                                                end, Al))]
+                 end, lists:reverse(Candidats))),
+   R.

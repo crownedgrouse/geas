@@ -385,7 +385,7 @@ versionize(V)  ->
                VV   = lists:flatten(string:join(New, ".")),
                VV;
       $>  -> [Pref] ++ versionize(Tail);
-      $>  -> [Pref] ++ versionize(Tail);
+      $<  -> [Pref] ++ versionize(Tail);
       $=  -> [Pref] ++ versionize(Tail);
       $~  -> [Pref] ++ versionize(Tail);
       _   -> V
