@@ -499,13 +499,13 @@ w2l({_, MinRel, MaxRel, _}, Exc) ->
    Conf = get_config(),
    L = geas_db:get_rel_list(),
    Lower = lists:filter(fun(X) -> 
-                           case (versionize(X) >= versionize(MinRel) ) of
+                           case (geas_semver:versionize(X) >= geas_semver:versionize(MinRel) ) of
                                  true  -> true ;
                                  false -> false
                            end
                         end, L),
    Res = lists:filter(fun(X) -> 
-                           case ( versionize(X) =< versionize(MaxRel) ) of
+                           case ( geas_semver:versionize(X) =< geas_semver:versionize(MaxRel) ) of
                                  true  -> true ;
                                  false -> false
                            end
