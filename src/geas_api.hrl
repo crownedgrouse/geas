@@ -327,6 +327,7 @@ compat(RootDir, term) ->
                         end,
                [{Left , ArchString, Right, Name}] ;
             {error, Reason} -> ?LOG(geas_logs, {error, compat, Reason}), 
+                               throw(3),
                                []
          end
       end,
