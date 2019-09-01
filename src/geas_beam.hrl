@@ -202,8 +202,10 @@ get_abstract(File, beam) -> %io:format("beam ~p~n",[File]),
                      end;
                false -> ?LOG(geas_logs, {error, no_source_file, SrcFile}),
                      []
-         end
-      end;
+         end;
+      E -> ?LOG(geas_logs, {error, beam, E}), 
+            throw(3)
+   end;
 
 get_abstract(File, dtl) ->	% Do not treat for the moment
    ?LOG(geas_logs, {notice, template_file, File}),
@@ -266,9 +268,9 @@ beam_opcode_compat(Beam) ->
    Cmo = get_cur_max_opcode(),
    Bmo = get_beam_max_opcode(Beam),
    case (Cmo >= Bmo) of
-      true when (Bmo == 0) -> undefined;
+      true when (Bmo =:= 0) -> undefined;
       true -> true;
-      false -> false   
+      false -> put(geas_exit_code, 4), throw(4), false   
    end.
 
 %%-------------------------------------------------------------------------
