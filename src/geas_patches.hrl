@@ -87,7 +87,7 @@ get_recommanded_patches(Current) ->
    R = lists:usort(lists:flatmap(fun({P, Al}) ->
                                     %erlang:display({P, Al}),
                                     [lists:usort(lists:flatmap(fun(A) ->
-                                                      [A_ | _] = string:split(A, "-"),
+                                                      [A_ | _] = re:split(A,"-",[{return, list}]), % string:split available starting 20.0 !
                                                       case lists:member(erlang:list_to_atom(A_), Apps) of
                                                          false -> [];
                                                          true  -> log({tip, {recommend, P}, A}),
