@@ -7,7 +7,8 @@
 geas(_, _ ) -> 
    {ok, Dir} = file:get_cwd(),
    compat(Dir),
-   guilty(Dir).
+   guilty(Dir),
+   geas:log().
 
 
 %%-------------------------------------------------------------------------
@@ -18,6 +19,7 @@ geas(_, _ ) ->
 geas_check(Dir) ->
 	compat(Dir),
     guilty(Dir),
+    geas:log(),
     halt(get(geas_exit_code)).
 
 
