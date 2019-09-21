@@ -825,7 +825,12 @@ get_author(File) ->
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
-get_erlang_version("7.4")       -> {"22.0","22.0","22.0"};
+get_erlang_version("7.4.5")     -> {"22.1","22.1","22.1"};
+get_erlang_version("7.4.4")     -> {"22.0.7","22.0.7","22.0.7"};
+get_erlang_version("7.4.3")     -> {"22.0.6","22.0.6","22.0.6"};
+get_erlang_version("7.4.2")     -> {"22.0.3","22.0.5","22.0.5"};
+get_erlang_version("7.4.1")     -> {"22.0.2","22.0.2","22.0.2"};
+get_erlang_version("7.4")       -> {"22.0","22.0.1","22.0.1"};
 get_erlang_version("7.3.2")     -> {"21.3","21.3","21.3"};
 get_erlang_version("7.3")       -> {"21.2","21.2","21.2"};
 get_erlang_version("7.2.5")     -> {"21.1","21.1","21.1"};

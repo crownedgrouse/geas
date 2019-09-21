@@ -7,7 +7,7 @@
 %%% Geas database 
 %%% @end 
 -define('GEAS_MIN_REL', "R15").
--define('GEAS_MAX_REL', "22.0").
+-define('GEAS_MAX_REL', "22.1").
 
 rel_max({beam_validator, file, 1}) -> "17.5" ;
 rel_max({beam_validator, files, 1}) -> "17.5" ;
