@@ -12,8 +12,10 @@
 %% @since 2.0.6
 %% @end
 %%-------------------------------------------------------------------------
-loglevels() ->
-   case os:getenv("GEAS_LOG") of
+loglevels() ->  
+   Conf = get_config(),
+   Check = Conf#config.log ,
+   case Check of
          false -> [] ;
          ""    -> ["debug", "notice", "warning", "error", "tip"];
          LL    -> string:tokens(LL, " ")

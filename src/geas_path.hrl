@@ -3,11 +3,12 @@
 %% @end
 %%-------------------------------------------------------------------------
 
-ext_to_search() -> 
-   case os:getenv("GEAS_USE_SRC") of
+ext_to_search() ->   
+  Conf = get_config(),
+  Check = Conf#config.use_src ,
+   case Check of
       false -> ".beam$" ;
-      "0"   -> ".beam$" ;
-      "1"   -> ".erl$"
+      true  -> ".erl$"
    end.
 
 %%-------------------------------------------------------------------------
@@ -15,10 +16,11 @@ ext_to_search() ->
 %% @end
 %%-------------------------------------------------------------------------
 dir_to_search() -> 
-   case os:getenv("GEAS_USE_SRC") of
+  Conf = get_config(),
+  Check = Conf#config.use_src ,
+   case Check of
       false -> "ebin" ;
-      "0"   -> "ebin" ;
-      "1"   -> "src"
+      true  -> "src"
    end.
 
 %%-------------------------------------------------------------------------
@@ -60,31 +62,31 @@ is_valid_dir(Dir) ->
 %%-------------------------------------------------------------------------
 -spec is_valid_erlang_project(list()) -> atom().
 
-is_valid_erlang_project(Dir) ->
-    % Workaround for GEAS_USE_SRC : some projects have subdirectories under src/.
-    % example :  https://github.com/nitrogen/simple_bridge
-    % Bring upper directory in such case
-    Dir2 = case filename:basename(Dir) of
-			 "src" -> filename:dirname(Dir) ;
-			 _     -> Dir
-		   end,
-    {ok, L} = file:list_dir(Dir2),
+is_valid_erlang_project(Dir) ->  
+  Conf = get_config(),
+  Check = Conf#config.use_src ,
+  % Workaround for GEAS_USE_SRC : some projects have subdirectories under src/.
+  % example :  https://github.com/nitrogen/simple_bridge
+  % Bring upper directory in such case
+  Dir2 = case filename:basename(Dir) of
+		 "src" -> filename:dirname(Dir) ;
+		 _     -> Dir
+	   end,
+  {ok, L} = file:list_dir(Dir2),
 	% When using beam files, do not require src/ to be there
-	Src  = case os:getenv("GEAS_USE_SRC") of
+	Src  = case Check of
 		   		false -> true ;
-		   		"0"   -> true ;
-		   		"1"   -> lists:any(fun(X) -> (X =:= "src") end, L)
+		   		true  -> lists:any(fun(X) -> (X =:= "src") end, L)
 	       end,
-    % When using source files, do not require ebin/ to be there
-    Ebin = case os:getenv("GEAS_USE_SRC") of
-		   		false -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
-		   		"0"   -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
-		   		"1"   -> true
-	       end,
-    case ((Src =:= true) or (Ebin =:= true)) of
-        true  -> ok ;
-        false -> throw("Invalid Erlang project : "++Dir2) , error
-    end.
+  % When using source files, do not require ebin/ to be there
+  Ebin = case Check of
+	   		false -> lists:any(fun(X) -> (X =:= "ebin") end, L) ;
+	   		true   -> true
+       end,
+  case ((Src =:= true) or (Ebin =:= true)) of
+      true  -> ok ;
+      false -> throw("Invalid Erlang project : "++Dir2) , error
+  end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get changelog file if any

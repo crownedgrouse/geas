@@ -64,11 +64,8 @@ get_app_type(AppFile, Ebindir) ->
 -spec get_app_file(list()) -> list() | atom().
 
 get_app_file(Dir) -> 
-   Check = case os:getenv("GEAS_USE_SRC") of
-               false -> true ;
-               "0"   -> true ;
-               "1"   -> false
-            end,
+   Conf = get_config(),
+   Check = Conf#config.use_src ,
    case ( Check
             and filelib:is_dir(filename:join(Dir, "ebin"))
             and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) 
