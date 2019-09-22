@@ -71,7 +71,8 @@ get_app_file(Dir) ->
             end,
    case ( Check
             and filelib:is_dir(filename:join(Dir, "ebin"))
-            and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) ) of
+            and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) 
+            or  filelib:is_dir(filename:join(Dir, "_build"))) of
       true ->
             case filelib:wildcard("*.app", Dir) of
                      []    -> %throw("Application Resource File (.app) not found. Aborting."),
@@ -94,7 +95,7 @@ get_app_file(Dir) ->
                            [] -> throw("Application Resource File (.app.src) not found, neither .erl files. Aborting.") ;
                            _  -> % Try directly in ebin
                                  case filelib:wildcard("*.app", Dir) of
-                                          []    -> not_regular_project ;
+                                          []    -> throw("Not a regular project. Missing .app(.src) file"), not_regular_project ;
                                           [App] -> filename:join(Dir, App) ;
                                           _     -> throw("More than one .app file found in : "++ Dir), ""
                                  end
