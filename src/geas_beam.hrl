@@ -33,6 +33,16 @@ get_app_type_beam(File) ->
 -spec get_arch_from_file(list()) -> atom().
 
 get_arch_from_file(File) ->
+   case get_arch_from_chunks(File) of
+      undefined ->  get_arch(false, File);
+      X -> X
+   end.
+
+%%-------------------------------------------------------------------------
+%% @doc 
+%% @end
+%%-------------------------------------------------------------------------
+get_arch_from_chunks(File) ->
    case filename:extension(File) of
       ".erl" -> 
          ?LOG(geas_logs, {notice, {undefined, arch}, File}),
@@ -59,7 +69,7 @@ get_arch_from_file(File) ->
                      _      -> false
                   end end,
          case lists:dropwhile(Fun, C) of
-            [] ->  get_arch(false, File) ;
+            [] ->  undefined ;
             [{H, _, _}] -> 
                case H of
                      "HS8P" -> ultrasparc ;
@@ -82,7 +92,6 @@ get_arch_from_file(File) ->
 -spec is_native_from_file(list()) -> boolean().
 
 is_native_from_file(File) ->
-erlang:display(File),
    case filename:extension(File) of
       ".erl" -> 
          ?LOG(geas_logs, {notice, {undefined, native}, File}),
@@ -92,7 +101,14 @@ erlang:display(File),
          case filelib:is_regular(File) of
                true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
                      {options, O} = lists:keyfind(options, 1, L),
-                     lists:member(native, O);
+                     case lists:member(native, O) of
+                        true -> true ;
+                        false -> % rebar3 does not add 'native' in compile option
+                                 case get_arch_from_chunks(File) of
+                                    undefined -> false ;
+                                    _ -> true
+                                 end
+                     end;
                false -> ?LOG(geas_logs, {warning, {undefined, native}, File}),
                         undefined
          end

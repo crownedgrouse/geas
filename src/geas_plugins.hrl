@@ -19,6 +19,8 @@ geas(_, _ ) ->
 geas_check(Dir) ->
 	put(geas_exit_code, 0),
 	try 
+		put(geas_caller, 'erlang.mk'),
+		put(geas_exit_code, 0), % bug ? put does not work outside try catch
 		compat(Dir),
 	    guilty(Dir),
 		geas:log()

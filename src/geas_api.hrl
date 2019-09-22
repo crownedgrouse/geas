@@ -152,7 +152,6 @@ what_beam(File) ->
 
       AppType   = get_app_type_beam(File),
       Native    = is_native_from_file(File),
-      erlang:display(Native),
       Arch      = get_arch_from_file(File),
       Word      = get_word(),
       Date      = get_date(File),
@@ -300,8 +299,11 @@ compat(RootDir, term) ->
    % Get all upper project
    Ps = lists:usort(PP),
    ?LOG(geas_logs, {debug, dir_list, Ps }),
-   %Global = Ps ++ [filename:absname(RootDir)],
-   Global = Ps ,
+   erlang:display(get(geas_caller)),
+   Global = case get(geas_caller) of
+               'erlang.mk' -> Ps ++ [filename:absname(RootDir)];
+               _ -> Ps
+            end,
    Fun = 
       fun(X) ->
          case (catch info(X)) of
