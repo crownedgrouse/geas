@@ -93,7 +93,8 @@ get_app_file(Dir) ->
                            [] -> throw("Application Resource File (.app.src) not found, neither .erl files. Aborting.") ;
                            _  -> % Try directly in ebin
                                  case filelib:wildcard("*.app", Dir) of
-                                          []    -> throw("Not a regular project. Missing .app(.src) file"), not_regular_project ;
+                                          []    -> ?LOG(geas_logs, {warning,  missing_app_file, Dir}), 
+                                                   not_regular_project ;
                                           [App] -> filename:join(Dir, App) ;
                                           _     -> throw("More than one .app file found in : "++ Dir), ""
                                  end
