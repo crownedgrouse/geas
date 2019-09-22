@@ -86,15 +86,15 @@ get_app_file(Dir) ->
                         "src" -> Dir ;
                         _     -> filename:join(filename:dirname(Dir),"src")
                      end,
-            case filelib:wildcard("*.app.src", DirSrc) of
+            case (filelib:wildcard("*.app.src", DirSrc) ++ filelib:wildcard("*.app", DirSrc))  of
                      []    -> % Some Erlang repo does not come with .app.src
                         % Check there is at least some .erl files !
                         case filelib:wildcard("*.erl", DirSrc) of
                            [] -> throw("Application Resource File (.app.src) not found, neither .erl files. Aborting.") ;
                            _  -> % Try directly in ebin
                                  case filelib:wildcard("*.app", Dir) of
-                                          []    -> ?LOG(geas_logs, {notice,  missing_app_file, Dir}), 
-                                                   filename:basename(Dir);
+                                          []    -> ?LOG(geas_logs, {warning,  missing_app_file, Dir}), 
+                                                   not_regular_project;
                                           [App] -> filename:join(Dir, App) ;
                                           _     -> throw("More than one .app file found in : "++ Dir), ""
                                  end

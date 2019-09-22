@@ -82,6 +82,7 @@ get_arch_from_file(File) ->
 -spec is_native_from_file(list()) -> boolean().
 
 is_native_from_file(File) ->
+erlang:display(File),
    case filename:extension(File) of
       ".erl" -> 
          ?LOG(geas_logs, {notice, {undefined, native}, File}),
