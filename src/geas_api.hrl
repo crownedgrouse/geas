@@ -152,6 +152,7 @@ what_beam(File) ->
 
       AppType   = get_app_type_beam(File),
       Native    = is_native_from_file(File),
+      erlang:display(Native),
       Arch      = get_arch_from_file(File),
       Word      = get_word(),
       Date      = get_date(File),
@@ -280,7 +281,8 @@ compat(RootDir, term) ->
             case  lists:member("_rel",re:split(P,"/",[{return,list}])) of
                false -> 
                   case filename:basename(P) of
-                     "geas" -> Y ; % Exclude geas from results
+                     "geas"    -> Y ; % Exclude geas from results
+                     "samovar" -> Y ; % Exclude samovar from results
                      "src"  -> 
                         case lists:member(filename:dirname(P), Y) of
                            true  -> Y ;
@@ -298,7 +300,8 @@ compat(RootDir, term) ->
    % Get all upper project
    Ps = lists:usort(PP),
    ?LOG(geas_logs, {debug, dir_list, Ps }),
-   Global = Ps ++ [filename:absname(RootDir)],
+   %Global = Ps ++ [filename:absname(RootDir)],
+   Global = Ps ,
    Fun = 
       fun(X) ->
          case (catch info(X)) of
