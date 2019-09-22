@@ -73,7 +73,7 @@ get_app_file(Dir) ->
             and filelib:is_dir(filename:join(Dir, "ebin"))
             and (length(filelib:wildcard("*.beam", filename:join(Dir, "ebin"))) > 0 ) 
             %or  filelib:is_dir(filename:join(Dir, "_build")) ) 
-      of
+      ) of
       true ->
             case filelib:wildcard("*.app", Dir) of
                      []    -> %throw("Application Resource File (.app) not found. Aborting."),
