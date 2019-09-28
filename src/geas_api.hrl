@@ -299,7 +299,6 @@ compat(RootDir, term) ->
    % Get all upper project
    Ps = lists:usort(PP),
    ?LOG(geas_logs, {debug, dir_list, Ps }),
-   erlang:display(get(geas_caller)),
    Global = case get(geas_caller) of
                'erlang.mk' -> Ps ++ [filename:absname(RootDir)];
                _ -> Ps
