@@ -40,42 +40,51 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
+<<<<<<< HEAD
    R15                   22.0       Geas database
+=======
+   R15                   22.0       Geas database                       2.5.0
+>>>>>>> dev
 ---Min--------Arch-------Max----------------------------------------------------
-   R16B                             cowboy
-                         19.3       cowlib
-                                    ranch
-   R16B       x86        18.1       test
+   R16B                             cowboy                              1.0.4
+                         19.3       cowlib                              1.0.0
+                                    ranch                               1.0.0
+   R16B       x86        18.1       test                                0.0.1
 --------------------------------------------------------------------------------
-   R16B       x86        18.1       Global project
+   R16B       x86        18.1       Global project                      0.0.1
 
-C : 20.2
-P : 20.2.3 20.2.2 20.2.1
-R : 20.2.4 20.3.5 20.3.6
+C : 22.0
+R :  22.0.1 22.0.2 22.0.3 22.0.4 22.0.5 22.0.6
 T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
+./_build/default/lib/cowboy/ebin/cowboy_clock.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_req.beam
+./_build/default/lib/cowboy/ebin/cowboy_req.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_static.beam
+./_build/default/lib/cowboy/ebin/cowboy_static.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
+./_build/default/lib/cowboy/ebin/cowboy_websocket.beam
 R15B02    crypto:hash/2
 
-/home/eric/git/test/deps/cowlib/ebin/cow_multipart.beam
+./_build/default/lib/cowlib/ebin/cow_multipart.beam
 19.3      crypto:rand_bytes/1
 
-/home/eric/git/test/ebin/test.beam
+./_build/default/lib/test/ebin/test.beam
 R16B      erlang:binary_to_integer/1
 
 18.1      ssh_message:encode_host_key/1
+
+./ebin/test.beam
+R16B      erlang:binary_to_integer/1
+
+18.1      ssh_message:encode_host_key/1
+===> Current version is incompatible with release window
 ```
 
-Current (C) Erlang release found is `20.2` and some patches (P) was detected.
+Current (C) Erlang release found is `22.0` and some patches (P) was detected.
 The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
 Native x86 compilation was detected on test module.
 Recommended patches (R) are proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
@@ -94,6 +103,7 @@ Environment variables cheatsheet :
 `GEAS_DISC_RELS` | `boolean`      | [**0** / 1]           | Show discarded buggy Erlang releases  | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#discard-some-releases)
 `GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations)
 `GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#tips)
+`GEAS_RANGE`     | `string`       | SEMVER range          | Set an OTP range for project          | [...](https://github.com/crownedgrouse/geas/wiki/SEMVER-range)
 
 Under compat table output, some informations can be shown depending those environment variables and analyze result.
 A single capital letter is used as tag for each information.
@@ -117,6 +127,7 @@ A single capital letter is used as tag for each information.
 ```
 git clone git://github.com/crownedgrouse/geas.git
 cd geas
+make
 make shell
 ```
 

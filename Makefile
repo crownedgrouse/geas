@@ -8,6 +8,9 @@ CUR_DIR = $(shell pwd)
 
 #relinfo = rm -rf .geas && mkdir -p .geas && cd .geas && kerl install $(1) && bin/erl -pa ../ebin -init_debug -s geas_doc relinfo $(1) $(2) -s init stop && cd $(CUR_DIR)
 
+DEPS = samovar
+dep_samovar = hex 1.0.0
+
 include erlang.mk
 #-include plugins.mk
 

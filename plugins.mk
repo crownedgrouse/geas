@@ -13,6 +13,7 @@ help::
 THIS := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(THIS)/mk/geas_compat.mk
 include $(THIS)/mk/geas_guilty.mk
+include $(THIS)/mk/geas_check.mk
 
-geas: geas_compat geas_guilty
+geas: geas_check
 
