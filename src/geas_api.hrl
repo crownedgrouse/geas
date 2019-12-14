@@ -340,7 +340,7 @@ compat(RootDir, term) ->
    MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
    MinGlob = highest_version(MinList) ,
    ArchList = lists:usort(lists:flatmap(fun({_, X, _, _}) -> [X] end, D)),
-   ArchGlob = tl(ArchList), % Assuming only one arch localy !
+   ArchGlob = safetl(ArchList), % Assuming only one arch localy !
    MaxList = lists:usort([?GEAS_MAX_REL] ++ lists:flatmap(fun({_, _, X, _}) -> [X] end, D)),
    MaxGlob = lowest_version(MaxList) ,
    {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
@@ -435,6 +435,10 @@ compat(RootDir, print, Conf) ->
       geas:log()
    end,
    ok.
+
+safetl([]) -> [];
+safetl(X)  -> tl(X).
+
 
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
