@@ -50,7 +50,8 @@ Example on a test project using cowboy :
    R16B       x86        18.1       Global project                      0.0.1
 
 C : 22.0
-R :  22.0.1 22.0.2 22.0.3 22.0.4 22.0.5 22.0.6
+P :  22.0.1 22.0.2 22.0.3
+R :  22.0.4 22.0.5 22.0.6
 T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
 
 ./_build/default/lib/cowboy/ebin/cowboy_clock.beam
