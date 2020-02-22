@@ -40,7 +40,7 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   22.2       Geas database                       2.5.1
+   R15                   22.2       Geas database                       2.6.0
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy                              1.0.4
                          19.3       cowlib                              1.0.0
@@ -70,11 +70,6 @@ R15B02    crypto:hash/2
 19.3      crypto:rand_bytes/1
 
 ./_build/default/lib/test/ebin/test.beam
-R16B      erlang:binary_to_integer/1
-
-18.1      ssh_message:encode_host_key/1
-
-./ebin/test.beam
 R16B      erlang:binary_to_integer/1
 
 18.1      ssh_message:encode_host_key/1
