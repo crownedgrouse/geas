@@ -90,17 +90,23 @@ Recommended patches (R) are proposed when an application used in code is referen
 
 Output can be tuned depending some [environment variables](https://github.com/crownedgrouse/geas/wiki/Tuning-output).
 
+Note : starting version 2.6, variables can be set in `rebar.config`. 
+
 Environment variables cheatsheet :
 
-**Key**          | **Value type** | **Value**             | **Comment**                           | **Details**
------------------|----------------|-----------------------|---------------------------------------|-------------
-`GEAS_USE_SRC`   | `boolean`      | [**0** / 1]           | Use source code instead beam files    | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#using-source-code)
-`GEAS_MY_RELS`   | `string`       | Erlang release list   | List possible releases                | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#listing-possible-releases)
-`GEAS_EXC_RELS`  | `string`       | Erlang release list   | Exclude some releases                 | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#exclude-some-releases)
-`GEAS_DISC_RELS` | `boolean`      | [**0** / 1]           | Show discarded buggy Erlang releases  | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#discard-some-releases)
-`GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations)
-`GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#tips)
-`GEAS_RANGE`     | `string`       | SEMVER range          | Set an OTP range for project          | [...](https://github.com/crownedgrouse/geas/wiki/SEMVER-range)
+**Key**          | **Value type** | **Value**             | **Comment**                           | **Details** | **Since** |
+-----------------|----------------|-----------------------|---------------------------------------|-------------|--------|
+`GEAS_USE_SRC`   | `boolean`      | [**0** / 1]           | Use source code instead beam files    | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#using-source-code) | |
+`GEAS_MY_RELS`   | `string`       | Erlang release list   | List possible releases                | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#listing-possible-releases) | |
+`GEAS_EXC_RELS`  | `string`       | Erlang release list   | Exclude some releases                 | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#exclude-some-releases) | |
+`GEAS_DISC_RELS` | `boolean`      | [**0** / 1]           | Show discarded buggy Erlang releases  | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#discard-some-releases) | |
+`GEAS_LOG`       | `string`       | Log level list        | Log informations                      | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#log-informations) | |
+`GEAS_TIPS`      | `boolean`      | [**0** / 1]           | Give tips on patches to apply         | [...](https://github.com/crownedgrouse/geas/wiki/Tuning-output#tips) | |
+`GEAS_RANGE`     | `string`       | SEMVER range          | Set an OTP range for project          | [...](https://github.com/crownedgrouse/geas/wiki/SEMVER-range-and-frame) | |
+`GEAS_FRAME`     | `string`       | SEMVER range          | Set an OTP frame for project          | [...](https://github.com/crownedgrouse/geas/wiki/SEMVER-range-and-frame) | 2.6 |
+`GEAS_UPDATE`    | `boolean`      | [**0** / 1]           | Force update of OTP version table     |            | 2.6 |
+`GEAS_HTTP_OPTS` | `string`       | `httpc` options       | Erlang term string with a final dot   |            | 2.6 |
+
 
 Under compat table output, some informations can be shown depending those environment variables and analyze result.
 A single capital letter is used as tag for each information.
