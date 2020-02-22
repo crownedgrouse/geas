@@ -19,11 +19,21 @@ get_config() ->
 %% GEAS_DISC_RELS  boolean   [0 / 1]               Show discarded buggy Erlang releases  ...
 %% GEAS_LOG        string    Log level list     Log informations   ...
 %% GEAS_TIPS       boolean   [0 / 1]               Give tips on patches to apply
+%% GEAS_RANGE      string
+%% GEAS_FRAME      string
+%% GEAS_UPDATE     boolean   [0 / 1]               Force OTP table to be downloaded
+%% GEAS_HTTP_OPTS  string    Http options          Options for inets (a dot required at end)
 %% @end
 %%-------------------------------------------------------------------------
 set_config()     -> set_config([]).
 
-set_config(Conf) ->
+set_config(Conf) 
+   when is_tuple(Conf)
+   -> set_config(record_to_proplist(Conf));
+
+set_config(Conf) 
+   when is_list(Conf)
+   ->
 
    Use_src   = normalize_boolean(proplists:get_value(use_src, Conf, os:getenv("GEAS_USE_SRC"))),
    My_rels   = proplists:get_value(my_rels, Conf, os:getenv("GEAS_MY_RELS")),
@@ -32,6 +42,10 @@ set_config(Conf) ->
    Log       = proplists:get_value(log, Conf, os:getenv("GEAS_LOG")),
    Tips      = normalize_boolean(proplists:get_value(tips, Conf, os:getenv("GEAS_TIPS"))),
    Range     = proplists:get_value(range, Conf, os:getenv("GEAS_RANGE")),
+   Frame     = proplists:get_value(frame, Conf, os:getenv("GEAS_FRAME")),
+   Update    = normalize_boolean(proplists:get_value(update, Conf, os:getenv("GEAS_UPDATE"))),
+   Http_opts = proplists:get_value(http_opts, Conf, os:getenv("GEAS_HTTP_OPTS")),
+
    C = #config{ use_src = Use_src
               , my_rels = My_rels
               , exc_rels = Exc_rels
@@ -39,6 +53,13 @@ set_config(Conf) ->
               , log = Log
               , tips = Tips
               , range = Range
+              , frame = Frame
+              , update = Update
+              , http_opts = Http_opts
               },
     put(geas_conf, C),
     C.
+
+
+record_to_proplist(#config{} = Rec) ->
+  lists:zip(record_info(fields, config), tl(tuple_to_list(Rec))).

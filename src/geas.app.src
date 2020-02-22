@@ -1,12 +1,17 @@
 {application, geas,
  [
   {description, "Guess Erlang Application Scattering"},
-  {vsn, "2.5.1"},
+  {vsn, "2.6.0"},
   {registered, []},
   {applications, [
                   kernel,
                   stdlib,
-                  samovar
+                  samovar,
+                  inets,
+                  ssl,
+                  crypto,
+                  public_key,
+                  asn1
                  ]},
   {env, []},
   {modules, []},

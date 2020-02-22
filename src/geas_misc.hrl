@@ -104,3 +104,29 @@ normalize_boolean("1") -> true ;
 normalize_boolean(true) -> true ;
 normalize_boolean("true") -> true.
 
+%%-------------------------------------------------------------------------
+%% @doc Convert a String to a Term
+%% @end
+%%-------------------------------------------------------------------------
+convert_str_to_term([]) -> [];
+
+convert_str_to_term(Str)
+   when is_list(Str) ->
+
+   {ok,Tokens,_EndLine} = erl_scan:string(Str),
+   Value = 
+   case erl_parse:parse_exprs(Tokens) of
+      {ok, AbsForm} -> {value,Val,_Bs} = erl_eval:exprs(AbsForm, erl_eval:new_bindings()),
+                       Val;
+      _  -> put(geas_logs, get(geas_logs) ++ [{warning, httpc, "Invalid GEAS_HTTP_OPTS content. Missing final dot ?"}]),
+            []
+   end,
+   Value;
+
+convert_str_to_term(_X) -> [].
+
+%%-------------------------------------------------------------------------
+%% @doc Do a log (avoid compiler warning)
+%% @end
+%%-------------------------------------------------------------------------
+ do_log(M) -> ?LOG(geas_logs, M) .

@@ -1,10 +1,10 @@
 -define(LOG(X, Y),
         case erlang:get(X) of
-			 undefined when is_list(Y)  -> erlang:put(X, Y) ;
-			 _         when is_list(Y)  -> erlang:put(X, erlang:get(X) ++ Y);
-			 undefined when is_tuple(Y) -> erlang:put(X, [Y]) ;
-			 _         when is_tuple(Y) -> erlang:put(X, erlang:get(X) ++ [Y])
-		end
+		 undefined when is_list(Y)  -> erlang:put(X, Y) ;
+		 _         when is_list(Y)  -> erlang:put(X, erlang:get(X) ++ Y);
+		 undefined when is_tuple(Y) -> erlang:put(X, [Y]) ;
+		 _         when is_tuple(Y) -> erlang:put(X, erlang:get(X) ++ [Y])
+	end
 ).
 
 %%-------------------------------------------------------------------------

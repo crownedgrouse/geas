@@ -270,10 +270,15 @@ compat(RootDir, term) ->
    put(geas_attributes,[]),
    % Get all .beam (or .erl) files recursively
    Ext = ext_to_search(),
-   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
-      true  -> "deps" ;
-      false -> "_build"
-   end,
+
+   Dir = case get(geas_caller) of
+            'rebar'     -> "_build";
+            'erlang.mk' -> "deps";
+            _ ->   case filelib:is_dir(filename:join(RootDir, "_build")) of
+                     true  -> "_build" ;
+                     false -> "deps"
+                  end
+         end,
    PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true,
          fun(X, Y) -> 
             P = filename:dirname(filename:dirname(X)),
@@ -346,14 +351,21 @@ compat(RootDir, term) ->
    {{?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}, ArchGlob, D};
 
 compat(RootDir, print) ->
-   compat(RootDir, print, get_config()).
+   compat(RootDir, print, []).
+
+safetl([]) -> [];
+safetl(X)  -> tl(X).
 
 
-compat(RootDir, print, []) -> compat(RootDir, print);
+%compat(RootDir, print, []) -> compat(RootDir, print);
 
-compat(RootDir, print, Conf) ->
+compat(RootDir, print, Config) ->
    put(geas_exit_code, 0),
-      {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
+   do_log({debug, geas_rebar3, Config}),
+   set_config(Config),
+   Conf=get_config(),
+   do_log({debug, config, Conf}),
+   {{_, MinGlob, MaxGlob, _}, ArchGlob, D} = compat(RootDir, term),
    % Display log if needed
    Project = 
       case RootDir of
@@ -417,7 +429,9 @@ compat(RootDir, print, Conf) ->
       % Current version is incompatible with release window
       check_current_rel_vs_window(Current, Rels),
       % Check versions against semver range set
-      check_window_vs_semver_range(Rels, Conf#config.range)
+      check_window_vs_semver_range(Rels, Conf#config.range),
+      % Check versions against semver frame set
+      check_window_vs_semver_frame(Rels, Conf#config.frame)
    catch
       _:Exit when is_integer(Exit) 
          ->  put(geas_exit_code, Exit),
@@ -436,10 +450,6 @@ compat(RootDir, print, Conf) ->
    end,
    ok.
 
-safetl([]) -> [];
-safetl(X)  -> tl(X).
-
-
 %%-------------------------------------------------------------------------
 %% @doc Offending output on stdout, mainly for erlang.mk plugin
 %% @end
@@ -447,10 +457,14 @@ safetl(X)  -> tl(X).
 
 guilty(RootDir) ->
    Ext = ext_to_search(),
-   Dir = case filelib:is_dir(filename:join(RootDir, "deps")) of
-            true  -> "deps" ;
-            false -> "_build"
-         end,
+   Dir = case get(geas_caller) of
+         'rebar'     -> "_build";
+         'erlang.mk' -> "deps";
+         _ ->   case filelib:is_dir(filename:join(RootDir, "_build")) of
+                  true  -> "_build" ;
+                  false -> "deps"
+               end
+      end,
    DirS = dir_to_search(),
    Bs1 = filelib:fold_files(filename:join(RootDir, Dir), Ext, true,
                            fun(X, Y) -> Y ++ [X] end, []),
@@ -701,19 +715,48 @@ check_current_rel_vs_window(Current, Window)
 
 %%-------------------------------------------------------------------------
 %% @doc Check project release window against required semver range
+%%      All releases of window have to be inside range
 %% @end
 %%-------------------------------------------------------------------------
 check_window_vs_semver_range(Window, Range)
    when is_list(Range)
    ->  
+   ?LOG(geas_logs, {notice, range, Range}),
    case lists:all(fun(Rel) -> geas_semver:check(Rel, Range) end, Window) of
-      false -> throw(2);
+      false -> %
+               do_log({error, range, "Range does not match"}),
+               throw(2);
       true  -> 0
    end;
 
 check_window_vs_semver_range(_Window, _Range) % No range set
    -> 0.
 
+%%-------------------------------------------------------------------------
+%% @doc Check project release window against required semver frame
+%%      Frame have to be inside release window
+%% @end
+%%-------------------------------------------------------------------------
+check_window_vs_semver_frame(Window, Frame)
+   when is_list(Frame)
+   -> 
+   ?LOG(geas_logs, {notice, frame, Frame}),
+   % Get all releases known at this time
+   All = geas_db:get_rel_list(),
+   % Extract all releases in the semver Frame
+   Ext = lists:filter(fun(Rel) -> geas_semver:check(Rel, Frame) end, All),
+   % Check if window is a subset of this
+   D1 = Window -- Ext,
+   D2 = Ext -- Window,
+   %erlang:display({Ext, Window, D1, D2}),
+   case ((erlang:length(D1) >= 0) and (erlang:length(D2) == 0)) of
+      false -> do_log({error, frame, "Frame does not match"}),
+               throw(5);
+      true  -> 0
+   end; 
+
+check_window_vs_semver_frame(_Window, _Frame) % No frame set
+   -> 0.
 %%-------------------------------------------------------------------------
 %% @doc Format exit code to error string
 %% @end
@@ -723,4 +766,5 @@ format_error(1) ->  "Current Erlang/OTP release is incompatible with project rel
 format_error(2) ->  "Release window do not match the required semver version range" ;
 format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
 format_error(4) ->  "Maximum opcode is higher in Beam files (May need recompilation)" ;
+format_error(5) ->  "Release window do not match the required semver version frame" ;
 format_error(_) ->  "Unexpected exit code".

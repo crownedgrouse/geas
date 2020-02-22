@@ -19,10 +19,17 @@ dir_to_search() ->
   Conf = get_config(),
   Check = Conf#config.use_src ,
    case Check of
-      false -> "ebin" ;
+      false -> case get(geas_caller) of
+                  'rebar'     -> "_build";
+                  'erlang.mk' -> "ebin";
+                  _ ->  case filelib:is_dir("_build") of
+                           true  -> "_build" ;
+                           false -> "ebin"
+                        end
+               end ;
       true  -> "src"
    end.
-
+   
 %%-------------------------------------------------------------------------
 %% @doc Get upper/parallel directory matching a needle
 %% @end

@@ -26,4 +26,7 @@
                 ,log       = []
                 ,tips      = false
                 ,range     = []
+                ,frame     = []
+                ,update    = false
+                ,http_opts = []
                 }).

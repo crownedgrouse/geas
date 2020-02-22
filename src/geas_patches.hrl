@@ -21,8 +21,13 @@ list_installed_patches(Current) ->
 %% @doc List possible patches for current release
 %% @end
 %%-------------------------------------------------------------------------
-list_potential_patches(Current) ->
-   O = parse_otp_table(),
+list_potential_patches(Current)
+   ->
+   S = filename:join([get(geas_cwd),code:priv_dir(geas), "otp_versions.table"]),
+   list_potential_patches(Current, S).
+
+list_potential_patches(Current, S) ->
+   O = parse_otp_table(S),
    {Poss, _} = lists:partition(fun({L, _R}) ->
          % Keep L when not current release
          case L of
@@ -37,8 +42,9 @@ list_potential_patches(Current) ->
 %% @doc Parse otp_versions.table
 %% @end
 %%-------------------------------------------------------------------------
-parse_otp_table() ->
-   S = filename:join([get(geas_cwd),code:priv_dir(geas), "otp_versions.table"]),
+parse_otp_table(S) 
+   when is_list(S) 
+   ->
    {ok, B} = file:read_file(S),
    Raw = binary:split(B, <<"\n">>, ?SPLIT_OPTS),
    Net = lists:foldl(fun(X, Acc) -> 
@@ -54,6 +60,49 @@ parse_otp_table() ->
             end
    end, [], Raw),
    Net.
+
+%%-------------------------------------------------------------------------
+%% @doc Check if update OTP table is required
+%%      @note : simply remove file otp_versions.table in geas priv dir.
+%% @end
+%%-------------------------------------------------------------------------
+check_update_otp_table(S) ->
+   % If required or if file does not exists, download it.
+   Conf = get_config(),
+   C1 = filelib:is_regular(S),
+   C2 = Conf#config.update , 
+   case ((C1 == false) or (C2 == true)) of
+      false -> ok ;
+      true  -> 
+               Str  = Conf#config.http_opts ,
+               Opts = convert_str_to_term(Str),
+               application:start(inets),
+               application:start(crypto),
+               application:start(asn1),
+               application:start(public_key),
+               application:start(ssl),
+               update_otp_table(S, Opts)
+   end.
+
+%%-------------------------------------------------------------------------
+%% @doc Update OTP table
+%% @end
+%%-------------------------------------------------------------------------
+update_otp_table(S, Opts) 
+   when is_list(S) ->
+   try 
+      do_log({notice, httpc, "Trying to update OTP table"}),
+      ok = httpc:set_options(Opts),
+      {ok, {{_, 200, _}, _, Body}} =
+         httpc:request(get, {"https://raw.githubusercontent.com/erlang/otp/master/otp_versions.table", []}, [], []),
+      ok = file:delete(S),
+      ok = file:write_file(S, Body),
+      do_log({notice, httpc, "OTP table was updated"})
+   catch 
+         _:Err -> 
+                  do_log({error, httpc, Err}),
+                  ok
+   end.
 
 %%-------------------------------------------------------------------------
 %% @doc Get recommanded patches
@@ -75,8 +124,10 @@ get_recommanded_patches(Current) ->
    erlang:put(geas_apps, Apps),
    log({notice, applications, Apps}),
    % List patches higher than current version
-   Pot = list_potential_patches(Current),
+   S = filename:join([get(geas_cwd),code:priv_dir(geas), "otp_versions.table"]),
+   check_update_otp_table(S),
    Ins = list_installed_patches(Current),
+   Pot = list_potential_patches(Current, S),
    Candidats = lists:usort(lists:flatten(lists:flatmap(fun({P, L}) ->
                                                          case lists:member(P, Ins) of
                                                                true -> [];
