@@ -40,7 +40,7 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   22.2       Geas database                       2.6.0
+   R15                   22.2       Geas database                       2.6.1
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy                              1.0.4
                          19.3       cowlib                              1.0.0
