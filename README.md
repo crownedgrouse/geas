@@ -40,14 +40,14 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   22.2       Geas database                       2.6.1
+   R15                   22.3       Geas database                       2.6.2
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy                              1.0.4
                          19.3       cowlib                              1.0.0
                                     ranch                               1.0.0
-   R16B       x86        18.1       test                                0.0.1
+   R16B       x86_64     18.1       test                                0.0.1
 --------------------------------------------------------------------------------
-   R16B       x86        18.1       Global project                      0.0.1
+   R16B       x86_64     18.1       Global project                      0.0.1
 
 C : 22.0
 P :  22.0.1 22.0.2 22.0.3
