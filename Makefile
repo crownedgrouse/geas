@@ -7,6 +7,8 @@ CUR_DIR = $(shell pwd)
 DEPS = samovar
 dep_samovar = hex 1.0.0
 
+ERLANG_OTP = OTP-22.3
+
 include erlang.mk
 -include local.mk
 
