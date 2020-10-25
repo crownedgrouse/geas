@@ -26,7 +26,7 @@ geas_check(Dir) ->
 	    guilty(Dir),
 		geas:log()
     catch
-    	_:Exit1 -> put(geas_exit_code, Exit1)
+    	_:Exit1:Stack -> put(geas_exit_code, Exit1), io:format("~p", [Stack])
     after
         Exit = get(geas_exit_code),
 	    Msg  = case Exit of

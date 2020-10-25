@@ -40,37 +40,36 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   22.3       Geas database                       2.6.2
+   R15                   23.0       Geas database                       2.7.0
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                             cowboy                              1.0.4
-                         19.3       cowlib                              1.0.0
-                                    ranch                               1.0.0
-   R16B       x86_64     18.1       test                                0.0.1
+                         19.3       cowlib                              1.0.2
+                                    ranch                               1.2.1
+   R16B03     x86_64     18.1       test                                0.0.1
 --------------------------------------------------------------------------------
-   R16B       x86_64     18.1       Global project                      0.0.1
+   R16B03     x86_64     18.1       Global project                      0.0.1
 
-C : 22.0
-P :  22.0.1 22.0.2 22.0.3
-R :  22.0.4 22.0.5 22.0.6
-T : R16B R16B01 R16B02 R16B03 R16B03-1 17.0 17.1 17.3 17.4 17.5 18.0 18.1
+C : 23.0
+R : 23.0.1 23.0.2 23.0.3
+T : >=R16B03 <=18.1
 
-./_build/default/lib/cowboy/ebin/cowboy_clock.beam
+/home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
 R16B      erlang:integer_to_binary/1
 
-./_build/default/lib/cowboy/ebin/cowboy_req.beam
+/home/eric/git/test/deps/cowboy/ebin/cowboy_req.beam
 R16B      erlang:integer_to_binary/1
 
-./_build/default/lib/cowboy/ebin/cowboy_static.beam
+/home/eric/git/test/deps/cowboy/ebin/cowboy_static.beam
 R16B      erlang:integer_to_binary/1
 
-./_build/default/lib/cowboy/ebin/cowboy_websocket.beam
+/home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
 R15B02    crypto:hash/2
 
-./_build/default/lib/cowlib/ebin/cow_multipart.beam
+/home/eric/git/test/deps/cowlib/ebin/cow_multipart.beam
 19.3      crypto:rand_bytes/1
 
-./_build/default/lib/test/ebin/test.beam
-R16B      erlang:binary_to_integer/1
+/home/eric/git/test/ebin/test.beam
+R16B03    ssh_message:encode_host_key/1
 
 18.1      ssh_message:encode_host_key/1
 ===> Current version is incompatible with release window

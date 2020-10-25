@@ -77,7 +77,7 @@ S.
 distinct_disc_rels([])   -> [];
 distinct_disc_rels(Disc) ->  
 ListOfDisc = lists:flatten(lists:flatmap(fun({_, X}) -> [X] end, Disc)),
-AllDisc = lists:flatmap(fun({_, {X, _}}) -> sl_flatten(X) end, ListOfDisc),
+AllDisc = lists:flatmap(fun({X, _}) -> sl_flatten(X) end, ListOfDisc),
 UAllDisc = lists:usort(AllDisc),
 ?LOG(geas_logs, {warning, discarded, UAllDisc}),
 UAllDisc.

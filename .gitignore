@@ -12,3 +12,4 @@ edoc-info
 ebin
 rebar.lock
 .*.code-workspace
+local.mk

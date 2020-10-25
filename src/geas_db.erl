@@ -26,7 +26,7 @@
 -module(geas_db).
 -author("Eric Pailleau <geas@crownedgrouse.com>").
 
--export([generate/2, get_rel_list/0]).
+-export([generate/2, get_rel_list/0, newgenerate/2]).
 
 % List of known releases
 -define(REL_LIST, ["R15", "R15B", "R15B01", "R15B02", "R15B03", "R15B03-1",
@@ -35,11 +35,129 @@
 		               "18.0", "18.1", "18.2", "18.3",
 		               "19.0", "19.1", "19.2", "19.3",
                    "20.0", "20.1", "20.2", "20.3",
-                   "21.0", "21.1", "21.2",
-                   "22.0", "22.1", "22.2", "22.3"]).
+                   "21.0", "21.1", "21.2", "21.3",
+                   "22.0", "22.1", "22.2", "22.3",
+                   "23.0"]).
 
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
+
+newgenerate(DirSource, DirTarget)
+  ->
+  try 
+    true = filelib:is_dir(DirSource),
+    true = filelib:is_dir(DirTarget),
+    Target = filename:join(DirTarget, "geas_db.dets"),
+    % Create Target as a DETS, remove if any
+    file:delete(Target),
+    {ok, geas_db} = dets:open_file(geas_db, [{file, Target},{ram_file, true}]),
+    % List all files under Dir/doc/relinfos/term
+    WildcardR = filename:join([DirSource, "doc/relinfos/term/R*"]),
+    WildcardN = filename:join([DirSource, "doc/relinfos/term/[0-9]*"]),
+    FilesR = lists:sort(filelib:wildcard(WildcardR)),
+    FilesN = lists:sort(filelib:wildcard(WildcardN)),
+    Files  = FilesR ++ FilesN,
+    %io:format("Files: ~p~n", [Files]),
+    Fun = fun(F) ->  
+        io:format("Treating: ~ts~n", [F]),
+        % Load file
+        {ok, [Terms]} = file:consult(F),
+        %io:format("Terms: ~p~n", [Terms]),
+        R = erlang:atom_to_list(proplists:get_value(release, Terms, "")),
+        %_O = erlang:atom_to_list(proplists:get_value(version, Terms, "")),
+        %_D = erlang:atom_to_list(proplists:get_value(driver_version, Terms, "")),
+        %_N = erlang:atom_to_list(proplists:get_value(nif_version, Terms, "")),
+
+        X = proplists:get_value(mfa, Terms),
+        Fun2 = fun({M, L}) ->
+            Fun3 = fun(FA, Acc) ->
+                      FAS = erlang:atom_to_list(FA),
+                      [AS | Rest] = lists:reverse(filename:split(FAS)),
+                      FS = filename:join(lists:reverse(Rest)),
+                      Acc ++ [{M, erlang:list_to_atom(FS), erlang:list_to_integer(AS)}]
+                   end,
+            Acc = lists:foldl(Fun3, [], L),
+            %io:format("Treating: ~p~n", [Acc]),
+            % Insert in Dets
+            Fun4 = fun(Key) ->
+                      case dets:lookup(geas_db, Key) of
+                        {error, Reason} -> throw({Key, Reason}) ;
+                        []  -> % Insert
+                                ok = dets:insert(geas_db, {Key, [R]}) ;
+                        [{Key, V}] -> % 
+                                ok = dets:insert(geas_db, {Key, V ++ [R]}) 
+                      end
+                   end,
+            ok = lists:foreach(Fun4, Acc)
+        end,
+        ok = lists:foreach(Fun2, X)        
+    end,
+    ok = lists:foreach(Fun, Files)
+  catch
+    %_:Error:Stack ->  io:format("Error: ~p~n~p~n", [Error, Stack])
+    _:Error ->  io:format("Error: ~p~n", [Error])
+  after
+    ok = dets:sync(geas_db),
+    io:format("Converting release list to {min, max, semver, cont}~n", []),
+    % Traverse for Semver and continuous flag
+    FunS = fun({Key, L}) ->
+            case is_list(L) of
+              true ->
+                %io:format("~p~n", [L]),
+                Min    = geas:lowest_version(L),
+                Max    = geas:highest_version(L),
+                {ok, SemVer} = geas_semver:l2s(lists:usort(L)),
+                Cont = case string:find(SemVer, "||") of
+                    nomatch -> true ;
+                    _       -> false
+                end,
+                % trace some module here
+                % {M,_,_} = Key,
+                % case M =:= pg of
+                %   true -> 
+                %       io:format("~p~n", [{Key, {Min, Max, SemVer, Cont}}]);
+                %   false ->
+                %       ok
+                % end,
+                V = {Key, {Min, Max, SemVer, Cont}},
+                %ok = dets:insert(geas_db, {Key, {Min, Max, SemVer, Cont}}),
+                {continue, V};
+              false 
+                -> continue 
+            end
+           end,
+    Res = lists:sort(dets:traverse(geas_db, FunS)),
+    ok = dets:close(geas_db),
+
+    {C, U} = lists:partition(fun({_, {_,_,_,Y}}) -> Y end, Res) ,
+
+    NbO = length(Res),
+    io:format("Number of MFAs              : ~p~n", [NbO]),
+    % Traverse for functions
+    NbC = length(C),
+    NbD = length(U),
+    io:format("Number of continuous MFAs   : ~p~n", [NbC]),
+    io:format("Number of discontinuous MFAs: ~p~n", [NbD]),
+    % Writing a Report
+    Report = filename:join(DirTarget, "geas_db.txt"),
+    file:delete(Report),
+    {ok, ReportIo} = file:open(Report, [write]),
+    lists:foreach(fun({{M,F,A}, {_,_, SemVer, _}}) -> io:format(ReportIo,"~p:~p/~p : ~p~n", [M,F,A,SemVer]) end, U),
+    % Writing geas_db.hrl
+    Hrl = filename:join(DirTarget, "geas_db.hrl"),
+    file:delete(Hrl),
+    {ok, TargetIo} = file:open(Hrl, [write]),
+    do_header(TargetIo),
+    do_defines(TargetIo),
+    % Add former rel_min / rel_max functions
+    io:format(TargetIo, "rel_min(X) -> {Min, _, _, _} = rel_info(X), Min.~n", []),
+    io:format(TargetIo, "rel_max(X) -> {_, Max, _, _} = rel_info(X), Max.~n~n", []),
+    lists:foreach(fun({K, {Min, Max, SemVer, Cont}}) -> 
+      io:format(TargetIo, "rel_info(~w) -> {~p, ~p, ~p, ~p};~n", [K, Min, Max, SemVer, Cont]) 
+      end, Res),
+    io:format(TargetIo, "rel_info({_, _, _}) -> {?GEAS_MIN_REL, ?GEAS_MAX_REL, \">=\" ++ ?GEAS_MIN_REL ++ \"<=\" ++ ?GEAS_MAX_REL, true}.~n", []),
+    file:close(TargetIo)
+  end.
 
 %%-------------------------------------------------------------------------
 %% @doc Generate target geas database from inventory root path
@@ -59,6 +177,7 @@ generate(Dir, Target) -> generate(filename:join([Dir, "relinfos", "term"]),
 
 generate(IDir, DDir, Target) 
   -> 
+    put(trace, pg),
     {ok, TargetIo} = file:open(Target, [write]),
     do_header(TargetIo),
     do_defines(TargetIo),
@@ -204,7 +323,13 @@ do_defines(Io) ->
 %% @end
 %%-------------------------------------------------------------------------
 do_min_modules(Io, Data) -> 
-  lists:foreach(fun({M, _}) -> io:format(Io,"rel_min({~p, _, _}) -> ?GEAS_MIN_REL ;~n", [M]) end, Data),
+  lists:foreach(fun({M, _}) -> 
+    case ( get(trace) =:= M ) of
+      true -> erlang:display({?FUNCTION_NAME, M}) ;
+      _    -> ok
+    end,
+    io:format(Io,"rel_min({~p, _, _}) -> ?GEAS_MIN_REL ;~n", [M]) end, 
+  Data),
   % If no match, MFA is probably from a non core Erlang (i.e. private) module
   io:format(Io,"rel_min({_, _, _}) -> ~p .~n", [undefined]) .
 
@@ -213,7 +338,13 @@ do_min_modules(Io, Data) ->
 %% @end
 %%-------------------------------------------------------------------------
 do_max_modules(Io, Data) -> 
-  lists:foreach(fun({M, R}) -> io:format(Io,"rel_max({~p, _, _}) -> ~p ;~n", [M, R]) end, Data),
+  lists:foreach(fun({M, R}) -> 
+    case ( get(trace) =:= M ) of
+      true -> erlang:display({?FUNCTION_NAME, M, R}) ;
+      _    -> ok
+    end,
+    io:format(Io,"rel_max({~p, _, _}) -> ~p ;~n", [M, R]) end, 
+  Data),
   % If no match, MFA is still available in max release
   io:format(Io,"rel_max({_, _, _}) -> ?GEAS_MAX_REL.~n", []) .
 
@@ -223,6 +354,10 @@ do_max_modules(Io, Data) ->
 %%-------------------------------------------------------------------------
 do_min_functions(Io, Data) ->
    lists:foreach(fun({M, F, A, R}) ->
+      case ( get(trace) =:= M ) of
+        true -> erlang:display({?FUNCTION_NAME, M, F, A, R}) ;
+        _    -> ok
+      end,
       case dooblon(min, {M, F, A}) of
          true  -> exception(min, {M, F, A, R}),
                   io:format(Io,"%rel_min({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]);
@@ -236,6 +371,10 @@ do_min_functions(Io, Data) ->
 %%-------------------------------------------------------------------------
 do_max_functions(Io, Data) ->
    lists:foreach(fun({M, F, A, R}) ->
+      case ( get(trace) =:= M ) of
+        true -> erlang:display({?FUNCTION_NAME, M, F, A, R}) ;
+        _    -> ok
+      end,
       case dooblon(max, {M, F, A}) of
          true  -> exception(max, {M, F, A, R}),
                   io:format(Io,"%rel_max({~p, ~p, ~p}) -> ~p ;~n", [M, F, A, R]);

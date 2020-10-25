@@ -29,4 +29,5 @@
                 ,frame     = []
                 ,update    = false
                 ,http_opts = []
+                ,semver    = false
                 }).

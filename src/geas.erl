@@ -27,7 +27,7 @@
 
 % API : exported functions for non plugin use
 -export([info/1, what/1, offending/1, compat/1, compat/2, compat/3, guilty/1]).
--export([w2l/1, lowest_version/2, highest_version/2, git_tag/1]).
+-export([w2l/1, lowest_version/2, highest_version/2, git_tag/1, lowest_version/1, highest_version/1]).
 
 -export([log/0, exit_code/0, format_error/1]).
 

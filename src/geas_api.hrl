@@ -285,6 +285,7 @@ compat(RootDir, term) ->
             case  lists:member("_rel",re:split(P,"/",[{return,list}])) of
                false -> 
                   case filename:basename(P) of
+                     "rebar"   -> Y ; % Exclude rebar from results
                      "geas"    -> Y ; % Exclude geas from results
                      "samovar" -> Y ; % Exclude samovar from results
                      "src"  -> 
@@ -400,8 +401,10 @@ compat(RootDir, print, Config) ->
                end
    end,
    case Conf#config.my_rels of
-      "" -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
-      _  -> io:format("L : ~ts~n",[string:join(Rels, " ")])
+      false -> {ok, SV} = geas_semver:l2s(lists:usort(Rels)),
+               io:format("T : ~ts~n",[SV]);
+      ""    -> io:format("T : ~ts~n",[string:join(Rels, " ")]);
+      _     -> io:format("L : ~ts~n",[string:join(Rels, " ")])
    end,
    case Conf#config.exc_rels of
       false -> ok ;
