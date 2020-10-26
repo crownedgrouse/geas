@@ -75,8 +75,8 @@ R16B03    ssh_message:encode_host_key/1
 ===> Current version is incompatible with release window
 ```
 
-Current (C) Erlang release found is `22.0` and some patches (P) was detected.
-The global project can run starting R16B up to 18.1 in such case, due to use of a function introduced in R16B and another one removed in 18.2.
+Current (C) Erlang release found is `23.0` and no patches (P) was detected.
+The global project can run starting R16B03 up to 18.1 in such case, due to use of a function introduced in R16B03 and another one removed in 18.2.
 Native x86 compilation was detected on test module.
 Recommended patches (R) are proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
 
