@@ -16,7 +16,7 @@ Geas will tell you also :
    - if some beam files are compiled native.
    - the installed patches and recommend patches that should be installed depending your code.
 
-For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B02`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5``.
+For example , if a dependency is using ``application:ensure_all_started/1`` your project can only be used starting ``R16B02`` or if ``maps`` is used somewhere, starting ``17.0``. On contrary, ``pg`` module cannot be used after ``17.5`` but is back again in ``23.0``.
 
 For more details, see [Wiki](https://github.com/crownedgrouse/geas/wiki).
 
