@@ -7,5 +7,6 @@ CUR_DIR = $(shell pwd)
 DEPS = samovar
 dep_samovar = hex 1.0.0
 
--include local.mk
 include $(if $(ERLANG_MK_FILENAME),$(ERLANG_MK_FILENAME),erlang.mk)
+-include local.mk
+

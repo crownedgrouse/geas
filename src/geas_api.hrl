@@ -287,6 +287,7 @@ compat(RootDir, term) ->
                   case filename:basename(P) of
                      "rebar"   -> Y ; % Exclude rebar from results
                      "geas"    -> Y ; % Exclude geas from results
+                     "geas_rebar3" -> Y ; % Exclude geas_rebar3 from results
                      "samovar" -> Y ; % Exclude samovar from results
                      "src"  -> 
                         case lists:member(filename:dirname(P), Y) of
@@ -341,7 +342,7 @@ compat(RootDir, term) ->
                                []
          end
       end,
-   D = lists:flatmap(Fun, Global),
+   D = lists:keysort(4, lists:flatmap(Fun, Global)),
    % Get global info
    MinList = lists:usort([?GEAS_MIN_REL] ++ lists:flatmap(fun({X, _, _, _}) -> [X] end, D)),
    MinGlob = highest_version(MinList) ,
