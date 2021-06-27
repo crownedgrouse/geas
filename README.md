@@ -118,6 +118,12 @@ A single capital letter is used as tag for each information.
    - R = Recommended : Patches that should be applied, because code is using module impacted by a patch for current version
          `GEAS_TIPS=1`
 
+## Donations ##
+
+If you find this project useful, and help it to be maintained, please donate to:
+
+    Bitcoin: 1Ep9VoyNtnNiGoXM52V6NwcMh4SZ9bxkAG
+    Ethereum: 0xfac5e46ffe12ec1fc2830d95c22e6583d163d7f9 
 
 ## Quick Start ##
 
