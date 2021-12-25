@@ -47,44 +47,56 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   24.1       Geas database                       2.7.6
+   R15                   24.2       Geas database                       2.7.7
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                  23.3       cowboy                              1.0.4
-                         19.3       cowlib                              1.0.2
-                         23.3       ranch                               1.2.1
+                         19.3       cowlib                              1.0.0
+                         23.3       ranch                               1.0.0
    R16B03                18.1       test                                0.0.1
 --------------------------------------------------------------------------------
    R16B03                18.1       Global project                      0.0.1
 
-C : 24.1
+C : 24.2
 T : >=R16B03 <=18.1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_clock.beam
+./_build/default/lib/cowboy/ebin/cowboy_clock.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_req.beam
+./_build/default/lib/cowboy/ebin/cowboy_handler.beam
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowboy/ebin/cowboy_req.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_static.beam
+./_build/default/lib/cowboy/ebin/cowboy_rest.beam
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowboy/ebin/cowboy_static.beam
 R16B      erlang:integer_to_binary/1
 
-/home/eric/git/test/deps/cowboy/ebin/cowboy_websocket.beam
+./_build/default/lib/cowboy/ebin/cowboy_websocket.beam
 R15B02    crypto:hash/2
 
-/home/eric/git/test/deps/cowlib/ebin/cow_multipart.beam
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowlib/ebin/cow_multipart.beam
 19.3      crypto:rand_bytes/1
 
-/home/eric/git/test/ebin/test.beam
+./_build/default/lib/ranch/ebin/ranch_ssl.beam
+23.3      ssl:cipher_suites/0, ssl:ssl_accept/2
+
+./_build/default/lib/test/ebin/test.beam
 R16B03    ssh_message:encode_host_key/1
 
 18.1      ssh_message:encode_host_key/1
-===> Current version is incompatible with release window
+===> Current Erlang/OTP release is incompatible with project release window
+
 ```
 
-Current (C) Erlang release found is `23.0` and no patches (P) was detected.
+Current (C) Erlang release found is `23.4` and no patches (P) was detected.
 The global project can run starting R16B03 up to 18.1 in such case, due to use of a function introduced in R16B03 and another one removed in 18.2.
 Native x86 compilation was detected on test module.
-Recommended patches (R) are proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
+Recommended patches (R) is optionally proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
 
 ## Tuning output ##
 
