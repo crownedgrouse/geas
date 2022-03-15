@@ -105,7 +105,7 @@ update_otp_table(S, Opts)
    end.
 
 %%-------------------------------------------------------------------------
-%% @doc Get recommanded patches
+%% @doc Get recommended patches
 %% @end
 %%-------------------------------------------------------------------------
 get_recommanded_patches(Current) ->

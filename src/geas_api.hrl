@@ -2,7 +2,7 @@
 
 -define(COMMON_DIR(Dir),
    AppFile   = get_app_file(Dir),
-   % Informations inventory
+   % Information inventory
    {AppName, Version , Desc}  = get_app_infos(AppFile),
    AppType   = get_app_type(AppFile, Dir),
    Native    = is_native(Dir),
@@ -392,7 +392,7 @@ compat(RootDir, print, Config) ->
       [] -> ok ;
       _  -> io:format("P : ~ts~n", [string:join(Patches, " ")])
    end,
-   % Display Recommanded Erlang release if requested
+   % Display Recommended Erlang release if requested
    case Conf#config.tips of
       false -> ok ;
       true  -> Rec = get_recommanded_patches(Current),

@@ -31,14 +31,14 @@ If you find this project useful, and help it to be maintained, please donate to:
 
 ## When using it ? ##
 
-- Each time you prepare a project release or update a dependancy.
-- When you plan to add a dependancy to your project
+- Each time you prepare a project release or update a dependency.
+- When you plan to add a dependency to your project
 - When writing your README, to inform your project's users on possible release window
 - To limit test of CI tools on only possible release window
 
 ## Plugins ##
 
-``geas`` is available as a [module](https://github.com/crownedgrouse/geas/wiki/Module-API), but you will probably prefere to use geas plugins with your usual build tool.
+``geas`` is available as a [module](https://github.com/crownedgrouse/geas/wiki/Module-API), but you will probably prefer to use geas plugins with your usual build tool.
 
 Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki/Erlang.mk-plugin) and [`rebar`](https://github.com/crownedgrouse/geas/wiki/Rebar-plugins) .
 
@@ -96,7 +96,7 @@ R16B03    ssh_message:encode_host_key/1
 Current (C) Erlang release found is `23.4` and no patches (P) was detected.
 The global project can run starting R16B03 up to 18.1 in such case, due to use of a function introduced in R16B03 and another one removed in 18.2.
 Native x86 compilation was detected on test module.
-Recommended patches (R) is optionally proposed when an application used in code is referenced in a not installed patche, even if in this exemple, current Erlang release cannot run the project.
+Recommended patches (R) is optionally proposed when an application used in code is referenced in a not installed patche, even if in this example, current Erlang release cannot run the project.
 
 ## Tuning output ##
 
@@ -120,7 +120,7 @@ Environment variables cheatsheet :
 `GEAS_HTTP_OPTS` | `string`       | `httpc` options       | Erlang term string with a final dot   |            | 2.6 |
 
 
-Under compat table output, some informations can be shown depending those environment variables and analyze result.
+Under compat table output, some information can be shown depending those environment variables and analyze result.
 A single capital letter is used as tag for each information.
 
    - C = Current : Current Erlang major.minor release used (for example 20.2)
