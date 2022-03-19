@@ -1,5 +1,5 @@
 %%-------------------------------------------------------------------------
-%% @doc Get {min, recommanded, max} Erlang version from compiler version
+%% @doc Get {min, recommended, max} Erlang version from compiler version
 %% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
 %% @end
 %%-------------------------------------------------------------------------

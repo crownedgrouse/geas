@@ -3,7 +3,7 @@
 %%% @author    Eric Pailleau <geas@crownedgrouse.com>
 %%% @copyright 2015 crownedgrouse.com
 %%% @doc
-%%% Guess Erlang Applicaion Scattering
+%%% Guess Erlang Application Scattering
 %%% Database generation module
 %%% @end
 %%%

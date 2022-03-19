@@ -278,7 +278,7 @@ get_src_from_beam(File) ->
          filename:join([SrcDir, Basename ++ ".erl"])
    end.
 %%-------------------------------------------------------------------------
-%% @doc Beam opcode compatibity
+%% @doc Beam opcode compatibility
 %% @end
 %%-------------------------------------------------------------------------
 beam_opcode_compat(Beam) ->

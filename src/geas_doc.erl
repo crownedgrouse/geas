@@ -134,7 +134,7 @@ release_diff_yaml_files(F1, F2) ->
    release_diff_yaml(AT, BT).
 
 %%-------------------------------------------------------------------------
-%% @doc Release difference from two Release informations
+%% @doc Release difference from two Release information
 %% @end
 %%-------------------------------------------------------------------------
 -spec release_diff(list(), list()) -> list().
@@ -152,7 +152,7 @@ release_diff(R1, R2) ->
   ].
 
 %%-------------------------------------------------------------------------
-%% @doc Release difference from two Release informations in YAML
+%% @doc Release difference from two Release information in YAML
 %% @end
 %%-------------------------------------------------------------------------
 -spec release_diff_yaml(list(), list()) -> ok.
@@ -160,7 +160,7 @@ release_diff(R1, R2) ->
 release_diff_yaml(R1, R2) -> yamlize(release_diff(R1, R2)).
 
 %%-------------------------------------------------------------------------
-%% @doc Release difference from two Release informations in YAML file
+%% @doc Release difference from two Release information in YAML file
 %% @end
 %%-------------------------------------------------------------------------
 -spec release_diffs(yaml | term, list(), list(), list()) -> ok.
@@ -170,7 +170,7 @@ release_diffs(yaml, Rel1, Rel2, File) ->
   yamlize(release_diff(Rel1, Rel2), Io),
   file:close(Io), ok;
 %%-------------------------------------------------------------------------
-%% @doc Release difference from two Release informations in term file
+%% @doc Release difference from two Release information in term file
 %% @end
 %%-------------------------------------------------------------------------
 release_diffs(term, Rel1, Rel2, File) ->  
