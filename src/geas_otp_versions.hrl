@@ -1,11 +1,11 @@
 %%-------------------------------------------------------------------------
-%% @doc Get {min, recommended, max} Erlang version from compiler version
+%% @doc Get {min, recommanded, max} Erlang version from compiler version
 %% Look into https://github.com/erlang/otp/blob/maint/lib/compiler/vsn.mk
 %% @end
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
-get_erlang_version("8.1") -> {"24.3", "24.3", "25.0-rc1"};
+get_erlang_version("8.1") -> {"24.3", "24.3.2", "25.0-rc1"};
 get_erlang_version("8.0.4") -> {"24.2", "24.2.2", "24.2.2"};
 get_erlang_version("8.0.3") -> {"24.1", "24.1.7", "24.1.7"};
 get_erlang_version("8.0.2") -> {"24.0.3", "24.0.6", "24.0.6"};
