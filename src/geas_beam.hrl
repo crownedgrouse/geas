@@ -66,6 +66,8 @@ get_arch_from_chunks(File) ->
                      "Abst" -> true ;
                      "Dbgi" -> true ;
                      "Line" -> true ;
+                     "Meta" -> true ;
+                     "Type" -> true ;
                      _      -> false
                   end end,
          case lists:dropwhile(Fun, C) of
