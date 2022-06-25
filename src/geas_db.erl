@@ -1,7 +1,7 @@
 %%%-------------------------------------------------------------------
 %%% File:      geas_doc.erl
 %%% @author    Eric Pailleau <geas@crownedgrouse.com>
-%%% @copyright 2015 crownedgrouse.com
+%%% @copyright 2022 crownedgrouse.com
 %%% @doc
 %%% Guess Erlang Application Scattering
 %%% Database generation module
@@ -38,7 +38,8 @@
                    "21.0", "21.1", "21.2", "21.3",
                    "22.0", "22.1", "22.2", "22.3",
                    "23.0", "23.1", "23.2", "23.3",
-                   "24.0", "24.1", "24.2", "24.3"]).
+                   "24.0", "24.1", "24.2", "24.3",
+		   "25.0"]).
 
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
