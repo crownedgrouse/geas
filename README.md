@@ -24,7 +24,7 @@ Geas is also available on [hex.pm](https://hex.pm/packages/geas).
 
 ## Donations ##
 
-If you find this project useful, and help it to be maintained, please donate to:
+Help this project to be maintained ! If you find this project useful, please donate to:
 
     Bitcoin: 1Ep9VoyNtnNiGoXM52V6NwcMh4SZ9bxkAG
     Ethereum: 0xfac5e46ffe12ec1fc2830d95c22e6583d163d7f9 
@@ -47,7 +47,7 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   25.1       Geas database                       2.7.10
+   R15                   25.2       Geas database                       2.7.11
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                  23.3       cowboy                              1.0.4
                          19.3       cowlib                              1.0.0
@@ -93,7 +93,7 @@ R16B03    ssh_message:encode_host_key/1
 
 ```
 
-Current (C) Erlang release found is `23.4` and no patches (P) was detected.
+Current (C) Erlang release found is `24.2` and no patches (P) was detected.
 The global project can run starting R16B03 up to 18.1 in such case, due to use of a function introduced in R16B03 and another one removed in 18.2.
 No native compilation was detected on any module.
 Recommended patches (R) is optionally proposed when an application used in code is referenced in a not installed patche, even if in this example, current Erlang release cannot run the project.
