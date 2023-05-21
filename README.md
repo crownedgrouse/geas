@@ -47,16 +47,16 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   25.3       Geas database                       2.7.12
+   R15                   26.0       Geas database                      2.7.13
 ---Min--------Arch-------Max----------------------------------------------------
    R16B                  23.3       cowboy                              1.0.4
-                         19.3       cowlib                              1.0.0
-                         23.3       ranch                               1.0.0
+                         19.3       cowlib                              1.0.2
+                         23.3       ranch                               1.2.1
    R16B03                18.1       test                                0.0.1
 --------------------------------------------------------------------------------
    R16B03                18.1       Global project                      0.0.1
 
-C : 24.2
+C : 26.0
 T : >=R16B03 <=18.1
 
 ./_build/default/lib/cowboy/ebin/cowboy_clock.beam
