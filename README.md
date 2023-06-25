@@ -1,4 +1,4 @@
-# geas #
+# geas ![Build status](https://github.com/crownedgrouse/geas/actions/workflows/erlang.yml/badge.svg) #
 
 Guess Erlang Application Scattering
 
