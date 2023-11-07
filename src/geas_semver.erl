@@ -45,6 +45,8 @@ versionize(V) -> samovar:versionize(V).
 %%-------------------------------------------------------------------------
 -spec l2s(list()) -> {ok, list()} | {error, atom()}.
 
+l2s([]) ->
+	{ok, []};
 l2s(L) when is_list(L)
 	-> 
 	try
