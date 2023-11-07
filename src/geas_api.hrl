@@ -382,7 +382,7 @@ compat(RootDir, print, Config) ->
    lists:foreach(fun({LD, AD, RD, FD}) -> io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[LD, AD, RD, FD, get_version(FD)]) end, D),
    io:format("~80s~n",[string:copies("-",80)]),
    io:format("   ~-10s ~-10s ~-10s ~-20s ~20s~n",[MinGlob , ArchGlob, MaxGlob, "Global project", get_version(Project)]),
-   Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}),
+   Rels = w2l({?GEAS_MIN_REL, MinGlob, MaxGlob, ?GEAS_MAX_REL}), % Might return empty list, if MinGlob is "higher" than MaxGlob.
    io:format("~n",[]),
    % Always display current version detected and patches found
    Current = get_current_erlang_version(),
@@ -706,6 +706,8 @@ get_erlang_compat_beam(File) ->
 %% @doc Check current Erlang release against project release window
 %% @end
 %%-------------------------------------------------------------------------
+check_current_rel_vs_window(_Current, [] = _Window) ->
+   throw(5);
 check_current_rel_vs_window(Current, Window)
    -> 
    Start = hd(Window),
@@ -770,5 +772,5 @@ format_error(1) ->  "Current Erlang/OTP release is incompatible with project rel
 format_error(2) ->  "Release window do not match the required semver version range" ;
 format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
 format_error(4) ->  "Maximum opcode is higher in Beam files (May need recompilation)" ;
-format_error(5) ->  "Release window do not match the required semver version frame" ;
+format_error(5) ->  "The release window does not match the required SemVer version frame" ;
 format_error(_) ->  "Unexpected exit code".
