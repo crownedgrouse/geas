@@ -102,8 +102,7 @@ is_native_from_file(File) ->
          Bn = filename:rootname(File, ".beam"),
          case filelib:is_regular(File) of
                true -> {ok,{_,[{compile_info, L}]}} = beam_lib:chunks(Bn, [compile_info]),
-                     {options, O} = lists:keyfind(options, 1, L),
-                     case lists:member(native, O) of
+                     case is_native_from_compile_info(lists:keyfind(options, 1, L)) of
                         true -> true ;
                         false -> % rebar3 does not add 'native' in compile option
                                  case get_arch_from_chunks(File) of
@@ -115,6 +114,18 @@ is_native_from_file(File) ->
                         undefined
          end
    end.
+
+%%-------------------------------------------------------------------------
+%% @doc If a module's `compile_info` has `options` check if they contain
+%%      `native`. Return `false` otherwise.
+%% @end
+%%-------------------------------------------------------------------------
+-spec is_native_from_compile_info(false | {options, [term()]}) -> boolean().
+
+is_native_from_compile_info(false) ->
+   false;
+is_native_from_compile_info({options, O}) ->
+   lists:member(native, O).
 
 %%-------------------------------------------------------------------------
 %% @doc Get compile module version
