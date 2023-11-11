@@ -766,7 +766,7 @@ check_window_vs_semver_frame(_Window, _Frame) % No frame set
 %% @end
 %%-------------------------------------------------------------------------
 format_error(0) ->  "Success" ;
-format_error(1) ->  "Current Erlang/OTP release is incompatible with project release window" ; 
+format_error(1) ->  "The Erlang/OTP version used for analysis (" ++ get_current_erlang_version() ++ ") is incompatible with the project's release window" ;
 format_error(2) ->  "Release window do not match the required semver version range" ;
 format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
 format_error(4) ->  "Maximum opcode is higher in Beam files (May need recompilation)" ;
