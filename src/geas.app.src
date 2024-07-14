@@ -1,6 +1,6 @@
 {application,geas,
              [{description,"Guess Erlang Application Scattering"},
-              {vsn,"2.8.0"},
+              {vsn,"2.8.1"},
               {registered,[]},
               {applications,[kernel,stdlib,samovar,inets,ssl,crypto,
                              public_key,asn1]},
@@ -10,4 +10,5 @@
               {licenses,["ISC"]},
               {links,[{"Github","https://github.com/crownedgrouse/geas"},
                       {"Wiki",
-                       "https://github.com/crownedgrouse/geas/wiki"}]}]}.
+                       "https://github.com/crownedgrouse/geas/wiki"}]}
+	     ]}.
