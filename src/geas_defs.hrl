@@ -30,4 +30,5 @@
                 ,update    = false
                 ,http_opts = []
                 ,semver    = false
+                ,guilty    = false
                 }).

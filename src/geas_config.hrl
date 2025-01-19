@@ -24,6 +24,7 @@ get_config() ->
 %% GEAS_UPDATE     boolean   [0 / 1]               Force OTP table to be downloaded
 %% GEAS_HTTP_OPTS  string    Http options          Options for inets (a dot required at end)
 %% GEAS_SEMVER     boolean   [0 / 1]               Display list of release as semver range
+%% GEAS_GUILTY     boolean   [0 / 1]               Display long guilty list (1) or concise (0) ans default
 %% @end
 %%-------------------------------------------------------------------------
 set_config()     -> set_config([]).
@@ -47,6 +48,7 @@ set_config(Conf)
    Update    = normalize_boolean(proplists:get_value(update, Conf, os:getenv("GEAS_UPDATE"))),
    Http_opts = proplists:get_value(http_opts, Conf, os:getenv("GEAS_HTTP_OPTS")),
    Semver    = normalize_boolean(proplists:get_value(semver, Conf, os:getenv("GEAS_SEMVER"))),
+   Guilty    = normalize_boolean(proplists:get_value(guilty, Conf, os:getenv("GEAS_GUILTY"))),
 
    C = #config{ use_src = Use_src
               , my_rels = My_rels
@@ -59,6 +61,7 @@ set_config(Conf)
               , update = Update
               , http_opts = Http_opts
               , semver = Semver
+              , guilty = Guilty
               },
     put(geas_conf, C),
     C.

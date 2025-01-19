@@ -285,6 +285,7 @@ compat(RootDir, term) ->
             case  lists:member("_rel",re:split(P,"/",[{return,list}])) of
                false -> 
                   case filename:basename(P) of
+                     ".erlang.mk" -> Y ; % Exclude as it now contains rebar3
                      "rebar"   -> Y ; % Exclude rebar from results
                      "geas"    -> Y ; % Exclude geas from results
                      "geas_rebar3" -> Y ; % Exclude geas_rebar3 from results
@@ -303,8 +304,18 @@ compat(RootDir, term) ->
                true -> Y
             end
          end, []),
+   % Remove any directory containing  '.erlang.mk'
+   Fun0 =
+      fun(X) ->
+         L = string:split(X, "/", all), % since 20.0 :( 
+         case lists:member(".erlang.mk", L) of
+            true -> false ;
+            false -> true
+         end
+      end,
+   PP0 = lists:filter(Fun0, PP),
    % Get all upper project
-   Ps = lists:usort(PP),
+   Ps = lists:usort(PP0),
    ?LOG(geas_logs, {debug, dir_list, Ps }),
    Global = case get(geas_caller) of
                'erlang.mk' -> Ps ++ [filename:absname(RootDir)];
@@ -460,6 +471,7 @@ compat(RootDir, print, Config) ->
 %%-------------------------------------------------------------------------
 
 guilty(RootDir) ->
+   Conf = get_config(),
    Ext = ext_to_search(),
    Dir = case get(geas_caller) of
          'rebar'     -> "_build";
@@ -469,6 +481,7 @@ guilty(RootDir) ->
                   false -> "deps"
                end
       end,
+   {{_, MinGlob, MaxGlob, _}, _, _} = compat(RootDir, term),
    DirS = dir_to_search(),
    Bs1 = filelib:fold_files(filename:join(RootDir, Dir), Ext, true,
                            fun(X, Y) -> Y ++ [X] end, []),
@@ -492,7 +505,30 @@ guilty(RootDir) ->
             _E                -> []
          end
    end,
-   All = lists:flatmap(Fun, Bs),
+   All1 = lists:flatmap(Fun, Bs),
+   % Keep only lower and upper offending to reduce length
+   Fun1 = 
+      fun({F, L, R}) ->
+         L1 = case L of
+                  [{Min, _}] when (Min == MinGlob) -> [{F, L, R}];
+                  _ -> []
+              end,
+         L2 = case R of
+                  [{Max, _}] when (Max == MaxGlob) -> [{F, L, R}];
+                   _ -> []
+              end,
+         case {L1, L2} of
+            {L1, []} -> [L1] ;
+            {[], L2} -> [L2] ;
+            {[], []} -> [] ;
+            {L1, L2} -> [L1 || L2] ;
+            _ -> []
+         end
+      end,
+   All = case Conf#config.guilty of
+            true -> All1;
+            false -> lists:flatmap(Fun1, All1)
+         end,   
    Fun2 =
       fun({_F, L, R}) ->
          io:format("~n~ts", [_F]) ,
@@ -515,7 +551,7 @@ guilty(RootDir) ->
             _  -> ok
          end
       end,
-   lists:foreach(Fun2, lists:usort(All)) .
+   lists:foreach(Fun2, lists:usort(lists:flatten(All))) .
 
 %%-------------------------------------------------------------------------
 %% @doc Translate compat window to list
