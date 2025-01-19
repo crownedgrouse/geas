@@ -59,6 +59,9 @@ Example on a test project using cowboy :
 C : 20.2
 T : >=21.2 <=27.1
 
+./deps/cowboy/ebin/cowboy_router.beam
+21.2      persistent_term:get/1
+
 ===> Current Erlang/OTP release is incompatible with project release window
 
 ```
