@@ -47,22 +47,49 @@ Plugin is available for [`erlang.mk`](https://github.com/crownedgrouse/geas/wiki
 Example on a test project using cowboy :
 
 ```
-   R15                   27.1       Geas database                       2.8.2
+   R15                   27.1       Geas database                       2.9.0
 ---Min--------Arch-------Max----------------------------------------------------
-   21.2                             cowboy                             2.12.0
-   21.0                             cowlib                             2.13.0
-   21.0                             hex_core                           0.10.3
-   21.0                             ranch                               1.8.0
+   R16B                  23.3       cowboy                              1.0.4
+                         19.3       cowlib                              1.0.0
+                         23.3       ranch                               1.0.0
+   R16B03                18.1       test                                0.0.1
 --------------------------------------------------------------------------------
-   21.2                  27.1       Global project                      0.0.1
+   R16B03                18.1       Global project                      0.0.1
 
-C : 20.2
-T : >=21.2 <=27.1
+C : 27.1
+T : >=R16B03 <=18.1
 
-./deps/cowboy/ebin/cowboy_router.beam
-21.2      persistent_term:get/1
+./_build/default/lib/cowboy/ebin/cowboy_clock.beam
+R16B      erlang:integer_to_binary/1
 
-===> Current Erlang/OTP release is incompatible with project release window
+./_build/default/lib/cowboy/ebin/cowboy_handler.beam
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowboy/ebin/cowboy_req.beam
+R16B      erlang:integer_to_binary/1
+
+./_build/default/lib/cowboy/ebin/cowboy_rest.beam
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowboy/ebin/cowboy_static.beam
+R16B      erlang:integer_to_binary/1
+
+./_build/default/lib/cowboy/ebin/cowboy_websocket.beam
+R15B02    crypto:hash/2
+
+23.3      erlang:get_stacktrace/0
+
+./_build/default/lib/cowlib/ebin/cow_multipart.beam
+19.3      crypto:rand_bytes/1
+
+./_build/default/lib/ranch/ebin/ranch_ssl.beam
+23.3      ssl:cipher_suites/0, ssl:ssl_accept/2
+
+./_build/default/lib/test/ebin/test.beam
+R16B03    ssh_message:encode_host_key/1
+
+18.1      ssh_message:encode_host_key/1
+===> The Erlang/OTP version used for analysis (27.1) is incompatible with the project's release window
 
 ```
 
