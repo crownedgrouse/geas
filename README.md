@@ -93,7 +93,7 @@ R16B03    ssh_message:encode_host_key/1
 
 ```
 
-Current (C) Erlang release found is `26.0` and no patches (P) was detected.
+Current (C) Erlang release found is `27.1` and no patches (P) was detected.
 The global project can run starting R16B03 up to 18.1 in such case, due to use of a function introduced in R16B03 and another one removed in 18.2.
 No native compilation was detected on any module.
 Recommended patches (R) is optionally proposed when an application used in code is referenced in a not installed patche, even if in this example, current Erlang release cannot run the project.
@@ -118,6 +118,7 @@ Environment variables cheatsheet :
 `GEAS_FRAME`     | `string`       | SEMVER range          | Set an OTP frame for project          | [...](https://github.com/crownedgrouse/geas/wiki/SEMVER-range-and-frame) | 2.6 |
 `GEAS_UPDATE`    | `boolean`      | [**0** / 1]           | Force update of OTP version table     |            | 2.6 |
 `GEAS_HTTP_OPTS` | `string`       | `httpc` options       | Erlang term string with a final dot   |            | 2.6 |
+`GEAS_GUILTY`    | `boolean`      | [**0** / 1]           | Show concise (0) guilty function lists or not (1) | | 2.9 |
 
 
 Under compat table output, some information can be shown depending those environment variables and analyze result.
