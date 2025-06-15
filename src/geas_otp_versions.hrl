@@ -5,12 +5,17 @@
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
+get_erlang_version("9.0") -> {"9.0", "9.0", "28.0-rc2"};
+get_erlang_version("8.6.1") -> {"27.3.2", "27.3.4", "27.3.4"};
+get_erlang_version("8.6") -> {"27.3", "27.3.1", "27.3.1"};
+get_erlang_version("8.5.5") -> {"27.2.2", "27.2.4", "27.2.4"};
 get_erlang_version("8.5.4") -> {"27.2", "27.2.1", "27.2.1"};
 get_erlang_version("8.5.3") -> {"27.1.3", "27.1.3", "27.1.3"};
 get_erlang_version("8.5.2") -> {"27.1", "27.1.2", "27.1.2"};
 get_erlang_version("8.5.1") -> {"27.0.1", "27.0.1", "27.0.1"};
 get_erlang_version("8.5") -> {"27.0", "27.0", "27.0-rc3"};
-get_erlang_version("8.4.3.2") -> {"26.2.5.4", "26.2.5.7", "26.2.5.7"};
+get_erlang_version("8.4.3.3") -> {"26.2.5.12", "26.2.5.12", "26.2.5.12"};
+get_erlang_version("8.4.3.2") -> {"26.2.5.4", "26.2.5.11", "26.2.5.11"};
 get_erlang_version("8.4.3.1") -> {"26.2.5.3", "26.2.5.3", "26.2.5.3"};
 get_erlang_version("8.4.3") -> {"26.2.4", "26.2.5.2", "26.2.5.2"};
 get_erlang_version("8.4.2") -> {"26.2.3", "26.2.3", "26.2.3"};
@@ -19,7 +24,7 @@ get_erlang_version("8.4") -> {"26.1", "26.1", "26.1"};
 get_erlang_version("8.3.2") -> {"26.0.2", "26.0.2", "26.0.2"};
 get_erlang_version("8.3.1") -> {"26.0.1", "26.0.1", "26.0.1"};
 get_erlang_version("8.3") -> {"26.0", "26.0", "26.0-rc3"};
-get_erlang_version("8.2.6.4") -> {"25.3.2.10", "25.3.2.16", "25.3.2.16"};
+get_erlang_version("8.2.6.4") -> {"25.3.2.10", "25.3.2.21", "25.3.2.21"};
 get_erlang_version("8.2.6.3") -> {"25.3.2.3", "25.3.2.9", "25.3.2.9"};
 get_erlang_version("8.2.6.2") -> {"25.3.2.2", "25.3.2.2", "25.3.2.2"};
 get_erlang_version("8.2.6.1") -> {"25.3.2.1", "25.3.2.1", "25.3.2.1"};
@@ -126,4 +131,9 @@ get_erlang_version("4.7.1") -> {"R14B", "R14B", "R14B"};
 get_erlang_version("4.7") -> {"R14A", "R14A", "R14A"};
 get_erlang_version("4.6.5") -> {"R13B04", "R13B04", "R13B04"};
 get_erlang_version("4.6.4") -> {"R13B03", "R13B03", "R13B03"};
+get_erlang_version("#SPDX-License-Identifier") -> {"Apache-2.0", "Apache-2.0", "Apache-2.0"};
+get_erlang_version("#CopyrightEricssonAB1996-2025.AllRightsReserved.") -> {"#CopyrightEricssonAB1996-2025.AllRightsReserved.", "#CopyrightEricssonAB1996-2025.AllRightsReserved.", "#CopyrightEricssonAB1996-2025.AllRightsReserved."};
+get_erlang_version("#%CopyrightEnd%") -> {"28.0", "28.0", "28.0-rc4"};
+get_erlang_version("#%CopyrightBegin%") -> {"#%CopyrightBegin%", "#%CopyrightBegin%", "#%CopyrightBegin%"};
+get_erlang_version("#") -> {"#", "#", "#"};
 get_erlang_version(_)           -> undefined.
