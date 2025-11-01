@@ -22,13 +22,6 @@ For more details, see [Wiki](https://github.com/crownedgrouse/geas/wiki).
 
 Geas is also available on [hex.pm](https://hex.pm/packages/geas).
 
-## Donations ##
-
-Help this project to be maintained ! If you find this project useful, please donate to:
-
-    Bitcoin: 1Ep9VoyNtnNiGoXM52V6NwcMh4SZ9bxkAG
-    Ethereum: 0xfac5e46ffe12ec1fc2830d95c22e6583d163d7f9 
-
 ## When using it ? ##
 
 - Each time you prepare a project release or update a dependency.
