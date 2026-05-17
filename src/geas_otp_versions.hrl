@@ -5,7 +5,7 @@
 %%-------------------------------------------------------------------------
 -spec get_erlang_version(list()) -> {list(), list(), list()} | undefined.
 
-get_erlang_version("10.0") -> {"29.0-rc1", "29.0-rc3", "29.0-rc3"};
+get_erlang_version("10.0") -> {"29.0", "29.0", "29.0-rc3"};
 get_erlang_version("9.0.6") -> {"28.4.2", "28.5", "28.5"};
 get_erlang_version("9.0.5") -> {"28.4", "28.4.1", "28.4.1"};
 get_erlang_version("9.0.4") -> {"28.3", "28.3.3", "28.3.3"};

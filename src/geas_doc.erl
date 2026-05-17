@@ -41,7 +41,7 @@ release_infos(Rel) ->
        {otp_release, list_to_atom(erlang:system_info(otp_release))},
        {version, list_to_atom(erlang:system_info(version))},
        {driver_version, list_to_atom(erlang:system_info(driver_version))},
-       {nif_version, list_to_atom(case catch erlang:system_info(nif_version) of
+       {nif_version, list_to_atom(case try erlang:system_info(nif_version) catch _:Err -> Err end of
                                        {'EXIT', _} -> "undefined";
                                        V           -> V
                                   end)}],
@@ -90,7 +90,7 @@ load_all() ->
   Apps = lists:map(fun(A) -> [H | _] = string:tokens(A,[$-]), list_to_atom(H) end, AppsVsn),
   lists:foldl(fun(A, Acc) -> application:load(A),
                              L = case application:get_key(A,modules) of
-                                   {ok, List} -> lists:foreach(fun(X) -> catch X:module_info() end, List), List ;
+                                   {ok, List} -> lists:foreach(fun(X) -> try X:module_info() catch _:Err -> Err end end, List), List ;
                                    undefined  -> []
                                  end,
                              lists:flatten(Acc ++ [{A, L}])
