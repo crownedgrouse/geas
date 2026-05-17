@@ -68,6 +68,7 @@ get_arch_from_chunks(File) ->
                      "Line" -> true ;
                      "Meta" -> true ;
                      "Type" -> true ;
+		     "Docs" -> true ;
                      _      -> false
                   end end,
          case lists:dropwhile(Fun, C) of
@@ -314,7 +315,7 @@ get_cur_max_opcode() -> MO = get_cur_max_opcode(0, 100),
 get_cur_max_opcode(Int, Step) 
    when is_integer(Int),is_integer(Step) -> 
    Next = Int + Step,
-   case catch beam_opcodes:opname(Next) of
+   case try beam_opcodes:opname(Next) catch _:Err -> Err end of
       {'EXIT',_} when (Step == 1)-> Int;
       {'EXIT',_} -> get_cur_max_opcode(Int, erlang:round(Step / 2));
       _ -> get_cur_max_opcode(Next, Step)
@@ -327,7 +328,7 @@ get_cur_max_opcode(Int, Step)
 %% @end
 %%-------------------------------------------------------------------------
 get_beam_max_opcode(Beam) -> 
-   MO = case catch beam_lib:chunks(Beam, ["Code"]) of
+   MO = case try beam_lib:chunks(Beam, ["Code"]) catch _:Err -> Err end of
       {ok,{_Mod,[{"Code",Code}]}} 
          -> CodeFormatNumber = 0,
             <<_Size:32,CodeFormatNumber:32,Highest:32,_/binary>> = Code,

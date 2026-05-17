@@ -16,6 +16,7 @@
    Comp      = get_compile_version(AppBeam),
    Erlang    = get_erlang_version(Comp)
 ).
+
 %%-------------------------------------------------------------------------
 %% @doc Return infos after application directory analysis
 %% @since 1.0.0
@@ -323,7 +324,7 @@ compat(RootDir, term) ->
             end,
    Fun = 
       fun(X) ->
-         case (catch info(X)) of
+	 case try info(X) catch _:Err -> Err end of
             {ok, I} ->
                Compat = lists:keyfind(compat, 1, I),
                {compat,{MinDb, Min, Max, MaxDb}} = Compat,
