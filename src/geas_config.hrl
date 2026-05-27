@@ -25,6 +25,7 @@ get_config() ->
 %% GEAS_HTTP_OPTS  string    Http options          Options for inets (a dot required at end)
 %% GEAS_SEMVER     boolean   [0 / 1]               Display list of release as semver range
 %% GEAS_GUILTY     boolean   [0 / 1]               Display long guilty list (1) or concise (0) ans default
+%% GEAS_PROFIL     string    "default"             Analyze only this profil (rebar only)
 %% @end
 %%-------------------------------------------------------------------------
 set_config()     -> set_config([]).
@@ -49,6 +50,11 @@ set_config(Conf)
    Http_opts = proplists:get_value(http_opts, Conf, os:getenv("GEAS_HTTP_OPTS")),
    Semver    = normalize_boolean(proplists:get_value(semver, Conf, os:getenv("GEAS_SEMVER"))),
    Guilty    = normalize_boolean(proplists:get_value(guilty, Conf, os:getenv("GEAS_GUILTY"))),
+   Profil    = case proplists:get_value(profil, Conf, os:getenv("GEAS_PROFIL")) of 
+                    undefined -> "default";
+                    false -> "default";
+                    P -> P
+               end,
 
    C = #config{ use_src = Use_src
               , my_rels = My_rels
@@ -62,6 +68,7 @@ set_config(Conf)
               , http_opts = Http_opts
               , semver = Semver
               , guilty = Guilty
+              , profil = Profil
               },
     put(geas_conf, C),
     C.

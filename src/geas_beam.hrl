@@ -308,16 +308,20 @@ beam_opcode_compat(Beam) ->
 %% @doc Get opcode from current version
 %% @end
 %%-------------------------------------------------------------------------
-get_cur_max_opcode() -> MO = get_cur_max_opcode(0, 100),
-                        put(geas_otp_maxopcode, MO),
-                        MO.
+get_cur_max_opcode() -> 
+   case get(geas_otp_maxopcode) of
+      undefined -> 
+         MO = get_cur_max_opcode(0, 1),
+         put(geas_otp_maxopcode, MO),
+         MO;
+      MOC -> MOC
+   end.
 
 get_cur_max_opcode(Int, Step) 
    when is_integer(Int),is_integer(Step) -> 
    Next = Int + Step,
    case try beam_opcodes:opname(Next) catch _:Err -> Err end of
-      {'EXIT',_} when (Step == 1)-> Int;
-      {'EXIT',_} -> get_cur_max_opcode(Int, erlang:round(Step / 2));
+      badarg -> (Int - 1);
       _ -> get_cur_max_opcode(Next, Step)
    end.
 

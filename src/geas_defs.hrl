@@ -31,4 +31,5 @@
                 ,http_opts = []
                 ,semver    = false
                 ,guilty    = false
+                ,profil    = []
                 }).
