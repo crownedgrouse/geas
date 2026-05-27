@@ -17,7 +17,7 @@
 ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 export ERLANG_MK_FILENAME
 
-ERLANG_MK_VERSION = 0b549ff
+ERLANG_MK_VERSION = 4dad822
 ERLANG_MK_WITHOUT = 
 
 # Make 3.81 and 3.82 are deprecated.
@@ -341,7 +341,7 @@ pkg_gpb_commit = master
 
 PACKAGES += gun
 pkg_gun_name = gun
-pkg_gun_description = HTTP/1.1, HTTP/2, Websocket client (and more) for Erlang/OTP.
+pkg_gun_description = Asynchronous SPDY, HTTP and Websocket client written in Erlang.
 pkg_gun_homepage = http//ninenines.eu
 pkg_gun_fetch = git
 pkg_gun_repo = https://github.com/ninenines/gun

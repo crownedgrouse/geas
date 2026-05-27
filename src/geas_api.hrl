@@ -150,7 +150,6 @@ what_beam(File) ->
                      {ok,{N,[V]}} -> {N, V} ;
                      _            -> {filename:basename(File, ".beam"), undefined}
                   end,
-
       AppType   = get_app_type_beam(File),
       Native    = is_native_from_file(File),
       Arch      = get_arch_from_file(File),
@@ -168,6 +167,7 @@ what_beam(File) ->
                   end,
       Patches   = list_installed_patches(Current),
       _BeamComp  = beam_opcode_compat(File),
+      MaxOpt = get_beam_max_opcode(File),
       {ok,
          [{name, Name},
          {version, Version},
@@ -182,7 +182,7 @@ what_beam(File) ->
          {compat, Compat},
          {author, Author},
          {patches, Patches},
-         {max_opcode, get_beam_max_opcode(File)}]}
+         {max_opcode, MaxOpt}]}
    catch
       _:Reason -> {error, Reason}
    end.
@@ -269,6 +269,9 @@ compat(RootDir, term) ->
    put(geas_maxrels,[]),
    put(geas_exports,[]),
    put(geas_attributes,[]),
+   Conf=get_config(),
+   Profil = Conf#config.profil,
+   ?LOG(geas_logs, {notice, profil, Profil }),
    % Get all .beam (or .erl) files recursively
    Ext = ext_to_search(),
 
@@ -282,27 +285,54 @@ compat(RootDir, term) ->
          end,
    PP = filelib:fold_files(filename:absname(filename:join(RootDir, Dir)), Ext, true,
          fun(X, Y) -> 
-            P = filename:dirname(filename:dirname(X)),
-            case  lists:member("_rel",re:split(P,"/",[{return,list}])) of
-               false -> 
-                  case filename:basename(P) of
-                     ".erlang.mk" -> Y ; % Exclude as it now contains rebar3
-                     "rebar"   -> Y ; % Exclude rebar from results
-                     "geas"    -> Y ; % Exclude geas from results
-                     "geas_rebar3" -> Y ; % Exclude geas_rebar3 from results
-                     "samovar" -> Y ; % Exclude samovar from results
-                     "src"  -> 
-                        case lists:member(filename:dirname(P), Y) of
-                           true  -> Y ;
-                           false -> Y ++ [filename:dirname(P)]
+            case Dir of
+               "_build" -> % rebar : keep only profil selected or default
+                    case re:run(X, "_build/"++Profil) of
+                        nomatch -> Y ;
+                        _       -> 
+                           P = filename:dirname(filename:dirname(X)),
+                           Members = re:split(P,"/",[{return,list}]),
+                           case  lists:any(fun(A) -> lists:member(A,Members) end, ["_rel", ".erlang.mk", "plugins"]) of
+                              false -> 
+                                 case filename:basename(P) of
+                                    "src"  -> 
+                                       case lists:member(filename:dirname(P), Y) of
+                                          true  -> Y ;
+                                          false -> Y ++ [filename:dirname(P)]
+                                       end;
+                                    _  -> 
+                                       case lists:member(P, Y) of
+                                          true  -> Y ;
+                                          false ->  Y ++ [P]
+                                       end
+                                 end;
+                              true -> Y
+                           end
+                     end;
+               "deps" -> % erlang.mk
+                  P = filename:dirname(filename:dirname(X)),
+                  Members = re:split(P,"/",[{return,list}]),
+                  case  lists:any(fun(A) -> lists:member(A,Members) end, ["_rel", ".erlang.mk"]) of
+                     false -> 
+                        case filename:basename(P) of
+                           "rebar"   -> Y ; % Exclude rebar from results
+                           "geas"    -> Y ; % Exclude geas from results
+                           "geas_rebar3" -> Y ; % Exclude geas_rebar3 from results
+                           "hex_core" -> Y ; % Exclude hex_core from results
+                           "rebar3_ex_doc" -> Y; % Exclude rebar3_ex_doc from results
+                           "src"  -> 
+                              case lists:member(filename:dirname(P), Y) of
+                                 true  -> Y ;
+                                 false -> Y ++ [filename:dirname(P)]
+                              end;
+                           _  -> 
+                              case lists:member(P, Y) of
+                                 true  -> Y ;
+                                 false ->  Y ++ [P]
+                              end
                         end;
-                     _  -> 
-                        case lists:member(P, Y) of
-                           true  -> Y ;
-                           false ->  Y ++ [P]
-                        end
-                  end;
-               true -> Y
+                     true -> Y
+                  end
             end
          end, []),
    % Remove any directory containing  '.erlang.mk'
@@ -387,7 +417,7 @@ compat(RootDir, print, Config) ->
          _   -> filename:basename(RootDir)
       end,
    geas:log(),
-   c:flush(),
+   %c:flush(),
    % Display header
    io:format("   ~-10s            ~-10s ~-20s ~20s~n",[?GEAS_MIN_REL , ?GEAS_MAX_REL, "Geas database", get_version(geas)]),
    io:format("~s~s~n",["---Min--------Arch-------Max--",string:copies("-",50)]),
@@ -442,6 +472,12 @@ compat(RootDir, print, Config) ->
    end,
    %% Set the plugin exit code
    try      
+      % Check if min is higher of max
+      GT = fun(V, R) -> samovar:check(V, ">"++R) end,
+      case GT(MinGlob, MaxGlob) of
+         true  -> throw(6);
+         false -> ok
+      end,
       % Current version is incompatible with release window
       check_current_rel_vs_window(Current, Rels),
       % Check versions against semver range set
@@ -522,7 +558,7 @@ guilty(RootDir) ->
             {L1, []} -> [L1] ;
             {[], L2} -> [L2] ;
             {[], []} -> [] ;
-            {L1, L2} -> [L1 || L2] ;
+            {L1, L2} -> [L1 , L2] ;
             _ -> []
          end
       end,
@@ -810,4 +846,5 @@ format_error(2) ->  "Release window do not match the required semver version ran
 format_error(3) ->  "Beam files are incompatible with current Erlang/OTP release (May need recompilation)" ;
 format_error(4) ->  "Maximum opcode is higher in Beam files (May need recompilation)" ;
 format_error(5) ->  "The release window does not match the required SemVer version frame" ;
+format_error(6) ->  "The release window cannot be found or appears to be invalid" ;
 format_error(_) ->  "Unexpected exit code".

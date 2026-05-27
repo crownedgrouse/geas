@@ -5,10 +5,14 @@
 %%-------------------------------------------------------------------------
 
 geas(_, _ ) -> 
-   put(geas_caller, 'rebar'),
-   {ok, Dir} = file:get_cwd(),
-   compat(Dir),
-   guilty(Dir),
+	put(geas_exit_code, 0),
+    put(geas_caller, 'rebar'),
+    {ok, Dir} = file:get_cwd(),
+    compat(Dir),
+	case get(geas_exit_code) of
+		0 ->  guilty(Dir);
+		_ -> skip
+	end,
    geas:log().
 
 
@@ -23,7 +27,10 @@ geas_check(Dir) ->
 		put(geas_caller, 'erlang.mk'),
 		put(geas_exit_code, 0), % bug ? put does not work outside try catch
 		compat(Dir),
-	    guilty(Dir),
+		case get(geas_exit_code) of
+			0 ->  guilty(Dir);
+			_ -> skip
+		end,
 		geas:log()
     catch
     	%_:Exit1:Stack -> put(geas_exit_code, Exit1), io:format("~p", [Stack])
@@ -36,6 +43,7 @@ geas_check(Dir) ->
 	        3 -> "Incompatible BEAM file, may need recompilation";
 	        4 -> "Incompatible BEAM maximum opcode, may need recompilation";
 	        5 -> "Release window do not match required semver version range";
+                6 -> "The release window cannot be found or appears to be invalid";
 	        _ -> "Unexpected geas exit code"
 	    end,
 	    case Exit of
