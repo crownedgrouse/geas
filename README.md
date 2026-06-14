@@ -112,7 +112,7 @@ Environment variables cheatsheet :
 `GEAS_UPDATE`    | `boolean`      | [**0** / 1]           | Force update of OTP version table     |            | 2.6 |
 `GEAS_HTTP_OPTS` | `string`       | `httpc` options       | Erlang term string with a final dot   |            | 2.6 |
 `GEAS_GUILTY`    | `boolean`      | [**0** / 1]           | Show concise (0) guilty function lists or not (1) | | 2.9 |
-
+`GEAS_PROFILE`   | `string`       | "default"             | Profile to use in rebar3              | | 2.11 |
 
 Under compat table output, some information can be shown depending those environment variables and analyze result.
 A single capital letter is used as tag for each information.
