@@ -43,7 +43,7 @@
 		   "26.0", "26.1", "26.2",
 		   "27.0", "27.1", "27.2", "27.3",
 		   "28.0", "28.1", "28.2", "28.3", "28.4", "28.5",
-		   "29.0"]).
+		   "29.0", "29.1"]).
 
 %% This module generate the geas_db.hrl
 %% providing the min and max release of any Erlang/OTP function
